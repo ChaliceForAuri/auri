@@ -165,7 +165,9 @@ for (const { provider, model, spec } of modelSpecs) {
 				ok: errors.length === 0 && jsonl.length > 0,
 				errors: jsonl.length > 0 ? errors : ['no JSONL found in output'],
 				components: [...componentsSeen],
-				proseLines
+				proseLines,
+				// Kept for the results JSON (scoreboard transcripts, spot-checks); not printed.
+				raw: output
 			};
 			if (result.ok) result.errors = [];
 		} catch (cause) {

@@ -4,3 +4,8 @@ node_modules
 .DS_Store
 *.tgz
 *.log
+
+# secrets never enter the repo
+.env
+.env.*
+.envrc
