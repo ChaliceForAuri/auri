@@ -1,0 +1,4 @@
+{"version":"v1.0","createSurface":{"surfaceId":"service_passport","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json"}}
+{"version":"v1.0","updateDataModel":{"surfaceId":"service_passport","value":{"errorRate":0.6}}}
+{"version":"v1.0","updateComponents":{"surfaceId":"service_passport","components":[{"id":"root","component":"KeyValue","label":"checkout-web","items":[{"key":"Region","value":"eu-west-1"},{"key":"Runtime","value":"node 24"},{"key":"Owner","value":"team payments"},{"key":"Last deploy","value":"2026-08-17T09:12:00Z"},{"key":"Error rate","value":{"path":"/errorRate"}}]}]}}
+{"version":"v1.0","updateDataModel":{"surfaceId":"service_passport","path":"/errorRate","value":0.4}}

@@ -1,7 +1,7 @@
-# auri ops — prompt-pack (v1 draft: Stat, Badge, Callout, DataTable, ApprovalCard, Chart)
+# auri ops — prompt-pack (v1: all 12 components)
 
-> System-prompt snippet teaching an agent the `auri ops` vocabulary. This draft covers 6 of 12
-> components; it grows as M1 progresses. Everything below the rule is the pack.
+> System-prompt snippet teaching an agent the `auri ops` vocabulary. Everything below the rule is
+> the pack.
 
 ---
 
@@ -21,6 +21,9 @@ Three message kinds. A minimal complete stream:
 {"version":"v1.0","updateComponents":{"surfaceId":"s1","components":[{"id":"root","component":"Stat","label":"Checkout p95","value":{"path":"/p95"},"unit":"ms"}]}}
 ```
 
+- Every line has the shape `{"version":"v1.0","<messageKind>":{...}}` — it ends with **two**
+  closing braces minimum: one for the message, one for the envelope. Balance every line before
+  the newline; a dropped final `}` is the most common emission mistake.
 - `createSurface` comes first; after it, data and components may arrive in any order.
 - Components form a flat list addressed by `id`. Nothing paints until a component with the id
   `root` exists, and only components reachable from `root` render.
@@ -46,6 +49,8 @@ Three message kinds. A minimal complete stream:
    `warning` (needs attention, degraded) · `info` (informational) · `neutral` (no judgment).
    Omit `intent` when you aren't making a claim.
 4. **No icons, colors, or sizes.** Intent implies the iconography; the host theme decides the look.
+5. **Send data in small slices.** Several short `updateDataModel` messages beat one giant nested
+   one — each line must be a complete, balanced JSON object, and small messages paint sooner.
 
 ## Components
 
@@ -166,6 +171,98 @@ Series shape — `label` and `values` (raw numbers) required:
 
 To stream a new reading, append to the bound array with `updateDataModel` (send the whole updated
 array — arrays replace wholesale).
+
+### Timeline — an event feed
+
+Events are data, not components — the same philosophy as DataTable rows. Append events by
+rewriting the bound array; the feed grows without re-sending the component.
+
+| prop        | type                | required | notes                                  |
+| ----------- | ------------------- | -------- | -------------------------------------- |
+| `items`     | array \| `{"path"}` | yes      | events, oldest first; item shape below |
+| `label`     | string              | no       | heading, e.g. `"Incident timeline"`    |
+| `emptyText` | string              | no       | shown while the feed is empty          |
+
+Item shape — `title` required; `time` is ISO 8601 (the renderer shows it humanized); `intent`
+judges the single event:
+
+```
+{"title":"Canary healthy","time":"2026-08-17T14:21:40Z","intent":"good","text":"All probes passing on pod 1."}
+```
+
+```
+{"id":"feed","component":"Timeline","label":"Rollout so far","items":{"path":"/events"},"emptyText":"Nothing yet."}
+```
+
+### Sparkline — an inline trend
+
+A word-sized trend line, no axes — for embedding beside stats or in dense layouts.
+
+| prop     | type                   | required | notes                                      |
+| -------- | ---------------------- | -------- | ------------------------------------------ |
+| `label`  | string                 | yes      | what the trend shows                       |
+| `values` | number[] \| `{"path"}` | yes      | raw numbers; bind to stream readings       |
+| `intent` | intent scale           | no       | judgment of the trend; default `"neutral"` |
+
+```
+{"id":"latency_trend","component":"Sparkline","label":"p95 latency, last hour","values":{"path":"/p95Readings"},"intent":"warning"}
+```
+
+### Progress — determinate or indeterminate
+
+| prop     | type         | required | notes                                                                   |
+| -------- | ------------ | -------- | ----------------------------------------------------------------------- |
+| `label`  | string       | yes      | what is progressing                                                     |
+| `value`  | number       | no       | **omit entirely for indeterminate**; bind to advance                    |
+| `max`    | number       | no       | complete at this value; default `100`; may bind if the total can change |
+| `intent` | intent scale | no       | default `"neutral"`                                                     |
+
+```
+{"id":"rollout","component":"Progress","label":"Rolling out build 4191","value":{"path":"/podsReady"},"max":10}
+```
+
+### KeyValue — a list of labeled facts
+
+| prop    | type                | required | notes                                     |
+| ------- | ------------------- | -------- | ----------------------------------------- |
+| `items` | array \| `{"path"}` | yes      | `{"key", "value"}` pairs; values may bind |
+| `label` | string              | no       | heading                                   |
+
+```
+{"id":"passport","component":"KeyValue","label":"checkout-web","items":[{"key":"Region","value":"eu-west-1"},{"key":"Owner","value":"team payments"},{"key":"Last deploy","value":"2026-08-17T09:12:00Z"},{"key":"Error rate","value":{"path":"/errorRate"}}]}
+```
+
+### CodeBlock — read-only code or log output
+
+Text renders verbatim (never as markup), with a built-in copy button. Bind `code` to stream a
+growing log.
+
+| prop       | type    | required | notes                                         |
+| ---------- | ------- | -------- | --------------------------------------------- |
+| `code`     | string  | yes      | the text; bind with `{"path"}` for live logs  |
+| `language` | string  | no       | highlight hint: `"json"`, `"bash"`, `"log"` … |
+| `wrap`     | boolean | no       | soft-wrap long lines; default `false`         |
+| `label`    | string  | no       | caption, e.g. a filename                      |
+
+```
+{"id":"log_tail","component":"CodeBlock","label":"deploy log","language":"log","code":{"path":"/logTail"}}
+```
+
+### ConfirmButton — destructive action, built-in confirm step
+
+The confirmation is part of the component — no modal, no round trip. The action fires only after
+the second press. Use `intent: "bad"` for destructive operations.
+
+| prop           | type         | required | notes                                          |
+| -------------- | ------------ | -------- | ---------------------------------------------- |
+| `label`        | string       | yes      | names the action, e.g. `"Abort rollout"`       |
+| `action`       | action       | yes      | fired after confirm; hand-picked context       |
+| `confirmLabel` | string       | no       | second-step text; default localized "Confirm?" |
+| `intent`       | intent scale | no       | `"bad"` for destructive; default `"neutral"`   |
+
+```
+{"id":"abort","component":"ConfirmButton","label":"Abort rollout","confirmLabel":"Really abort?","intent":"bad","action":{"event":{"name":"rollout_aborted","context":{"buildId":4191}}}}
+```
 
 ## Mixing with the basic catalog
 

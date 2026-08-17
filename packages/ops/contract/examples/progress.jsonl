@@ -1,0 +1,4 @@
+{"version":"v1.0","createSurface":{"surfaceId":"rollout_progress","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json"}}
+{"version":"v1.0","updateDataModel":{"surfaceId":"rollout_progress","value":{"podsReady":3,"podsTotal":10}}}
+{"version":"v1.0","updateComponents":{"surfaceId":"rollout_progress","components":[{"id":"root","component":"Progress","label":"Rolling out build 4191","value":{"path":"/podsReady"},"max":{"path":"/podsTotal"}}]}}
+{"version":"v1.0","updateDataModel":{"surfaceId":"rollout_progress","path":"/podsReady","value":7}}

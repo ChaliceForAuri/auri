@@ -54,7 +54,7 @@ Display:
 | `DataTable` | Columns + rows from the data model   | `columns: [{key, label, align?, format?}]`, `rows: {path}`, `rowAction?` (action with row context) |
 | `Badge`     | Status chip                          | `text`, `intent?` (shared scale: `'good'\|'bad'\|'warning'\|'info'\|'neutral'`)                    |
 | `Progress`  | Determinate/indeterminate            | `value?`, `max?`, `label?`                                                                         |
-| `Timeline`  | Event feed                           | `items: {path}` + item template via collection scope (`title`, `time`, `intent?`)                  |
+| `Timeline`  | Event feed                           | `items: [{title, time?, text?, intent?}]` or `{path}` — events are data, like DataTable rows       |
 | `KeyValue`  | Definition list                      | `items: [{key, value}]` or `{path}`                                                                |
 | `Callout`   | Alert/note block                     | `title?`, `text` (markdown-safe), `intent`, `icon?`                                                |
 

@@ -1,0 +1,4 @@
+{"version":"v1.0","createSurface":{"surfaceId":"latency_glance","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json"}}
+{"version":"v1.0","updateDataModel":{"surfaceId":"latency_glance","value":{"p95Readings":[178,182,175,190,260,240,210,195,188,199,205,214]}}}
+{"version":"v1.0","updateComponents":{"surfaceId":"latency_glance","components":[{"id":"root","component":"Sparkline","label":"p95 latency, last hour","values":{"path":"/p95Readings"},"intent":"warning"}]}}
+{"version":"v1.0","updateDataModel":{"surfaceId":"latency_glance","path":"/p95Readings","value":[182,175,190,260,240,210,195,188,199,205,214,208]}}
