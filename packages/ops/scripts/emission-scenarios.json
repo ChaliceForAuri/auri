@@ -1,0 +1,18 @@
+[
+	{
+		"id": "status-view",
+		"prompt": "Your monitoring shows: api.acme.dev uptime over the last 24h is 99.2% which is healthy; p95 latency is 340ms and has risen 45ms in the last hour, which is concerning; and there is a scheduled database failover tonight at 02:00 UTC that may cause a brief connection blip. Render a status view for the on-call engineer."
+	},
+	{
+		"id": "payments-snapshot",
+		"prompt": "Show me a payments snapshot: revenue today is $12,400, up $1,200 versus yesterday, which is good. Refund rate is 0.8%, flat, nothing remarkable. Failed charges: 23 today and rising, which worries me. Also warn me that the card processor has been reporting degraded performance since 14:10 UTC. I want the numbers to be updatable later without re-sending the components."
+	},
+	{
+		"id": "incident-hard-mode",
+		"prompt": "Checkout error rate spiked right after deploy 4190 went out at 14:02 UTC. Show the on-call engineer an incident view: a line chart of the error rate over the last hour (you have five readings at 15-minute intervals: 0.4, 0.5, 2.1, 4.8, 3.9 percent), a table of today's three deploys (payments-api deploy 4190 live at 14:02:11 UTC after 142 seconds, checkout-web canary at 14:10:40 UTC after 98 seconds, search-index failed at 13:55:03 UTC after 311 seconds), and ask them to approve rolling payments-api back to build 4189 — a comment must be required with the decision. Wire everything so the readings and deploy statuses can update live as you learn more."
+	},
+	{
+		"id": "weekly-review",
+		"prompt": "Give me the weekly on-call review. Incidents per day this week: Monday 2, Tuesday 0, Wednesday 5, Thursday 1, Friday 3, Saturday 0, Sunday 1 — Wednesday was rough, call that out. Then a sortable table of the four noisiest alerts: HighLatencyP95 fired 41 times, last at 2026-08-15T22:14:00Z; DiskPressure fired 28 times, last at 2026-08-16T03:41:00Z; PodRestartLoop fired 17 times, last at 2026-08-14T11:05:00Z; CertExpirySoon fired 9 times, last at 2026-08-13T09:00:00Z. Finally ask me to approve muting HighLatencyP95 for seven days — no comment needed. Numbers should be updatable later."
+	}
+]

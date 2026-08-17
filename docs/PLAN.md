@@ -173,6 +173,8 @@ The bar for this site is "out of this world", and the organizing principle is th
 
 **M5 — Distribution v2 (post-launch):** copy-in ownership via `jsrepo` (the established shadcn-style registry tooling in the Svelte ecosystem) for teams that want to own and modify components; the playground + public eval scoreboard as the recurring reason to come back; `llms.txt` and an MCP endpoint so coding agents can discover and integrate the catalogs themselves; evaluate second catalog (`forms` — richer inputs with the checks system — or `commerce`) based on what people actually ask for.
 
+**M6 — Multi-renderer expansion (if auri lands):** roll the design system out to the other official A2UI renderers — `@aurilabs/ops-react`, then Angular/Lit/Flutter by demand. The expansion is cheap by construction: the contract, prompt-pack, eval scoreboard, catalog ids, CSS design tokens, and `DESIGN.md` are all renderer-agnostic and shared; only the component implementation layer is per-framework. Svelte remains the flagship and reference implementation — the other ports inherit its test fixtures (same JSONL replays) and visual language. This flips the pitch at scale: auri stops being "a reason to choose Svelte" and becomes "the design system of agent UI," with Svelte as its home.
+
 Sequencing note relative to the renderer: finish the svelte-a2ui listing track first (A2A transport → hosted demo → ecosystem PR). The listing is the credibility event this project inherits. Renderer stays boring and stable; this repo is where the visible activity happens.
 
 ## 5. Risks, named

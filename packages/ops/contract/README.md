@@ -11,7 +11,8 @@ The gate for every component: paste `prompt.md` into a fresh session of at least
 ## Tooling
 
 - `npm test` (in `packages/ops`) — validates every `examples/*.jsonl` fixture against `catalog.json` with ajv, plus coverage and catalog-id invariants.
-- `node scripts/validate-stream.js <file.jsonl...>` — scores any JSONL stream (e.g. a model's cold emission) against the contract. This is the seed of the permanent emission-eval harness (PLAN 2.4, pillar 2); tests and evals share the same validator so they can't drift.
+- `node scripts/validate-stream.js <file.jsonl...>` — scores any JSONL stream (e.g. a model's cold emission) against the contract. Tests and evals share this validator so they can't drift.
+- `npm run eval` (in `packages/ops`) — **the emission-eval harness** (PLAN 2.4, pillar 2): sends the prompt-pack cold to a model matrix and scores every emission. Providers activate on env keys (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`); e.g. `OPENAI_API_KEY=sk-... npm run eval -- --models openai:gpt-5.6`. `--list` shows the matrix, `--json <path>` writes scoreboard data, `--models mock:pass` exercises the pipeline offline.
 
 ## Emission gate log
 
