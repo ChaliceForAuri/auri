@@ -1,0 +1,19 @@
+{
+	"name": "auri-workspace",
+	"private": true,
+	"type": "module",
+	"workspaces": [
+		"packages/*",
+		"apps/*"
+	],
+	"scripts": {
+		"test": "npm run test --workspaces --if-present",
+		"check": "npm run check --workspaces --if-present",
+		"format": "prettier --write .",
+		"lint": "prettier --check ."
+	},
+	"devDependencies": {
+		"prettier": "^3.4.0",
+		"prettier-plugin-svelte": "^3.3.0"
+	}
+}
