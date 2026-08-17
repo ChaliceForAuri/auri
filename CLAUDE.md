@@ -12,7 +12,7 @@ Context for Claude working in this repo. Read this before changing anything.
 2. **The prompt-pack** — `contract/prompt.md` + `contract/examples/*.jsonl`: the system-prompt text and few-shot fixtures that teach an agent the vocabulary. Half the product; nobody else ships this.
 3. **The implementation** — Svelte 5 components registered via svelte-a2ui's `Catalog` entry format, themed with CSS custom properties.
 
-Full plan: `docs/PLAN.md`. Read it before designing anything.
+Full plan: `docs/PLAN.md`. Read it before designing anything. The quality pillars (PLAN §2.4) are standing commitments: motion as the hero system, emission evals as permanent CI, a11y enforced by the contract, first-class in-between states, and **presentation as product** — the docs site is rendered by the catalog it documents, and its bar is "people choose the Svelte stack because of what the site made them feel" (PLAN §3.5).
 
 ## The invariant that outranks all others: contract-first
 
@@ -25,6 +25,11 @@ Full plan: `docs/PLAN.md`. Read it before designing anything.
 3. **Everything displayable accepts Dynamic values** (literals / `{path}` / function refs) — free via svelte-a2ui's `buildNodeProps`; design for `updateDataModel`-driven updates, not component re-sends.
 4. **Actions carry hand-picked context**, documented in the prompt-pack.
 5. **Semantic, never visual** — `intent: 'good'|'bad'|'warning'|'info'|'neutral'`, never colors or pixel values. The shared intent scale is the design signature; use it identically across components.
+6. **A11y is enforced by the contract** — labels and accessible names are _required_ schema props. Agent-composed UI can't be page-audited (the pages don't exist until runtime), so inaccessible output must be inexpressible in the vocabulary.
+7. **Raw values on the wire** — numbers, ISO timestamps, enums; components format with `Intl` in the host locale. An agent never emits `"1,234.56"` or a pre-baked relative time.
+8. **In-between states are contract concerns** — components arrive before their data binds, so every bound component defines skeleton/empty/error behavior.
+
+`docs/DESIGN.md` (the design language: intent semantics, motion tokens, density, state rules) is authoritative for how components look, move, and degrade — read it before designing or reviewing any contract, and fix conflicts in its favor.
 
 ## Naming and identity
 
@@ -48,7 +53,7 @@ docs/PLAN.md     the founding plan: component inventory, architecture, milestone
 
 ## Current status
 
-M0 (scaffold) done. **Current milestone: M1 — contract-first design** of all 12 ops components on paper (`catalog.json` + `prompt.md` + one fixture each), then the LLM-emission gate. First three contracts to draft: `Stat`, `Badge`, `Callout`; hardest ones (do early, they stress the rules): `DataTable` (bound collections), `ApprovalCard` (action context), `Chart` (series shapes). No Svelte until M1 passes.
+M0 (scaffold) done. **Current milestone: M1 — contract-first design** of all 12 ops components on paper (`catalog.json` + `prompt.md` + one fixture each), then the LLM-emission gate. Progress 2026-08-16: `Stat`, `Badge`, `Callout` drafted (contract + prompt-pack + fixtures) and green under ajv contract tests (`npm test`); `packages/ops/scripts/validate-stream.js` doubles as the emission-harness seed (CLI scores any model output against the contract). First cold-emission run — two Claude tiers, zero schema errors — is logged in `packages/ops/contract/README.md`; the open gate before these three count as passed is a second model family (GPT or Gemini). Next: the hardest three, which stress the rules — `DataTable` (bound collections), `ApprovalCard` (action context), `Chart` (series shapes). No Svelte until M1 passes.
 
 ## Conventions
 

@@ -10,5 +10,11 @@
 		"type": "git",
 		"url": "git+https://github.com/ChaliceForAuri/auri.git",
 		"directory": "packages/ops"
+	},
+	"scripts": {
+		"test": "node --test tests/*.test.js"
+	},
+	"devDependencies": {
+		"ajv": "^8.20.0"
 	}
 }

@@ -46,17 +46,17 @@ Resist the instinct to launch five catalogs. Launch **one** that makes a specifi
 
 Display:
 
-| Component   | What it is                           | Key props (wire contract sketch)                                                                         |
-| ----------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| `Stat`      | KPI tile: value, label, delta, trend | `label`, `value`, `unit?`, `delta?`, `trend?: 'up'\|'down'\|'flat'`, `intent?: 'good'\|'bad'\|'neutral'` |
-| `Sparkline` | Inline trend, no axes                | `values` (array or path), `intent?`                                                                      |
-| `Chart`     | Line/bar/area with axes              | `kind: 'line'\|'bar'\|'area'`, `series: [{label, values}]` or `{path}`, `xLabels?`                       |
-| `DataTable` | Columns + rows from the data model   | `columns: [{key, label, align?, format?}]`, `rows: {path}`, `rowAction?` (action with row context)       |
-| `Badge`     | Status chip                          | `text`, `intent: 'info'\|'success'\|'warning'\|'danger'\|'neutral'`                                      |
-| `Progress`  | Determinate/indeterminate            | `value?`, `max?`, `label?`                                                                               |
-| `Timeline`  | Event feed                           | `items: {path}` + item template via collection scope (`title`, `time`, `intent?`)                        |
-| `KeyValue`  | Definition list                      | `items: [{key, value}]` or `{path}`                                                                      |
-| `Callout`   | Alert/note block                     | `title?`, `text` (markdown-safe), `intent`, `icon?`                                                      |
+| Component   | What it is                           | Key props (wire contract sketch)                                                                   |
+| ----------- | ------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `Stat`      | KPI tile: value, label, delta, trend | `label`, `value`, `unit?`, `delta?`, `trend?: 'up'\|'down'\|'flat'`, `intent?` (shared scale)      |
+| `Sparkline` | Inline trend, no axes                | `values` (array or path), `intent?`                                                                |
+| `Chart`     | Line/bar/area with axes              | `kind: 'line'\|'bar'\|'area'`, `series: [{label, values}]` or `{path}`, `xLabels?`                 |
+| `DataTable` | Columns + rows from the data model   | `columns: [{key, label, align?, format?}]`, `rows: {path}`, `rowAction?` (action with row context) |
+| `Badge`     | Status chip                          | `text`, `intent?` (shared scale: `'good'\|'bad'\|'warning'\|'info'\|'neutral'`)                    |
+| `Progress`  | Determinate/indeterminate            | `value?`, `max?`, `label?`                                                                         |
+| `Timeline`  | Event feed                           | `items: {path}` + item template via collection scope (`title`, `time`, `intent?`)                  |
+| `KeyValue`  | Definition list                      | `items: [{key, value}]` or `{path}`                                                                |
+| `Callout`   | Alert/note block                     | `title?`, `text` (markdown-safe), `intent`, `icon?`                                                |
 
 Interaction:
 
@@ -82,6 +82,18 @@ These are the rules that make the vocabulary _emittable_ — treat them as invar
 ### 2.3 Naming — decided
 
 Product: **auri**. npm scope: **`@aurilabs`**. Repo: `ChaliceForAuri/auri`. Catalog ids are versioned URLs under the docs site (see 3.3).
+
+### 2.4 The quality pillars (added 2026-08-16)
+
+Five commitments layered onto the plan after the vision review — each is a bar, not a feature:
+
+1. **Motion is the hero system.** The signature demo moment is UI assembling itself as the agent streams. Choreography is designed, not incidental: motion tokens (durations, spring curves, stagger) live in `@aurilabs/core`, entrances reserve layout (zero CLS as components arrive), and `prefers-reduced-motion` degrades to opacity-only. This is where the "liquid glass" energy goes — physics and response times, not blur.
+2. **Emission evals are permanent CI.** The M1 emission test is not a one-off gate; it becomes a repeatable harness re-run on every model release, with scores published on the docs site (model × component matrix). "Emits cleanly, cold, across model families" is the product claim; the scoreboard is its proof and its marketing.
+3. **Accessibility is enforced by the contract.** Agent-composed UI cannot be audited page-by-page — the pages don't exist until runtime. So the schema makes inaccessible output inexpressible: labels are required props, actions require accessible names, intent glyphs carry text alternatives. WCAG 2.2 AA is the floor (also the EU legal bar since June 2025); `forced-colors` and `prefers-contrast` are supported, not afterthoughts.
+4. **The in-between states are first-class.** Components arrive before their data binds (`rows: {path}` exists before `updateDataModel` fires). Every bound component defines its skeleton, empty, and error states — the gap is where dashboard quality is felt.
+5. **Presentation is product.** The docs site is rendered by the catalog it documents (see 3.5). The bar: people choose the Svelte stack because of what the site made them feel.
+
+The written design language (`docs/DESIGN.md`) — intent semantics, type/density, motion tokens, state rules — is what makes twelve components one designed object instead of twelve components. It is due before M1 completes and is authoritative when it and a component sketch disagree.
 
 ---
 
@@ -137,13 +149,21 @@ Three layers, mirroring what the contract/implementation split implies:
 
 SvelteKit app, GitHub Pages, using `createMockTransport` with realistic delays so every component page **streams in like an agent is building it** — the aesthetic of the protocol is the sales pitch, so lead with it. Each component page shows four panes: live streaming render · the wire JSONL · the contract excerpt · the prompt-pack snippet. Plus one flagship page: a full "agent ops console" scenario streaming a deploy incident — stats update, timeline grows, an ApprovalCard interrupts for a rollback decision. That page is the demo video for both projects' announcements.
 
+The bar for this site is "out of this world", and the organizing principle is that **the site doesn't present the library — the site _is_ the library, running**, streamed through svelte-a2ui on every page. The signature moments, in build order:
+
+- **The hero is a live incident.** The landing page opens on a blank canvas; within seconds an agent is visibly handling a deploy incident — stats appear, a timeline grows, a chart draws, an ApprovalCard interrupts and the visitor's click branches the story. That page _is_ the flagship scenario above, promoted to the front door.
+- **The wire scrubber.** Every component page has a draggable timeline that replays the stream message by message, UI assembling in sync with the highlighted JSONL — "view source" for agent UI. Nobody has been able to scrub through a UI being spoken before.
+- **The playground.** Type a scenario, watch a model emit the JSONL live, rendered beside the wire (canned replays by default, bring-your-own-key for live) — the emission claim proven in the visitor's own hands. Paired with the public **eval scoreboard** (pillar 2). Post-launch drumbeat, not launch-blocking.
+- **Copy for your agent, everywhere.** Every example ships copy buttons for the JSONL / prompt-pack / contract excerpt; the site serves `llms.txt` and (post-launch) an MCP endpoint. The docs _are_ the prompt-pack — one artifact, two audiences; if a docs example doesn't work as few-shot material, the docs are wrong.
+- **The site's own performance is the pitch.** The wow starts in under a second on a phone; SvelteKit static, no bloat — the visitor draws the Svelte-over-React conclusion themselves. Every component page gets an OG share card rendered from the component itself, because love spreads by links.
+
 ---
 
 ## 4. Sequencing
 
 **M0 — Foundations (a day):** pick the name, register npm scope + repo, scaffold workspaces by copying svelte-a2ui's infra, CI green on empty packages.
 
-**M1 — Contract first (the important milestone):** design all 12 components _on paper_ — `catalog.json` + `prompt.md` + one fixture each — and run the LLM-emission test (2.2 §6) on at least Claude + one other model. Iterate the contract until models emit it cleanly cold. **No Svelte code before this passes.** This milestone is also your public design-notes moment — "designing a UI vocabulary for LLMs" is a genuinely novel writeup that earns attention on its own.
+**M1 — Contract first (the important milestone):** design all 12 components _on paper_ — `catalog.json` + `prompt.md` + one fixture each — and run the LLM-emission test (2.2 §6) on at least Claude + one other model. Iterate the contract until models emit it cleanly cold. **No Svelte code before this passes.** M1 also produces `docs/DESIGN.md` (the design language, pillar-bearing per 2.4) and runs the emission gate as a _script_, not a one-off — the seed of the permanent eval harness. This milestone is also your public design-notes moment — "designing a UI vocabulary for LLMs" is a genuinely novel writeup that earns attention on its own.
 
 **M2 — Vertical slice (5 components):** Stat, Badge, Callout, DataTable, ApprovalCard end-to-end: implementation + all three test layers + docs pages. This proves every pipeline (contract→ajv, fixture→browser test, docs streaming pane) on the hardest representatives (one bound collection, one action round-trip).
 
@@ -151,7 +171,7 @@ SvelteKit app, GitHub Pages, using `createMockTransport` with realistic delays s
 
 **M4 — Launch:** docs site live · `0.1.0` to npm · cross-link from svelte-a2ui's README ("Need richer components? …") · announce alongside/after the A2UI ecosystem listing so the credibility compounds · the flagship page becomes the demo video.
 
-**M5 — Distribution v2 (post-launch):** copy-in ownership via `jsrepo` (the established shadcn-style registry tooling in the Svelte ecosystem) for teams that want to own and modify components; evaluate second catalog (`forms` — richer inputs with the checks system — or `commerce`) based on what people actually ask for.
+**M5 — Distribution v2 (post-launch):** copy-in ownership via `jsrepo` (the established shadcn-style registry tooling in the Svelte ecosystem) for teams that want to own and modify components; the playground + public eval scoreboard as the recurring reason to come back; `llms.txt` and an MCP endpoint so coding agents can discover and integrate the catalogs themselves; evaluate second catalog (`forms` — richer inputs with the checks system — or `commerce`) based on what people actually ask for.
 
 Sequencing note relative to the renderer: finish the svelte-a2ui listing track first (A2A transport → hosted demo → ecosystem PR). The listing is the credibility event this project inherits. Renderer stays boring and stable; this repo is where the visible activity happens.
 

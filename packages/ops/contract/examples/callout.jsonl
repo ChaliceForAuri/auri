@@ -1,0 +1,2 @@
+{"version":"v1.0","createSurface":{"surfaceId":"deploy_note","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json"}}
+{"version":"v1.0","updateComponents":{"surfaceId":"deploy_note","components":[{"id":"root","component":"Callout","title":"Deploy window tonight","text":"Payments API deploys **21:00–21:30 UTC**. Expect brief elevated latency on `/charge`.","intent":"info"}]}}
