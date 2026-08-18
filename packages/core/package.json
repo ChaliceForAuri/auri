@@ -1,15 +1,25 @@
 {
 	"name": "@aurilabs/core",
-	"version": "0.0.0",
-	"private": true,
+	"version": "0.1.0",
 	"type": "module",
-	"description": "Shared foundations for auri catalogs: design tokens, the intent system, and prompt-pack tooling.",
+	"description": "Shared foundations for auri catalogs: design tokens (intent scale, motion, type roles, chart ramp) for the A2UI component ecosystem.",
 	"license": "Apache-2.0",
 	"author": "Hugo Pretorius <ohheyhugo@gmail.com>",
+	"keywords": [
+		"a2ui",
+		"design-tokens",
+		"generative-ui",
+		"agent",
+		"svelte"
+	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/ChaliceForAuri/auri.git",
 		"directory": "packages/core"
+	},
+	"homepage": "https://chaliceforauri.github.io/auri/",
+	"publishConfig": {
+		"access": "public"
 	},
 	"files": [
 		"src"

@@ -21,6 +21,9 @@ const contract = join(here, '..', '..', '..', 'packages', 'ops', 'contract');
 const catalogDir = join(here, '..', 'static', 'catalogs', 'ops');
 mkdirSync(catalogDir, { recursive: true });
 copyFileSync(join(contract, 'catalog.json'), join(catalogDir, 'v1.json'));
+// The prompt-pack and fixtures are served too — agents (and llms.txt) fetch them.
+copyFileSync(join(contract, 'prompt.md'), join(catalogDir, 'prompt.md'));
+cpSync(join(contract, 'examples'), join(catalogDir, 'examples'), { recursive: true });
 
 const generated = join(here, '..', 'src', 'lib', 'generated');
 mkdirSync(generated, { recursive: true });

@@ -1,0 +1,31 @@
+# auri
+
+> Beautiful, agent-facing component catalogs for the A2UI protocol (agent-to-UI: agents describe
+> interfaces as data against a host-owned component vocabulary; no generated code). auri ships each
+> catalog as three artifacts: a renderer-agnostic JSON contract, a prompt-pack that teaches models
+> the vocabulary, and a Svelte 5 implementation for the svelte-a2ui renderer. Built by Hugo
+> Pretorius, maintainer of svelte-a2ui. Apache-2.0.
+
+To render UI with the ops catalog, paste the prompt-pack into your agent's system prompt and emit
+A2UI v1.0 JSONL. The contract validates what you emit; the fixtures are known-good streams.
+
+## The ops catalog (dashboards, data display, human-in-the-loop decisions)
+
+- [Prompt-pack (paste into your agent)](https://chaliceforauri.github.io/auri/catalogs/ops/prompt.md): the system-prompt snippet teaching all 12 components, with rules and examples
+- [Contract (JSON Schema)](https://chaliceforauri.github.io/auri/catalogs/ops/v1.json): the catalog definition — components, props, enums, actions; this URL is the catalog id
+- [Example streams (JSONL fixtures)](https://chaliceforauri.github.io/auri/catalogs/ops/examples/incident-brief.jsonl): one per component plus combined scenarios, e.g. stat.jsonl, datatable.jsonl, approval-card.jsonl, chart.jsonl
+
+## Docs
+
+- [Live console demo](https://chaliceforauri.github.io/auri/): an agent builds an incident console; the wire is shown beside it
+- [Component pages](https://chaliceforauri.github.io/auri/components): per-component fixture replay with a wire scrubber, contract excerpt, and prompt-pack snippet
+- [Visual sheet](https://chaliceforauri.github.io/auri/sheet): every component in every intent, light and dark
+
+## Source
+
+- [GitHub: ChaliceForAuri/auri](https://github.com/ChaliceForAuri/auri): contracts, prompt-packs, Svelte components, emission-eval harness
+- [GitHub: ChaliceForAuri/a2ui-svelte](https://github.com/ChaliceForAuri/a2ui-svelte): the underlying A2UI renderer for Svelte 5 (npm: svelte-a2ui)
+
+## Packages
+
+- npm: @aurilabs/ops (the ops catalog), @aurilabs/core (design tokens); svelte and svelte-a2ui are peers
