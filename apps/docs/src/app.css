@@ -1,0 +1,83 @@
+/* The docs shell. Quiet furniture — the streamed surface brings the drama. */
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	color-scheme: light;
+}
+html.a2ui-dark {
+	color-scheme: dark;
+}
+
+body {
+	margin: 0;
+	font-family: var(--a2ui-font-family);
+	background: var(--a2ui-color-surface);
+	color: var(--a2ui-color-text);
+}
+
+header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	max-width: 72rem;
+	margin: 0 auto;
+	padding: 1rem 1.25rem;
+}
+
+.wordmark {
+	font-weight: 700;
+	font-size: 1.125rem;
+	letter-spacing: 0.01em;
+	color: var(--a2ui-color-text);
+	text-decoration: none;
+}
+
+nav {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+nav a {
+	color: var(--a2ui-color-text-muted);
+	text-decoration: none;
+	font-size: 0.875rem;
+}
+nav a:hover {
+	color: var(--a2ui-color-text);
+}
+
+nav button {
+	font: inherit;
+	font-size: 0.8125rem;
+	color: var(--a2ui-color-text-muted);
+	background: transparent;
+	border: 1px solid var(--a2ui-color-border);
+	border-radius: 999px;
+	padding: 0.2rem 0.75rem;
+	cursor: pointer;
+}
+nav button:hover {
+	color: var(--a2ui-color-text);
+}
+
+main {
+	max-width: 72rem;
+	margin: 0 auto;
+	padding: 0 1.25rem 3rem;
+}
+
+footer {
+	max-width: 72rem;
+	margin: 0 auto;
+	padding: 1.5rem 1.25rem 2.5rem;
+	font-size: 0.8125rem;
+	color: var(--a2ui-color-text-muted);
+	border-top: 1px solid var(--a2ui-color-border);
+}
+footer a {
+	color: inherit;
+}

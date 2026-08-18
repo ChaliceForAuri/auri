@@ -92,7 +92,8 @@
 	.text :global(code) {
 		font-family: var(--a2ui-font-family-monospace);
 		font-size: 0.9em;
-		background: rgb(0 0 0 / 0.06);
+		/* Neutral gray at low alpha so the chip reads on light and dark tints alike. */
+		background: rgb(150 150 150 / 0.16);
 		border-radius: var(--a2ui-radius-small);
 		padding: 0.1em 0.3em;
 	}
