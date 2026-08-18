@@ -27,3 +27,6 @@ jobs:
       - run: npx playwright install --with-deps chromium
 
       - run: npm run test:browser -w @aurilabs/ops
+
+      # A PR must not be able to break the Pages deploy.
+      - run: npm run build -w @aurilabs/docs
