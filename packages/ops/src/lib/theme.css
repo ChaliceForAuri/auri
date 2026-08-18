@@ -1,0 +1,79 @@
+/**
+ * auri ops theme: tokens plus the shared motion and in-between-state plumbing.
+ * Component looks live in each component's scoped styles; only what must be
+ * global (tokens, keyframes, utility classes) lives here.
+ */
+
+@import '@aurilabs/core/tokens.css';
+
+/* --- entrance: the brand move (DESIGN 4) ------------------------------------
+   transform/opacity only — layout is reserved immediately, zero CLS. */
+
+@keyframes auri-enter {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+}
+
+@keyframes auri-fade {
+	from {
+		opacity: 0;
+	}
+}
+
+:where(.auri-enter) {
+	animation: auri-enter var(--auri-motion-base) var(--auri-ease-out) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.auri-enter) {
+		/* Not "no feedback" — no movement. */
+		animation: auri-fade var(--auri-motion-fast) linear backwards;
+	}
+}
+
+/* --- skeletons: the CLS reservation (DESIGN 5) --- */
+
+@keyframes auri-shimmer {
+	from {
+		background-position: 200% 0;
+	}
+	to {
+		background-position: -200% 0;
+	}
+}
+
+:where(.auri-skeleton) {
+	display: inline-block;
+	border-radius: var(--a2ui-radius-small, 6px);
+	background: linear-gradient(
+		90deg,
+		var(--auri-skeleton-base) 40%,
+		var(--auri-skeleton-sheen) 50%,
+		var(--auri-skeleton-base) 60%
+	);
+	background-size: 200% 100%;
+	animation: auri-shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:where(.auri-skeleton) {
+		animation: none;
+		background: var(--auri-skeleton-base);
+	}
+}
+
+/* --- assistive-tech-only text --- */
+
+:where(.auri-sr-only) {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}

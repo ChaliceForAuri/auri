@@ -60,11 +60,11 @@ Display:
 
 Interaction:
 
-| Component       | What it is                                    | Key props                                                                                  |
-| --------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `ApprovalCard`  | The agent asks a human to decide              | `title`, `summary`, `details?` (slot), `onApprove`/`onReject` (actions), `requireComment?` |
-| `CodeBlock`     | Read-only code/log output                     | `code`, `language?`, `wrap?`, copy button built-in                                         |
-| `ConfirmButton` | Destructive action with built-in confirm step | `label`, `confirmLabel?`, `action`, `intent?`                                              |
+| Component       | What it is                                    | Key props                                                                                          |
+| --------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `ApprovalCard`  | The agent asks a human to decide              | `title`, `summary`, `details?` (slot), `approveAction`/`rejectAction` (actions), `requireComment?` |
+| `CodeBlock`     | Read-only code/log output                     | `code`, `language?`, `wrap?`, copy button built-in                                                 |
+| `ConfirmButton` | Destructive action with built-in confirm step | `label`, `confirmLabel?`, `action`, `intent?`                                                      |
 
 Deliberately **out** of v0: modals, tabs, forms, inputs (basic catalog already has them and both catalogs mix in one surface — that mixing story is itself a feature to demo), maps, kanban, chat bubbles. Write them down in a ROADMAP so scope stays capped.
 
@@ -75,7 +75,7 @@ These are the rules that make the vocabulary _emittable_ — treat them as invar
 1. **Flat props, no required nesting.** An LLM juggling a streaming JSONL response should never need balanced deep structures. Arrays of flat objects (`series`, `columns`, `items`) are fine.
 2. **Small closed enums, forgiving defaults.** `intent: 'good'|'bad'|'neutral'` beats a free-text color prop (which the spec bans anyway). Every prop except the 1–2 essentials has a default; a component with only its required props must render respectably.
 3. **Everything displayable accepts Dynamic values.** Literals, `{path}` bindings, and function refs come free through svelte-a2ui's `buildNodeProps` — design for it: `rows: {path: '/deploys'}` means the agent updates the table with `updateDataModel`, never by re-sending components.
-4. **Actions carry hand-picked context.** `ApprovalCard.onApprove` should encourage a `context` of the decision payload, not the world. Document the intended shape in the prompt-pack.
+4. **Actions carry hand-picked context.** `ApprovalCard.approveAction` should encourage a `context` of the decision payload, not the world. Document the intended shape in the prompt-pack.
 5. **Semantic, never visual.** No colors, no pixel sizes on the wire. `intent`, `trend`, `align` — the host theme decides what those look like. This is spec philosophy applied to the custom catalog, and it's what keeps the catalog portable across themes.
 6. **Test the contract on a model before implementing it.** Before writing a component, paste the prompt-pack draft into a Claude/GPT session and ask it to produce the JSONL for a realistic scenario. If the model fumbles a prop shape, fix the _contract_, not the prompt. This is the cheapest design review available and almost nobody does it.
 

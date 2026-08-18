@@ -10,5 +10,12 @@
 		"type": "git",
 		"url": "git+https://github.com/ChaliceForAuri/auri.git",
 		"directory": "packages/core"
+	},
+	"files": [
+		"src"
+	],
+	"exports": {
+		"./tokens.css": "./src/tokens.css",
+		"./package.json": "./package.json"
 	}
 }

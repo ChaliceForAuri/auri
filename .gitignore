@@ -1,6 +1,6 @@
 node_modules
-/dist
-/build
+dist/
+build/
 .DS_Store
 *.tgz
 *.log
@@ -9,3 +9,4 @@ node_modules
 .env
 .env.*
 .envrc
+.svelte-kit/

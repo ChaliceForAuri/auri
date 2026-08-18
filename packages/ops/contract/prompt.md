@@ -138,14 +138,14 @@ receive the event with that context (plus `comment` when `requireComment` is tru
 | `title`          | string  | yes      | the decision, as a short question                 |
 | `summary`        | string  | yes      | 1–2 sentences of context; inline markdown allowed |
 | `details`        | id      | no       | ComponentId of extra content, rendered collapsed  |
-| `onApprove`      | action  | yes      | fired on approve                                  |
-| `onReject`       | action  | yes      | fired on reject                                   |
+| `approveAction`  | action  | yes      | fired on approve                                  |
+| `rejectAction`   | action  | yes      | fired on reject                                   |
 | `requireComment` | boolean | no       | default `false`; adds `comment` to the context    |
 | `approveLabel`   | string  | no       | default: localized "Approve"                      |
 | `rejectLabel`    | string  | no       | default: localized "Reject"                       |
 
 ```
-{"id":"rollback","component":"ApprovalCard","title":"Roll back payments-api?","summary":"Error rate hit 4.2% after deploy 4190. Rolling back restores build 4189 in ~2 minutes.","requireComment":true,"onApprove":{"event":{"name":"rollback_approved","context":{"deployId":{"path":"/deployId"}}}},"onReject":{"event":{"name":"rollback_rejected","context":{"deployId":{"path":"/deployId"}}}}}
+{"id":"rollback","component":"ApprovalCard","title":"Roll back payments-api?","summary":"Error rate hit 4.2% after deploy 4190. Rolling back restores build 4189 in ~2 minutes.","requireComment":true,"approveAction":{"event":{"name":"rollback_approved","context":{"deployId":{"path":"/deployId"}}}},"rejectAction":{"event":{"name":"rollback_rejected","context":{"deployId":{"path":"/deployId"}}}}}
 ```
 
 ### Chart — line / bar / area with axes

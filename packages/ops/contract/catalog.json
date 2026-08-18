@@ -163,13 +163,13 @@
 							"type": "string",
 							"description": "Optional ComponentId of extra content rendered collapsed inside the card (any component, e.g. a DataTable of affected services)."
 						},
-						"onApprove": {
+						"approveAction": {
 							"$ref": "#/$defs/action",
 							"description": "Fired on approve. Put only what you need to act on in the context — the decision payload, not the world."
 						},
-						"onReject": {
+						"rejectAction": {
 							"$ref": "#/$defs/action",
-							"description": "Fired on reject. Same context discipline as onApprove."
+							"description": "Fired on reject. Same context discipline as approveAction."
 						},
 						"requireComment": {
 							"type": "boolean",
@@ -185,7 +185,7 @@
 							"description": "Custom label for the reject button. Default is a localized \"Reject\"."
 						}
 					},
-					"required": ["component", "title", "summary", "onApprove", "onReject"]
+					"required": ["component", "title", "summary", "approveAction", "rejectAction"]
 				}
 			],
 			"unevaluatedProperties": false,

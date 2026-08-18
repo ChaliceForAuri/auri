@@ -1,0 +1,105 @@
+/**
+ * auri design tokens (see docs/DESIGN.md — authoritative).
+ *
+ * Extends the renderer's `--a2ui-*` system: base color/spacing/type tokens stay
+ * the renderer's call so auri components look native beside basic-catalog ones.
+ * Everything here is a genuinely new concept: the intent scale, motion, and the
+ * stat type roles. All at `:where()` zero specificity — host stylesheets win.
+ *
+ * Dark mode keys off the same `.a2ui-dark` class (and `prefers-color-scheme`)
+ * as the renderer's theme, so one toggle drives both layers.
+ */
+
+:where(:root),
+:where(.a2ui-light) {
+	/* --- intent: accents on a neutral ground --- */
+	--auri-intent-good: #1a7f37;
+	--auri-intent-good-surface: #dafbe1;
+	--auri-intent-good-border: #96d8a7;
+	--auri-intent-bad: #d1242f;
+	--auri-intent-bad-surface: #ffebe9;
+	--auri-intent-bad-border: #ffcecb;
+	--auri-intent-warning: #9a6700;
+	--auri-intent-warning-surface: #fff8c5;
+	--auri-intent-warning-border: #eed888;
+	--auri-intent-info: #0969da;
+	--auri-intent-info-surface: #ddf4ff;
+	--auri-intent-info-border: #b6e3ff;
+	--auri-intent-neutral: #59636e;
+	--auri-intent-neutral-surface: #f6f8fa;
+	--auri-intent-neutral-border: #d8dce3;
+
+	/* --- motion (the hero system): durations, curves, stagger --- */
+	--auri-motion-fast: 120ms;
+	--auri-motion-base: 240ms;
+	--auri-motion-slow: 400ms;
+	--auri-motion-stagger: 40ms;
+	--auri-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+	--auri-ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+
+	/* --- type roles: value / label / caption --- */
+	--auri-type-value-size: 1.75rem;
+	--auri-type-value-weight: 600;
+	--auri-type-label-size: 0.8125rem;
+	--auri-type-label-weight: 500;
+	--auri-type-caption-size: 0.75rem;
+
+	/* --- in-between states --- */
+	--auri-skeleton-base: rgb(0 0 0 / 0.07);
+	--auri-skeleton-sheen: rgb(0 0 0 / 0.03);
+}
+
+@media (prefers-color-scheme: dark) {
+	:where(:root) {
+		--auri-intent-good: #3fb950;
+		--auri-intent-good-surface: rgb(63 185 80 / 0.12);
+		--auri-intent-good-border: rgb(63 185 80 / 0.35);
+		--auri-intent-bad: #f85149;
+		--auri-intent-bad-surface: rgb(248 81 73 / 0.12);
+		--auri-intent-bad-border: rgb(248 81 73 / 0.35);
+		--auri-intent-warning: #d29922;
+		--auri-intent-warning-surface: rgb(210 153 34 / 0.12);
+		--auri-intent-warning-border: rgb(210 153 34 / 0.35);
+		--auri-intent-info: #4493f8;
+		--auri-intent-info-surface: rgb(68 147 248 / 0.12);
+		--auri-intent-info-border: rgb(68 147 248 / 0.35);
+		--auri-intent-neutral: #9aa2b1;
+		--auri-intent-neutral-surface: rgb(154 162 177 / 0.1);
+		--auri-intent-neutral-border: rgb(154 162 177 / 0.3);
+
+		--auri-skeleton-base: rgb(255 255 255 / 0.08);
+		--auri-skeleton-sheen: rgb(255 255 255 / 0.04);
+	}
+}
+
+:where(.a2ui-dark) {
+	--auri-intent-good: #3fb950;
+	--auri-intent-good-surface: rgb(63 185 80 / 0.12);
+	--auri-intent-good-border: rgb(63 185 80 / 0.35);
+	--auri-intent-bad: #f85149;
+	--auri-intent-bad-surface: rgb(248 81 73 / 0.12);
+	--auri-intent-bad-border: rgb(248 81 73 / 0.35);
+	--auri-intent-warning: #d29922;
+	--auri-intent-warning-surface: rgb(210 153 34 / 0.12);
+	--auri-intent-warning-border: rgb(210 153 34 / 0.35);
+	--auri-intent-info: #4493f8;
+	--auri-intent-info-surface: rgb(68 147 248 / 0.12);
+	--auri-intent-info-border: rgb(68 147 248 / 0.35);
+	--auri-intent-neutral: #9aa2b1;
+	--auri-intent-neutral-surface: rgb(154 162 177 / 0.1);
+	--auri-intent-neutral-border: rgb(154 162 177 / 0.3);
+
+	--auri-skeleton-base: rgb(255 255 255 / 0.08);
+	--auri-skeleton-sheen: rgb(255 255 255 / 0.04);
+}
+
+/* Forced colors (Windows High Contrast): intents map to system colors. */
+@media (forced-colors: active) {
+	:where(:root) {
+		--auri-intent-good: CanvasText;
+		--auri-intent-bad: CanvasText;
+		--auri-intent-warning: CanvasText;
+		--auri-intent-info: CanvasText;
+		--auri-intent-neutral: CanvasText;
+	}
+}

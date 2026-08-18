@@ -20,5 +20,10 @@ jobs:
 
       - run: npm run lint
 
-      # Workspace tests are --if-present: this starts passing meaningfully at M2.
       - run: npm test
+
+      - run: npm run check --workspaces --if-present
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run test:browser -w @aurilabs/ops
