@@ -14,6 +14,13 @@ import Badge from './components/Badge.svelte';
 import Callout from './components/Callout.svelte';
 import DataTable from './components/DataTable.svelte';
 import ApprovalCard from './components/ApprovalCard.svelte';
+import Chart from './components/Chart.svelte';
+import Timeline from './components/Timeline.svelte';
+import Sparkline from './components/Sparkline.svelte';
+import Progress from './components/Progress.svelte';
+import KeyValue from './components/KeyValue.svelte';
+import CodeBlock from './components/CodeBlock.svelte';
+import ConfirmButton from './components/ConfirmButton.svelte';
 
 /** Versioned, served for real by the docs site; breaking changes are a new id. */
 export const OPS_CATALOG_ID = 'https://chaliceforauri.github.io/auri/catalogs/ops/v1.json';
@@ -29,7 +36,15 @@ export const OPS_COMPONENTS: Record<string, CatalogEntry> = {
 	ApprovalCard: entry(ApprovalCard, {
 		slots: { details: 'child' },
 		raw: ['approveAction', 'rejectAction']
-	})
+	}),
+	Chart: entry(Chart),
+	Timeline: entry(Timeline),
+	Sparkline: entry(Sparkline),
+	Progress: entry(Progress),
+	KeyValue: entry(KeyValue),
+	CodeBlock: entry(CodeBlock),
+	// No extra context to merge, so the standard pre-built handler suffices.
+	ConfirmButton: entry(ConfirmButton, { actions: ['action'] })
 };
 
 export const opsCatalog: Catalog = {

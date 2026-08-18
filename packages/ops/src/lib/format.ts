@@ -68,6 +68,33 @@ export function formatCellDateTime(iso: string, locale?: string): string {
 	return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 }
 
+/** Hour:minute for feed entries; the full timestamp belongs in a title attr. */
+export function formatTimelineTime(iso: string, locale?: string): string {
+	const date = new Date(iso);
+	if (Number.isNaN(date.getTime())) return iso;
+	return new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }).format(date);
+}
+
+const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
+
+/** KeyValue cells: numbers and ISO datetimes format; everything else verbatim. */
+export function formatKeyValue(value: unknown, locale?: string): string {
+	if (typeof value === 'number' && Number.isFinite(value)) return formatCellNumber(value, locale);
+	if (typeof value === 'string' && ISO_DATETIME.test(value))
+		return formatCellDateTime(value, locale);
+	return value === undefined || value === null ? '—' : String(value);
+}
+
+/** The generated text alternative for a sparkline (DESIGN 7: not optional). */
+export function sparklineSummary(values: number[], locale?: string): string {
+	if (values.length === 0) return 'no data yet';
+	const nf = new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });
+	const latest = nf.format(values[values.length - 1]!);
+	const min = nf.format(Math.min(...values));
+	const max = nf.format(Math.max(...values));
+	return `${values.length} readings, latest ${latest}, range ${min} to ${max}`;
+}
+
 const INTENTS = ['good', 'bad', 'warning', 'info', 'neutral'] as const;
 export type Intent = (typeof INTENTS)[number];
 

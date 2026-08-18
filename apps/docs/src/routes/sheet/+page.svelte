@@ -59,7 +59,36 @@
 						startedAt: '2026-08-17T13:55:03Z'
 					}
 				],
-				none: []
+				none: [],
+				err5: [0.2, 0.3, 1.8, 4.2, 3.1, 1.2],
+				err4: [1.1, 1.0, 1.2, 1.3, 1.2, 1.1],
+				times: [
+					'2026-08-17T13:00:00Z',
+					'2026-08-17T13:15:00Z',
+					'2026-08-17T13:30:00Z',
+					'2026-08-17T13:45:00Z',
+					'2026-08-17T14:00:00Z',
+					'2026-08-17T14:15:00Z'
+				],
+				p95Readings: [178, 182, 175, 190, 260, 240, 210, 195, 188, 199, 205, 214],
+				events: [
+					{ title: 'Build 4191 started', time: '2026-08-17T14:20:05Z' },
+					{
+						title: 'Canary healthy',
+						time: '2026-08-17T14:21:40Z',
+						intent: 'good',
+						text: 'All probes passing on pod 1.'
+					},
+					{ title: 'Rollout began', time: '2026-08-17T14:22:10Z' },
+					{
+						title: 'Pod 4 readiness probe slow',
+						time: '2026-08-17T14:24:02Z',
+						intent: 'warning',
+						text: 'Worth watching — pod 4 is **2.1s** over the probe budget.'
+					}
+				],
+				logTail:
+					'14:22:10 pulling image registry/payments-api:4191\n14:22:31 starting pod 4 of 10\n14:22:44 waiting on readiness probe (pod 4)\n14:23:02 pod 4 ready\n14:23:05 starting pod 5 of 10'
 			},
 			components: [
 				col('root', [
@@ -68,15 +97,127 @@
 					'stats_b',
 					'h_badge',
 					'badges',
+					'h_spark',
+					'sparks',
+					'h_chart',
+					'chart_line',
+					'chart_bar',
+					'h_progress',
+					'progresses',
 					'h_callout',
 					'callouts',
+					'h_timeline',
+					'timeline',
+					'h_keyvalue',
+					'keyvalue',
+					'h_code',
+					'codeblock',
 					'h_table',
 					'table_full',
 					'table_empty',
 					'table_skeleton',
 					'h_approval',
-					'approval'
+					'approval',
+					'h_confirm',
+					'confirm_row'
 				]),
+
+				heading('h_spark', 'Sparkline — word-sized trends, generated text alternative'),
+				row('sparks', ['sp_warning', 'sp_good', 'sp_neutral', 'sp_skeleton']),
+				{
+					id: 'sp_warning',
+					component: 'Sparkline',
+					label: 'p95 latency, last hour',
+					values: { path: '/p95Readings' },
+					intent: 'warning'
+				},
+				{
+					id: 'sp_good',
+					component: 'Sparkline',
+					label: 'error rate, falling',
+					values: [4.8, 3.9, 3.1, 2.2, 1.4, 0.9, 0.5],
+					intent: 'good'
+				},
+				{
+					id: 'sp_neutral',
+					component: 'Sparkline',
+					label: 'requests, no claim',
+					values: [110, 140, 128, 133, 151, 149, 160]
+				},
+				{ id: 'sp_skeleton', component: 'Sparkline', label: 'waiting', values: { path: '/never' } },
+
+				heading('h_chart', 'Chart — line with datetime axis; bar; ramp colors'),
+				{
+					id: 'chart_line',
+					component: 'Chart',
+					kind: 'line',
+					label: 'Error rate by class',
+					unit: '%',
+					series: [
+						{ label: '5xx', values: { path: '/err5' } },
+						{ label: '4xx', values: { path: '/err4' } }
+					],
+					xLabels: { path: '/times' },
+					xFormat: 'datetime'
+				},
+				{
+					id: 'chart_bar',
+					component: 'Chart',
+					kind: 'bar',
+					label: 'Incidents per day',
+					series: [{ label: 'Incidents', values: [2, 0, 5, 1, 3, 0, 1] }],
+					xLabels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+				},
+
+				heading('h_progress', 'Progress — determinate, indeterminate, judged'),
+				col('progresses', ['pg_deploy', 'pg_indet', 'pg_bad']),
+				{
+					id: 'pg_deploy',
+					component: 'Progress',
+					label: 'Rolling out build 4191',
+					value: 7,
+					max: 10
+				},
+				{ id: 'pg_indet', component: 'Progress', label: 'Waiting for the canary…' },
+				{
+					id: 'pg_bad',
+					component: 'Progress',
+					label: 'Error budget consumed',
+					value: 92,
+					intent: 'bad'
+				},
+
+				heading('h_timeline', 'Timeline — events are data; intent per event'),
+				{
+					id: 'timeline',
+					component: 'Timeline',
+					label: 'Rollout so far',
+					items: { path: '/events' },
+					emptyText: 'Nothing yet.'
+				},
+
+				heading('h_keyvalue', 'KeyValue — labeled facts, ISO dates and numbers formatted'),
+				{
+					id: 'keyvalue',
+					component: 'KeyValue',
+					label: 'checkout-web',
+					items: [
+						{ key: 'Region', value: 'eu-west-1' },
+						{ key: 'Runtime', value: 'node 24' },
+						{ key: 'Owner', value: 'team payments' },
+						{ key: 'Last deploy', value: '2026-08-17T09:12:00Z' },
+						{ key: 'Requests today', value: 128455 }
+					]
+				},
+
+				heading('h_code', 'CodeBlock — verbatim, copy built in, streams log tails'),
+				{
+					id: 'codeblock',
+					component: 'CodeBlock',
+					label: 'deploy log',
+					language: 'log',
+					code: { path: '/logTail' }
+				},
 
 				heading('h_stat', 'Stat — intents, currency, skeleton'),
 				row('stats_a', ['stat_good', 'stat_bad', 'stat_warning']),
@@ -249,6 +390,23 @@
 						event: { name: 'rollback_approved', context: { deployId: 'deploy-4190' } }
 					},
 					rejectAction: { event: { name: 'rollback_rejected' } }
+				},
+
+				heading('h_confirm', 'ConfirmButton — the confirm step is part of the component'),
+				row('confirm_row', ['cf_bad', 'cf_neutral']),
+				{
+					id: 'cf_bad',
+					component: 'ConfirmButton',
+					label: 'Abort rollout',
+					confirmLabel: 'Really abort?',
+					intent: 'bad',
+					action: { event: { name: 'rollout_aborted', context: { buildId: 4191 } } }
+				},
+				{
+					id: 'cf_neutral',
+					component: 'ConfirmButton',
+					label: 'Restart worker pool',
+					action: { event: { name: 'pool_restarted', context: { pool: 'workers-eu1' } } }
 				}
 			] as never[]
 		}
