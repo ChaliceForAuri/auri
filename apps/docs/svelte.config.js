@@ -7,7 +7,14 @@ const config = {
 	kit: {
 		adapter: adapter(),
 		// GitHub Pages serves at /auri; local dev at /.
-		paths: { base: process.env.BASE_PATH ?? '' }
+		paths: { base: process.env.BASE_PATH ?? '' },
+		// Workspace catalog resolves to source for vite AND typescript — a fresh
+		// checkout has no packages/ops/dist, so the package's `types` field
+		// can't be the resolution path (CI check failed exactly that way).
+		alias: {
+			'@aurilabs/ops/theme.css': '../../packages/ops/src/lib/theme.css',
+			'@aurilabs/ops': '../../packages/ops/src/lib/index.ts'
+		}
 	}
 };
 
