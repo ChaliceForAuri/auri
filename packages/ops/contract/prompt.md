@@ -51,6 +51,8 @@ Three message kinds. A minimal complete stream:
 4. **No icons, colors, or sizes.** Intent implies the iconography; the host theme decides the look.
 5. **Send data in small slices.** Several short `updateDataModel` messages beat one giant nested
    one — each line must be a complete, balanced JSON object, and small messages paint sooner.
+   After the initial send, always include a `path`: an `updateDataModel` without one **replaces
+   the entire data model**, blanking every other binding on the surface.
 
 ## Components
 

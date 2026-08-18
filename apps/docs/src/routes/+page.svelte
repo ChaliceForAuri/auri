@@ -125,8 +125,10 @@
 	}
 
 	.rail {
+		position: sticky;
+		top: 1rem;
 		min-height: 10rem;
-		max-height: 34rem;
+		max-height: calc(100vh - 2rem);
 		overflow-y: auto;
 		border: 1px solid var(--a2ui-color-border);
 		border-radius: var(--a2ui-radius);

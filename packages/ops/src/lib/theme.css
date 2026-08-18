@@ -26,10 +26,36 @@
 	animation: auri-enter var(--auri-motion-base) var(--auri-ease-out) backwards;
 }
 
+/* Stream-batch stagger: siblings that paint together cascade in. Keyed off DOM
+   position, so a buffered batch ripples top-to-bottom while a component added
+   later just waits its own small beat. Capped — deep lists shouldn't feel slow. */
+:where(.auri-enter:nth-child(2)) {
+	animation-delay: var(--auri-motion-stagger);
+}
+:where(.auri-enter:nth-child(3)) {
+	animation-delay: calc(var(--auri-motion-stagger) * 2);
+}
+:where(.auri-enter:nth-child(4)) {
+	animation-delay: calc(var(--auri-motion-stagger) * 3);
+}
+:where(.auri-enter:nth-child(5)) {
+	animation-delay: calc(var(--auri-motion-stagger) * 4);
+}
+:where(.auri-enter:nth-child(6)) {
+	animation-delay: calc(var(--auri-motion-stagger) * 5);
+}
+:where(.auri-enter:nth-child(7)) {
+	animation-delay: calc(var(--auri-motion-stagger) * 6);
+}
+:where(.auri-enter:nth-child(n + 8)) {
+	animation-delay: calc(var(--auri-motion-stagger) * 7);
+}
+
 @media (prefers-reduced-motion: reduce) {
 	:where(.auri-enter) {
-		/* Not "no feedback" — no movement. */
+		/* Not "no feedback" — no movement, and no stagger. */
 		animation: auri-fade var(--auri-motion-fast) linear backwards;
+		animation-delay: 0s;
 	}
 }
 
