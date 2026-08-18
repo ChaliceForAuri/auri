@@ -27,6 +27,7 @@
 	<a class="wordmark" href="{base}/">auri</a>
 	<nav>
 		<a href="{base}/">console</a>
+		<a href="{base}/components">components</a>
 		<a href="{base}/sheet">sheet</a>
 		<a href="https://github.com/ChaliceForAuri/auri">github</a>
 		<button type="button" onclick={toggle} aria-pressed={dark}>

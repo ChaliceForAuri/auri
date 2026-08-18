@@ -11,7 +11,7 @@
 		"dev": "npm run sync-contract && vite dev",
 		"build": "npm run sync-contract && vite build",
 		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+		"check": "npm run sync-contract && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
 	},
 	"devDependencies": {
 		"@aurilabs/core": "*",

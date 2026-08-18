@@ -1,18 +1,31 @@
 /**
- * The catalog id is a real URL — this copies the contract into static/ so the
- * docs site serves https://chaliceforauri.github.io/auri/catalogs/ops/v1.json
- * for real. Runs before dev and build; static/catalogs is generated, not
- * source of truth.
+ * Single-source-of-truth plumbing. From packages/ops/contract this copies:
+ *
+ * - catalog.json -> static/catalogs/ops/v1.json  (the catalog id is a real,
+ *   resolving URL on the deployed site)
+ * - catalog.json, prompt.md, examples/*.jsonl -> src/lib/generated/  (the
+ *   component pages render the actual artifacts: fixtures are the demo
+ *   streams, the contract and prompt-pack are excerpted verbatim)
+ *
+ * Runs before dev/build/check. Everything it writes is generated, gitignored,
+ * never edited.
  */
 
-import { copyFileSync, mkdirSync } from 'node:fs';
+import { copyFileSync, cpSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const source = join(here, '..', '..', '..', 'packages', 'ops', 'contract', 'catalog.json');
-const targetDir = join(here, '..', 'static', 'catalogs', 'ops');
+const contract = join(here, '..', '..', '..', 'packages', 'ops', 'contract');
 
-mkdirSync(targetDir, { recursive: true });
-copyFileSync(source, join(targetDir, 'v1.json'));
-console.log('contract synced -> static/catalogs/ops/v1.json');
+const catalogDir = join(here, '..', 'static', 'catalogs', 'ops');
+mkdirSync(catalogDir, { recursive: true });
+copyFileSync(join(contract, 'catalog.json'), join(catalogDir, 'v1.json'));
+
+const generated = join(here, '..', 'src', 'lib', 'generated');
+mkdirSync(generated, { recursive: true });
+copyFileSync(join(contract, 'catalog.json'), join(generated, 'catalog.json'));
+copyFileSync(join(contract, 'prompt.md'), join(generated, 'prompt.md'));
+cpSync(join(contract, 'examples'), join(generated, 'examples'), { recursive: true });
+
+console.log('contract artifacts synced -> static/catalogs, src/lib/generated');
