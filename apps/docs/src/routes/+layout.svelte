@@ -30,6 +30,7 @@
 	const links = [
 		{ href: '/', label: 'console' },
 		{ href: '/components', label: 'components' },
+		{ href: '/playground', label: 'playground' },
 		{ href: '/foundations', label: 'foundations' },
 		{ href: '/install', label: 'install' },
 		{ href: '/evals', label: 'evals' },
