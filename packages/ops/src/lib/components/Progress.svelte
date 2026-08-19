@@ -71,9 +71,9 @@
 	}
 
 	.track {
-		height: 0.55rem;
+		height: 0.375rem;
 		border-radius: var(--auri-shape-pill);
-		background: var(--auri-intent-neutral-container);
+		background: var(--auri-surface-container-high);
 		overflow: hidden;
 	}
 

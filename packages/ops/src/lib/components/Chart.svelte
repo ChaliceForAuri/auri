@@ -151,11 +151,12 @@
 </figure>
 
 <style>
-	/* Tonal: container surface, no border (DESIGN 1). */
+	/* Foundation: card + hairline. */
 	.auri-chart {
 		min-width: 0;
 		margin: var(--a2ui-space-leaf);
-		padding: 1rem 1.25rem 0.75rem;
+		padding: 1rem 1.125rem 0.75rem;
+		border: 1px solid var(--auri-outline-variant);
 		border-radius: var(--auri-shape-lg);
 		background: var(--auri-surface-container);
 	}

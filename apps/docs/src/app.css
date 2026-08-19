@@ -3,7 +3,24 @@
    tonal roles, so basic-catalog components go Material here too. Catalog
    packages never do this — host stylesheets stay in charge. */
 
+/* Geist (Vercel, SIL OFL 1.1) — self-hosted, variable weight. The site's
+   voice; shipped catalog components still inherit the host's font. */
+@font-face {
+	font-family: 'Geist';
+	src: url('/fonts/Geist-Variable.woff2') format('woff2');
+	font-weight: 100 900;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Geist Mono';
+	src: url('/fonts/GeistMono-Variable.woff2') format('woff2');
+	font-weight: 100 900;
+	font-display: swap;
+}
+
 :root {
+	--a2ui-font-family: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--a2ui-font-family-monospace: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 	--a2ui-color-surface: var(--auri-surface);
 	--a2ui-color-surface-raised: var(--auri-surface-container);
 	--a2ui-color-text: var(--auri-on-surface);
@@ -55,9 +72,9 @@ header {
 }
 
 .wordmark .mark {
-	width: 1.375rem;
-	height: 1.375rem;
-	border-radius: 0.5rem;
+	width: 1.25rem;
+	height: 1.25rem;
+	border-radius: 0.4rem;
 	background: var(--auri-primary);
 	position: relative;
 }
@@ -90,17 +107,16 @@ nav a:hover {
 nav button {
 	font: inherit;
 	font-size: 0.8125rem;
-	font-weight: 600;
-	color: var(--auri-on-intent-neutral-container);
-	background: var(--auri-intent-neutral-container);
-	border: none;
-	border-radius: var(--auri-shape-pill);
-	padding: 0.3rem 0.9rem;
+	font-weight: 500;
+	color: var(--auri-on-surface);
+	background: transparent;
+	border: 1px solid var(--auri-outline-variant);
+	border-radius: var(--auri-shape-md);
+	padding: 0.28rem 0.8rem;
 	cursor: pointer;
 }
 nav button:hover {
-	background: var(--auri-primary-container);
-	color: var(--auri-on-primary-container);
+	background: var(--auri-surface-container-high);
 }
 
 main {

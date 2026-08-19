@@ -155,10 +155,11 @@
 </div>
 
 <style>
-	/* Tonal: the container is the table's surface — no borders (DESIGN 1). */
+	/* Foundation: card + hairline; rows separated by the same line. */
 	.auri-table {
 		min-width: 0;
 		margin: var(--a2ui-space-leaf);
+		border: 1px solid var(--auri-outline-variant);
 		border-radius: var(--auri-shape-lg);
 		background: var(--auri-surface-container);
 		overflow-x: auto;

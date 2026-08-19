@@ -57,18 +57,18 @@
 </button>
 
 <style>
-	/* Tonal: resting = quiet container pill; armed = the intent container, filled. */
+	/* Foundation: resting = outline button, intent as text; armed = soft tint. */
 	.auri-confirm {
 		font: inherit;
-		font-weight: 600;
+		font-weight: 500;
 		font-size: 0.875rem;
-		min-height: 2.5rem;
+		min-height: 2.25rem;
 		margin: var(--a2ui-space-leaf);
-		padding: 0 1.4rem;
-		border-radius: var(--auri-shape-pill);
-		border: none;
-		background: var(--auri-intent-neutral-container);
-		color: var(--auri-on-intent-neutral-container);
+		padding: 0 1.1rem;
+		border-radius: var(--auri-shape-md);
+		border: 1px solid var(--auri-outline-variant);
+		background: var(--auri-surface-container);
+		color: var(--auri-on-surface);
 		cursor: pointer;
 		transition:
 			background var(--auri-motion-fast) linear,
@@ -76,7 +76,7 @@
 	}
 
 	.auri-confirm:hover {
-		background: color-mix(in oklab, currentColor 8%, var(--auri-intent-neutral-container));
+		background: var(--auri-surface-container-high);
 	}
 
 	.auri-confirm:focus-visible {
@@ -117,5 +117,9 @@
 	.armed[data-intent='neutral'] {
 		background: var(--auri-primary-container);
 		color: var(--auri-on-primary-container);
+	}
+	.armed {
+		border-color: transparent;
+		font-weight: 600;
 	}
 </style>

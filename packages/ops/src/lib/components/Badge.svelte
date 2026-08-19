@@ -26,18 +26,18 @@
 {/if}
 
 <style>
-	/* Tonal: the filled container IS the signal — no dot, no border (DESIGN 1). */
+	/* Foundation: soft tint + strong-color text — quiet chip, loud meaning. */
 	.auri-badge {
 		display: inline-flex;
 		align-items: center;
 		margin: var(--a2ui-space-leaf);
-		padding: 0.28em 0.95em;
-		border-radius: var(--auri-shape-pill);
+		padding: 0.22em 0.7em;
+		border-radius: var(--auri-shape-sm);
 		background: var(--auri-intent-neutral-container);
 		color: var(--auri-on-intent-neutral-container);
 		font-size: var(--auri-type-label-size);
-		font-weight: var(--auri-type-label-weight);
-		line-height: 1.6;
+		font-weight: 600;
+		line-height: 1.55;
 		white-space: nowrap;
 		/* Intent flips through the data model cross-fade (DESIGN 4). */
 		transition:
@@ -64,8 +64,8 @@
 
 	.badge-skeleton {
 		width: 5ch;
-		height: 1.9em;
+		height: 1.8em;
 		margin: var(--a2ui-space-leaf);
-		border-radius: var(--auri-shape-pill);
+		border-radius: var(--auri-shape-sm);
 	}
 </style>

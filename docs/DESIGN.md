@@ -3,23 +3,26 @@
 _Authoritative for how auri components look, move, and degrade. When a contract sketch and this
 document disagree, this document wins. Draft — iterate here, not in component code._
 
-## 0. The stance — the Tonal direction (settled 2026-08-18)
+## 0. The stance — the Foundation direction (settled 2026-08-19)
 
-auri's visual language is **Material 3, simplified and reseeded** — chosen on the design canvas
-from art-directed candidates. The synthesis, all open:
+auri's visual language is **shadcn/ui v4's neutral foundation, reseeded** (superseding the
+one-day Tonal experiment — the ground truth was always quiet-crisp-neutral). The synthesis, all
+open and credited:
 
-- **Architecture from Material 3**: color _roles_ (surface / container / on-\*), depth from tone
-  instead of borders, a bold shape scale, state layers, seed-driven theming. Simplified: two
-  container levels (not five elevations), no dynamic-color engine, host fonts.
-- **Palette values from Tailwind's open scales**: indigo (the seed), emerald / red / amber / sky
-  for the intents — the best-calibrated open color values in the industry.
-- **Delivered as plain CSS custom properties**, `:where()` zero specificity. No framework at
-  runtime; the seed is real (`--auri-seed` derives surfaces via `color-mix`), so one variable
-  retunes the whole ground.
+- **Ground from shadcn/ui v4 (MIT)**: chroma-zero oklch neutrals, hairline borders in light,
+  white-alpha borders and translucent fills in dark — depth from layered transparency, never
+  tone. Radius 6/10/14. Content is the color.
+- **Color is rare**: one brand accent (`--auri-seed`, indigo) for primary actions and focus, and
+  the five intents as **colored text on soft tints** — full intent fills only at the loudest
+  moments. Intent values from Tailwind's open scales.
+- **The site's voice is Geist** (Vercel, SIL OFL, self-hosted); shipped catalog components still
+  inherit the host's font — that principle never bends.
+- **Delivered as plain CSS custom properties**, `:where()` zero specificity, no framework at
+  runtime.
 
-Brief in three words: **clean, spacious, bold.** Motion keeps Apple's interruptibility (streams
-retarget, never snap); the discipline to say no stays shadcn's. The test for any visual decision:
-does it survive being streamed in piece by piece and still feel like one hand drew it?
+Brief: **clean, quiet, crisp — inspired is the bar.** Motion keeps Apple's interruptibility; the
+discipline to say no is the whole point. The test for any visual decision: does it survive being
+streamed in piece by piece and still feel like one hand drew it?
 
 ## 1. The intent scale
 
@@ -49,28 +52,30 @@ Rules:
 
 ## 2. Color and surface
 
-- **Roles, not colors**: components consume `--auri-surface`, `--auri-surface-container(-high)`,
-  `--auri-on-surface(-variant)`, `--auri-outline-variant`, `--auri-primary` (+ container pair).
-  Surfaces derive from `--auri-seed` via `color-mix`, so hosts retheme with one variable.
-- **Intent trios**: each of `good/bad/warning/info/neutral` ships as strong color +
-  `-container` + `on--container`. **The filled container IS the signal** — judged content
-  (badges, callouts, delta chips, armed confirms) sits on its intent container with on-container
-  text; no borders, no dots. Strong colors are for lines, dots-in-timelines, and text on neutral
-  ground.
-- **Tone budget**: containers everywhere, but _intent_ containers only where the agent made a
-  claim — a dashboard that judges everything judges nothing.
+- **Roles, not colors**: components consume `--auri-surface`, `--auri-surface-container` (card),
+  `--auri-surface-container-high` (muted fill), `--auri-on-surface(-variant)`,
+  `--auri-outline-variant` (the hairline), `--auri-input-fill`, `--auri-primary` (+ container
+  pair). Values are shadcn v4's verbatim: pure-gray oklch, `border: white/10%` and
+  `input: white-alpha` in dark.
+- **Cards are surface + hairline** in light; in dark the hairline is white-alpha and fills go
+  translucent — depth from layered transparency (the Apple read), never tone-on-tone.
+- **Intent trios recast**: `-container` is a _soft tint_ (9–14%), `on--container` is the strong
+  color itself — judged content reads as **colored text on a quiet tint** (badges, delta chips,
+  callout titles). Full-strength intent fills are reserved for nothing yet; earn them.
+- **Color budget**: the indigo seed appears only on primary actions, links, focus, and the
+  wordmark. Intents appear only where the agent made a claim. Everything else is gray — content
+  is the color.
 - Light and dark ship together, keyed off the renderer's `.a2ui-dark` class, all at `:where()`
   zero specificity so any host stylesheet wins. Docs site aside: a HOST may re-point `--a2ui-*`
   base tokens at auri roles (ours does); catalog packages never do.
-- Contrast: WCAG 2.2 AA minimum in both themes for every on-container pairing. `forced-colors`
-  maps intents to system colors; `prefers-contrast: more` thickens outlines rather than shifting
-  hue.
+- Contrast: WCAG 2.2 AA minimum in both themes for every text pairing. `forced-colors` maps
+  intents to system colors; `prefers-contrast: more` thickens hairlines rather than shifting hue.
 
 ## 2b. Shape
 
-M3-derived, simplified: `--auri-shape-sm` 10px (inner elements) · `--auri-shape-md` 16px (inputs,
-nested blocks) · `--auri-shape-lg` 20px (cards, containers) · `--auri-shape-pill` (chips, badges,
-buttons). Corners are bold and consistent; nothing square, nothing timid.
+shadcn-v4-derived: `--auri-shape-sm` 6px (chips, badges) · `--auri-shape-md` 10px (buttons,
+inputs, callouts) · `--auri-shape-lg` 14px (cards) · `--auri-shape-pill` (progress tracks only).
+Crisp, compact, consistent.
 
 ## 3. Type and density
 

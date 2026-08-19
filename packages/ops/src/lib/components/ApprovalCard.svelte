@@ -107,16 +107,17 @@
 </section>
 
 <style>
-	/* Tonal: the decision sits on the highest container — no border, no shadow. */
+	/* Foundation: the decision is a card — hairline, quiet, unmistakable. */
 	.auri-approval {
 		display: flex;
 		flex-direction: column;
 		gap: 0.6rem;
 		min-width: 0;
 		margin: var(--a2ui-space-leaf);
-		padding: 1.25rem 1.4rem;
+		padding: 1.125rem 1.25rem;
+		border: 1px solid var(--auri-outline-variant);
 		border-radius: var(--auri-shape-lg);
-		background: var(--auri-surface-container-high);
+		background: var(--auri-surface-container);
 	}
 
 	[data-decided] {
@@ -125,8 +126,8 @@
 
 	.title {
 		margin: 0;
-		font-size: 1.125rem;
-		font-weight: 700;
+		font-size: 1rem;
+		font-weight: 600;
 		letter-spacing: -0.01em;
 		color: var(--auri-on-surface);
 	}
@@ -161,13 +162,15 @@
 		font-weight: var(--auri-type-label-weight);
 		color: var(--auri-on-surface-variant);
 	}
+	/* The shadcn-v4 input feel: hairline in light, translucent fill in dark. */
 	textarea {
 		font: inherit;
+		font-size: 0.875rem;
 		color: var(--auri-on-surface);
-		background: var(--auri-surface);
-		border: none;
+		background: var(--auri-input-fill);
+		border: 1px solid var(--auri-outline-variant);
 		border-radius: var(--auri-shape-md);
-		padding: 0.6rem 0.85rem;
+		padding: 0.5rem 0.75rem;
 		resize: vertical;
 	}
 	textarea:focus-visible {
@@ -182,11 +185,11 @@
 
 	button {
 		font: inherit;
-		font-weight: 600;
+		font-weight: 500;
 		font-size: 0.875rem;
-		min-height: 2.5rem;
-		padding: 0 1.5rem;
-		border-radius: var(--auri-shape-pill);
+		min-height: 2.25rem;
+		padding: 0 1.1rem;
+		border-radius: var(--auri-shape-md);
 		border: none;
 		cursor: pointer;
 		transition: filter var(--auri-motion-fast) linear;
@@ -208,8 +211,8 @@
 		color: var(--auri-on-primary);
 	}
 	.reject {
-		background: var(--auri-primary-container);
-		color: var(--auri-on-primary-container);
+		background: var(--auri-surface-container-high);
+		color: var(--auri-on-surface);
 	}
 
 	.outcome {
