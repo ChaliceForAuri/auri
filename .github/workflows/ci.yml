@@ -27,8 +27,15 @@ jobs:
 
       - run: npm run check --workspaces --if-present
 
-      - run: npx playwright install --with-deps chromium
-        timeout-minutes: 8
+      # No --with-deps: the runner image has chromium's real system deps, and
+      # the apt step only fetched optional CJK fonts from a mirror that hangs.
+      # The browser itself comes from Playwright's CDN and is cached below.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install chromium
+        timeout-minutes: 5
 
       - run: npm run test:browser -w @aurilabs/ops
 
