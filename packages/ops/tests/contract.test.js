@@ -38,3 +38,17 @@ test('catalog id is the versioned URL and matches $id', () => {
 		/^https:\/\/chaliceforauri\.github\.io\/auri\/catalogs\/ops\/v\d+\.json$/
 	);
 });
+
+test('workspace lockstep: core version, ops version, and the range agree', () => {
+	// A drifted range makes npm nest a stale registry copy of core under ops,
+	// which silently shadows the workspace tokens at build time (v0.2.0 bug).
+	const here = dirname(fileURLToPath(import.meta.url));
+	const ops = JSON.parse(readFileSync(join(here, '..', 'package.json'), 'utf8'));
+	const core = JSON.parse(readFileSync(join(here, '..', '..', 'core', 'package.json'), 'utf8'));
+	assert.equal(core.version, ops.version, 'core and ops must version in lockstep');
+	assert.equal(
+		ops.dependencies['@aurilabs/core'],
+		`^${core.version}`,
+		'ops dependency range must be bumped with every lockstep version bump'
+	);
+});
