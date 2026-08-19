@@ -3,7 +3,24 @@
    tonal roles, so basic-catalog components go Material here too. Catalog
    packages never do this — host stylesheets stay in charge. */
 
+/* Geist (Vercel, SIL OFL 1.1) — self-hosted, variable weight. The site's
+   voice; shipped catalog components still inherit the host's font. */
+@font-face {
+	font-family: 'Geist';
+	src: url('/fonts/Geist-Variable.woff2') format('woff2');
+	font-weight: 100 900;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Geist Mono';
+	src: url('/fonts/GeistMono-Variable.woff2') format('woff2');
+	font-weight: 100 900;
+	font-display: swap;
+}
+
 :root {
+	--a2ui-font-family: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--a2ui-font-family-monospace: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 	--a2ui-color-surface: var(--auri-surface);
 	--a2ui-color-surface-raised: var(--auri-surface-container);
 	--a2ui-color-text: var(--auri-on-surface);
@@ -38,6 +55,8 @@ header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
 	max-width: 72rem;
 	margin: 0 auto;
 	padding: 1rem 1.25rem;
@@ -55,9 +74,9 @@ header {
 }
 
 .wordmark .mark {
-	width: 1.375rem;
-	height: 1.375rem;
-	border-radius: 0.5rem;
+	width: 1.25rem;
+	height: 1.25rem;
+	border-radius: 0.4rem;
 	background: var(--auri-primary);
 	position: relative;
 }
@@ -75,7 +94,8 @@ header {
 nav {
 	display: flex;
 	align-items: center;
-	gap: 1rem;
+	flex-wrap: wrap;
+	gap: 0.4rem 0.9rem;
 }
 
 nav a {
@@ -90,17 +110,16 @@ nav a:hover {
 nav button {
 	font: inherit;
 	font-size: 0.8125rem;
-	font-weight: 600;
-	color: var(--auri-on-intent-neutral-container);
-	background: var(--auri-intent-neutral-container);
-	border: none;
-	border-radius: var(--auri-shape-pill);
-	padding: 0.3rem 0.9rem;
+	font-weight: 500;
+	color: var(--auri-on-surface);
+	background: transparent;
+	border: 1px solid var(--auri-outline-variant);
+	border-radius: var(--auri-shape-md);
+	padding: 0.28rem 0.8rem;
 	cursor: pointer;
 }
 nav button:hover {
-	background: var(--auri-primary-container);
-	color: var(--auri-on-primary-container);
+	background: var(--auri-surface-container-high);
 }
 
 main {
@@ -119,4 +138,118 @@ footer {
 }
 footer a {
 	color: inherit;
+}
+
+/* --- shared documentation styles (foundations, install) --- */
+
+.doc {
+	max-width: 46rem;
+	padding: 2rem 0 1rem;
+}
+.doc h1 {
+	margin: 0 0 0.5rem;
+	font-size: 1.6rem;
+	letter-spacing: -0.02em;
+}
+.doc .lede {
+	margin: 0 0 1.5rem;
+	line-height: 1.6;
+	color: var(--auri-on-surface-variant);
+}
+.doc h2 {
+	font-size: 1.0625rem;
+	letter-spacing: -0.01em;
+	margin: 2.25rem 0 0.6rem;
+}
+.doc p,
+.doc li {
+	font-size: 0.9375rem;
+	line-height: 1.65;
+	margin: 0 0 0.75rem;
+}
+.doc ul {
+	padding-inline-start: 1.2rem;
+	margin: 0 0 0.75rem;
+}
+.doc code {
+	font-family: var(--a2ui-font-family-monospace);
+	font-size: 0.85em;
+	background: var(--auri-surface-container-high);
+	border-radius: 5px;
+	padding: 0.1em 0.35em;
+}
+.doc pre {
+	background: var(--auri-surface-container-high);
+	border-radius: var(--auri-shape-md);
+	padding: 0.9rem 1.1rem;
+	overflow-x: auto;
+	margin: 0 0 1rem;
+}
+.doc pre code {
+	background: transparent;
+	padding: 0;
+	font-size: 0.8125rem;
+	line-height: 1.6;
+}
+.doc table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.8125rem;
+	margin: 0 0 1rem;
+}
+.doc th {
+	text-align: start;
+	font-weight: 500;
+	color: var(--auri-on-surface-variant);
+	padding: 0.4rem 0.75rem 0.4rem 0;
+	border-bottom: 1px solid var(--auri-outline-variant);
+}
+.doc td {
+	padding: 0.5rem 0.75rem 0.5rem 0;
+	border-bottom: 1px solid var(--auri-outline-variant);
+	vertical-align: middle;
+}
+.doc .swatch {
+	display: inline-block;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 6px;
+	border: 1px solid var(--auri-outline-variant);
+	vertical-align: middle;
+}
+.doc .demo {
+	border: 1px solid var(--auri-outline-variant);
+	border-radius: var(--auri-shape-lg);
+	padding: 1.25rem;
+	margin: 0 0 1rem;
+	background: var(--auri-surface);
+}
+
+.card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+	gap: 0.75rem;
+}
+.card-grid a {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	padding: 1rem;
+	border: 1px solid var(--auri-outline-variant);
+	border-radius: var(--auri-shape-lg);
+	background: var(--auri-surface-container);
+	text-decoration: none;
+	transition: border-color var(--auri-motion-fast) linear;
+}
+.card-grid a:hover {
+	border-color: var(--auri-primary);
+}
+.card-grid .name {
+	font-weight: 600;
+	color: var(--auri-on-surface);
+}
+.card-grid .blurb {
+	font-size: 0.8125rem;
+	color: var(--auri-on-surface-variant);
+	line-height: 1.5;
 }

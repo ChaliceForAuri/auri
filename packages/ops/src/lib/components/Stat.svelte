@@ -59,13 +59,15 @@
 </div>
 
 <style>
+	/* Foundation: card = surface + hairline; depth from the line, not tone. */
 	.auri-stat {
 		display: flex;
 		flex-direction: column;
 		gap: 0.35rem;
 		min-width: 0;
 		margin: var(--a2ui-space-leaf);
-		padding: 1.125rem 1.25rem;
+		padding: 1rem 1.125rem;
+		border: 1px solid var(--auri-outline-variant);
 		border-radius: var(--auri-shape-lg);
 		background: var(--auri-surface-container);
 	}
@@ -80,7 +82,7 @@
 	.value {
 		font-size: var(--auri-type-value-size);
 		font-weight: var(--auri-type-value-weight);
-		letter-spacing: -0.02em;
+		letter-spacing: -0.025em;
 		color: var(--auri-on-surface);
 		line-height: 1.12;
 		/* Streaming values must not jiggle their neighbours (DESIGN 3). */
@@ -114,8 +116,8 @@
 		align-items: center;
 		gap: 0.3em;
 		font-weight: 600;
-		padding: 0.15em 0.75em;
-		border-radius: var(--auri-shape-pill);
+		padding: 0.16em 0.6em;
+		border-radius: var(--auri-shape-sm);
 		background: var(--auri-intent-neutral-container);
 		color: var(--auri-on-intent-neutral-container);
 		/* Intent flips through the data model cross-fade (DESIGN 4). */

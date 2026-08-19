@@ -87,12 +87,12 @@
 	button {
 		font: inherit;
 		font-size: var(--auri-type-caption-size);
-		font-weight: 600;
+		font-weight: 500;
 		color: var(--auri-on-surface-variant);
-		background: var(--auri-intent-neutral-container);
-		border: none;
-		border-radius: var(--auri-shape-pill);
-		padding: 0.2rem 0.85rem;
+		background: var(--auri-surface-container);
+		border: 1px solid var(--auri-outline-variant);
+		border-radius: var(--auri-shape-sm);
+		padding: 0.15rem 0.7rem;
 		cursor: pointer;
 	}
 	button:hover:not(:disabled) {

@@ -38,45 +38,53 @@
 </div>
 
 <style>
-	/* Tonal: a filled container carries the register — no borders (DESIGN 1/2). */
+	/* Foundation: soft tint carries the register; the title carries the color. */
 	.auri-callout {
 		min-width: 0;
 		margin: var(--a2ui-space-leaf);
-		padding: 0.95rem 1.25rem;
-		border-radius: var(--auri-shape-lg);
+		padding: 0.85rem 1.125rem;
+		border-radius: var(--auri-shape-md);
 		background: var(--auri-intent-info-container);
-		color: var(--auri-on-intent-info-container);
 	}
 
 	[data-intent='good'] {
 		background: var(--auri-intent-good-container);
-		color: var(--auri-on-intent-good-container);
 	}
 	[data-intent='bad'] {
 		background: var(--auri-intent-bad-container);
-		color: var(--auri-on-intent-bad-container);
 	}
 	[data-intent='warning'] {
 		background: var(--auri-intent-warning-container);
-		color: var(--auri-on-intent-warning-container);
 	}
 	[data-intent='neutral'] {
 		background: var(--auri-intent-neutral-container);
-		color: var(--auri-on-intent-neutral-container);
 	}
 
 	.title {
-		margin: 0 0 0.3em;
-		font-weight: 700;
-		font-size: 0.9375rem;
+		margin: 0 0 0.25em;
+		font-weight: 600;
+		font-size: 0.875rem;
+		color: var(--auri-on-intent-info-container);
+	}
+	[data-intent='good'] .title {
+		color: var(--auri-on-intent-good-container);
+	}
+	[data-intent='bad'] .title {
+		color: var(--auri-on-intent-bad-container);
+	}
+	[data-intent='warning'] .title {
+		color: var(--auri-on-intent-warning-container);
+	}
+	[data-intent='neutral'] .title {
+		color: var(--auri-on-intent-neutral-container);
 	}
 
 	.text {
 		margin: 0;
-		font-size: 0.875rem;
+		font-size: 0.8125rem;
 		line-height: 1.55;
+		color: var(--auri-on-surface);
 		overflow-wrap: anywhere;
-		opacity: 0.92;
 	}
 
 	.text :global(p) {

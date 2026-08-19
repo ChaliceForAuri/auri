@@ -1,63 +1,66 @@
 /**
- * auri design tokens — the Tonal direction (see docs/DESIGN.md, authoritative).
+ * auri design tokens — the Foundation direction (see docs/DESIGN.md).
  *
- * Architecture from Material 3: color roles (surface / container / on-*),
- * tonal depth instead of borders, a bold shape scale, state layers. Palette
- * values drawn from Tailwind's open OKLCH-calibrated scales (indigo, emerald,
- * red, amber, sky). Delivered as plain CSS custom properties — no framework
- * at runtime, everything at :where() zero specificity so hosts win.
+ * Ground values adopted verbatim from shadcn/ui v4 (MIT, credit in README):
+ * chroma-zero oklch neutrals, hairline borders in light, white-alpha borders
+ * and translucent fills in dark — depth from layered transparency, not tone.
+ * Color is rare: one brand accent (the emerald seed) for primary actions and
+ * focus, and the five intents as colored text on soft tints. Content is the
+ * color everywhere else.
  *
- * The seed is real: surfaces derive from --auri-seed via color-mix, so a host
- * that swaps one variable retunes the whole tonal ground.
- *
+ * Delivered as plain CSS custom properties at :where() zero specificity.
  * Dark keys off the renderer's `.a2ui-dark` class (and prefers-color-scheme),
  * so one toggle drives both layers.
  */
 
 :where(:root),
 :where(.a2ui-light) {
-	/* --- the seed (Tailwind indigo-600) --- */
-	--auri-seed: #4f46e5;
+	/* --- the accent seeds (Tailwind emerald) — green: the color of healthy.
+	   Reseeding is a two-variable API: --auri-seed paints light, --auri-seed-dark
+	   paints dark (accents need different weights per theme to hold contrast). --- */
+	--auri-seed: #047857;
+	--auri-seed-dark: #34d399;
 
-	/* --- Material color roles, light --- */
-	--auri-surface: color-mix(in oklab, var(--auri-seed) 3%, #ffffff);
-	--auri-surface-container: color-mix(in oklab, var(--auri-seed) 7%, #ffffff);
-	--auri-surface-container-high: color-mix(in oklab, var(--auri-seed) 11%, #ffffff);
-	--auri-on-surface: #1b1b27;
-	--auri-on-surface-variant: #565566;
-	--auri-outline-variant: color-mix(in oklab, var(--auri-seed) 9%, #e7e7ec);
+	/* --- neutral ground (shadcn v4 values, chroma 0) --- */
+	--auri-surface: oklch(1 0 0);
+	--auri-surface-container: oklch(1 0 0); /* card: white + hairline in light */
+	--auri-surface-container-high: oklch(0.97 0 0); /* muted fill */
+	--auri-on-surface: oklch(0.145 0 0);
+	--auri-on-surface-variant: oklch(0.556 0 0); /* muted-foreground */
+	--auri-outline-variant: oklch(0.922 0 0); /* border */
+	--auri-input-fill: transparent; /* light inputs: hairline, no fill */
 
 	--auri-primary: var(--auri-seed);
 	--auri-on-primary: #ffffff;
-	--auri-primary-container: #e0e7ff;
-	--auri-on-primary-container: #312e81;
+	--auri-primary-container: color-mix(in oklab, var(--auri-seed) 10%, white);
+	--auri-on-primary-container: var(--auri-seed);
 
-	/* --- intent trios: strong / container / on-container --- */
+	/* --- intent: strong color for text/lines; container = soft tint --- */
 	--auri-intent-good: #047857;
-	--auri-intent-good-container: #d1fae5;
-	--auri-on-intent-good-container: #064e3b;
-	--auri-intent-bad: #b91c1c;
-	--auri-intent-bad-container: #fee2e2;
-	--auri-on-intent-bad-container: #7f1d1d;
+	--auri-intent-good-container: color-mix(in oklab, #047857 9%, white);
+	--auri-on-intent-good-container: #047857;
+	--auri-intent-bad: #dc2626;
+	--auri-intent-bad-container: color-mix(in oklab, #dc2626 9%, white);
+	--auri-on-intent-bad-container: #b91c1c;
 	--auri-intent-warning: #b45309;
-	--auri-intent-warning-container: #fef3c7;
-	--auri-on-intent-warning-container: #78350f;
+	--auri-intent-warning-container: color-mix(in oklab, #d97706 11%, white);
+	--auri-on-intent-warning-container: #92400e;
 	--auri-intent-info: #0369a1;
-	--auri-intent-info-container: #e0f2fe;
-	--auri-on-intent-info-container: #0c4a6e;
-	--auri-intent-neutral: #565566;
-	--auri-intent-neutral-container: color-mix(in oklab, var(--auri-seed) 8%, #f1f1f4);
-	--auri-on-intent-neutral-container: #1b1b27;
+	--auri-intent-info-container: color-mix(in oklab, #0284c7 9%, white);
+	--auri-on-intent-info-container: #0369a1;
+	--auri-intent-neutral: oklch(0.556 0 0);
+	--auri-intent-neutral-container: oklch(0.97 0 0);
+	--auri-on-intent-neutral-container: oklch(0.371 0 0);
 
-	/* --- shape scale (M3-derived, simplified) --- */
-	--auri-shape-sm: 10px;
-	--auri-shape-md: 16px;
-	--auri-shape-lg: 20px;
+	/* --- shape (shadcn v4 base radius 0.625rem) --- */
+	--auri-shape-sm: 6px;
+	--auri-shape-md: 10px;
+	--auri-shape-lg: 14px;
 	--auri-shape-pill: 999px;
 
 	/* --- state layers --- */
-	--auri-state-hover: color-mix(in oklab, currentColor 8%, transparent);
-	--auri-state-press: color-mix(in oklab, currentColor 12%, transparent);
+	--auri-state-hover: color-mix(in oklab, currentColor 6%, transparent);
+	--auri-state-press: color-mix(in oklab, currentColor 10%, transparent);
 
 	/* --- chart series ramp (Tailwind 600s) --- */
 	--auri-chart-1: #4f46e5;
@@ -76,46 +79,47 @@
 	--auri-ease-in: cubic-bezier(0.55, 0, 1, 0.45);
 
 	/* --- type roles: value / label / caption --- */
-	--auri-type-value-size: 1.875rem;
-	--auri-type-value-weight: 700;
+	--auri-type-value-size: 1.75rem;
+	--auri-type-value-weight: 600;
 	--auri-type-label-size: 0.8125rem;
-	--auri-type-label-weight: 600;
+	--auri-type-label-weight: 500;
 	--auri-type-caption-size: 0.75rem;
 
 	/* --- in-between states --- */
-	--auri-skeleton-base: color-mix(in oklab, var(--auri-seed) 6%, rgb(0 0 0 / 0.06));
-	--auri-skeleton-sheen: color-mix(in oklab, var(--auri-seed) 4%, rgb(0 0 0 / 0.02));
+	--auri-skeleton-base: oklch(0 0 0 / 0.06);
+	--auri-skeleton-sheen: oklch(0 0 0 / 0.025);
 }
 
 @media (prefers-color-scheme: dark) {
 	:where(:root) {
-		--auri-surface: color-mix(in oklab, var(--auri-seed) 8%, #0e0e13);
-		--auri-surface-container: color-mix(in oklab, var(--auri-seed) 12%, #15151b);
-		--auri-surface-container-high: color-mix(in oklab, var(--auri-seed) 16%, #1b1b22);
-		--auri-on-surface: #e5e4ef;
-		--auri-on-surface-variant: #a7a6b6;
-		--auri-outline-variant: color-mix(in oklab, var(--auri-seed) 18%, #303039);
+		--auri-surface: oklch(0.145 0 0);
+		--auri-surface-container: oklch(0.205 0 0); /* card */
+		--auri-surface-container-high: oklch(0.269 0 0); /* muted */
+		--auri-on-surface: oklch(0.985 0 0);
+		--auri-on-surface-variant: oklch(0.708 0 0);
+		--auri-outline-variant: oklch(1 0 0 / 10%); /* white-alpha hairline */
+		--auri-input-fill: oklch(1 0 0 / 8%); /* translucent filled inputs */
 
-		--auri-primary: #a5b4fc;
-		--auri-on-primary: #1e1b4b;
-		--auri-primary-container: #4338ca;
-		--auri-on-primary-container: #e0e7ff;
+		--auri-primary: var(--auri-seed-dark);
+		--auri-on-primary: oklch(0.145 0 0);
+		--auri-primary-container: color-mix(in oklab, var(--auri-seed-dark) 16%, transparent);
+		--auri-on-primary-container: color-mix(in oklab, var(--auri-seed-dark) 55%, white);
 
 		--auri-intent-good: #34d399;
-		--auri-intent-good-container: #064e3b;
-		--auri-on-intent-good-container: #d1fae5;
+		--auri-intent-good-container: color-mix(in oklab, #34d399 14%, transparent);
+		--auri-on-intent-good-container: #6ee7b7;
 		--auri-intent-bad: #f87171;
-		--auri-intent-bad-container: #7f1d1d;
-		--auri-on-intent-bad-container: #fee2e2;
+		--auri-intent-bad-container: color-mix(in oklab, #f87171 14%, transparent);
+		--auri-on-intent-bad-container: #fca5a5;
 		--auri-intent-warning: #fbbf24;
-		--auri-intent-warning-container: #78350f;
-		--auri-on-intent-warning-container: #fef3c7;
+		--auri-intent-warning-container: color-mix(in oklab, #fbbf24 13%, transparent);
+		--auri-on-intent-warning-container: #fcd34d;
 		--auri-intent-info: #38bdf8;
-		--auri-intent-info-container: #0c4a6e;
-		--auri-on-intent-info-container: #e0f2fe;
-		--auri-intent-neutral: #a7a6b6;
-		--auri-intent-neutral-container: color-mix(in oklab, var(--auri-seed) 16%, #26262e);
-		--auri-on-intent-neutral-container: #e5e4ef;
+		--auri-intent-info-container: color-mix(in oklab, #38bdf8 14%, transparent);
+		--auri-on-intent-info-container: #7dd3fc;
+		--auri-intent-neutral: oklch(0.708 0 0);
+		--auri-intent-neutral-container: oklch(1 0 0 / 8%);
+		--auri-on-intent-neutral-container: oklch(0.85 0 0);
 
 		--auri-chart-1: #818cf8;
 		--auri-chart-2: #34d399;
@@ -124,39 +128,40 @@
 		--auri-chart-5: #22d3ee;
 		--auri-chart-6: #fb7185;
 
-		--auri-skeleton-base: color-mix(in oklab, var(--auri-seed) 12%, rgb(255 255 255 / 0.06));
-		--auri-skeleton-sheen: color-mix(in oklab, var(--auri-seed) 8%, rgb(255 255 255 / 0.03));
+		--auri-skeleton-base: oklch(1 0 0 / 0.07);
+		--auri-skeleton-sheen: oklch(1 0 0 / 0.03);
 	}
 }
 
 :where(.a2ui-dark) {
-	--auri-surface: color-mix(in oklab, var(--auri-seed) 8%, #0e0e13);
-	--auri-surface-container: color-mix(in oklab, var(--auri-seed) 12%, #15151b);
-	--auri-surface-container-high: color-mix(in oklab, var(--auri-seed) 16%, #1b1b22);
-	--auri-on-surface: #e5e4ef;
-	--auri-on-surface-variant: #a7a6b6;
-	--auri-outline-variant: color-mix(in oklab, var(--auri-seed) 18%, #303039);
+	--auri-surface: oklch(0.145 0 0);
+	--auri-surface-container: oklch(0.205 0 0);
+	--auri-surface-container-high: oklch(0.269 0 0);
+	--auri-on-surface: oklch(0.985 0 0);
+	--auri-on-surface-variant: oklch(0.708 0 0);
+	--auri-outline-variant: oklch(1 0 0 / 10%);
+	--auri-input-fill: oklch(1 0 0 / 8%);
 
-	--auri-primary: #a5b4fc;
-	--auri-on-primary: #1e1b4b;
-	--auri-primary-container: #4338ca;
-	--auri-on-primary-container: #e0e7ff;
+	--auri-primary: var(--auri-seed-dark);
+	--auri-on-primary: oklch(0.145 0 0);
+	--auri-primary-container: color-mix(in oklab, var(--auri-seed-dark) 16%, transparent);
+	--auri-on-primary-container: color-mix(in oklab, var(--auri-seed-dark) 55%, white);
 
 	--auri-intent-good: #34d399;
-	--auri-intent-good-container: #064e3b;
-	--auri-on-intent-good-container: #d1fae5;
+	--auri-intent-good-container: color-mix(in oklab, #34d399 14%, transparent);
+	--auri-on-intent-good-container: #6ee7b7;
 	--auri-intent-bad: #f87171;
-	--auri-intent-bad-container: #7f1d1d;
-	--auri-on-intent-bad-container: #fee2e2;
+	--auri-intent-bad-container: color-mix(in oklab, #f87171 14%, transparent);
+	--auri-on-intent-bad-container: #fca5a5;
 	--auri-intent-warning: #fbbf24;
-	--auri-intent-warning-container: #78350f;
-	--auri-on-intent-warning-container: #fef3c7;
+	--auri-intent-warning-container: color-mix(in oklab, #fbbf24 13%, transparent);
+	--auri-on-intent-warning-container: #fcd34d;
 	--auri-intent-info: #38bdf8;
-	--auri-intent-info-container: #0c4a6e;
-	--auri-on-intent-info-container: #e0f2fe;
-	--auri-intent-neutral: #a7a6b6;
-	--auri-intent-neutral-container: color-mix(in oklab, var(--auri-seed) 16%, #26262e);
-	--auri-on-intent-neutral-container: #e5e4ef;
+	--auri-intent-info-container: color-mix(in oklab, #38bdf8 14%, transparent);
+	--auri-on-intent-info-container: #7dd3fc;
+	--auri-intent-neutral: oklch(0.708 0 0);
+	--auri-intent-neutral-container: oklch(1 0 0 / 8%);
+	--auri-on-intent-neutral-container: oklch(0.85 0 0);
 
 	--auri-chart-1: #818cf8;
 	--auri-chart-2: #34d399;
@@ -165,8 +170,24 @@
 	--auri-chart-5: #22d3ee;
 	--auri-chart-6: #fb7185;
 
-	--auri-skeleton-base: color-mix(in oklab, var(--auri-seed) 12%, rgb(255 255 255 / 0.06));
-	--auri-skeleton-sheen: color-mix(in oklab, var(--auri-seed) 8%, rgb(255 255 255 / 0.03));
+	--auri-skeleton-base: oklch(1 0 0 / 0.07);
+	--auri-skeleton-sheen: oklch(1 0 0 / 0.03);
+}
+
+/* Higher-contrast preference: hairlines strengthen rather than hues shifting. */
+@media (prefers-contrast: more) {
+	:where(:root),
+	:where(.a2ui-light) {
+		--auri-outline-variant: oklch(0.5 0 0);
+	}
+	:where(.a2ui-dark) {
+		--auri-outline-variant: oklch(1 0 0 / 0.35);
+	}
+	@media (prefers-color-scheme: dark) {
+		:where(:root) {
+			--auri-outline-variant: oklch(1 0 0 / 0.35);
+		}
+	}
 }
 
 /* Forced colors (Windows High Contrast): intents map to system colors. */
