@@ -136,3 +136,117 @@ footer {
 footer a {
 	color: inherit;
 }
+
+/* --- shared documentation styles (foundations, install) --- */
+
+.doc {
+	max-width: 46rem;
+	padding: 2rem 0 1rem;
+}
+.doc h1 {
+	margin: 0 0 0.5rem;
+	font-size: 1.6rem;
+	letter-spacing: -0.02em;
+}
+.doc .lede {
+	margin: 0 0 1.5rem;
+	line-height: 1.6;
+	color: var(--auri-on-surface-variant);
+}
+.doc h2 {
+	font-size: 1.0625rem;
+	letter-spacing: -0.01em;
+	margin: 2.25rem 0 0.6rem;
+}
+.doc p,
+.doc li {
+	font-size: 0.9375rem;
+	line-height: 1.65;
+	margin: 0 0 0.75rem;
+}
+.doc ul {
+	padding-inline-start: 1.2rem;
+	margin: 0 0 0.75rem;
+}
+.doc code {
+	font-family: var(--a2ui-font-family-monospace);
+	font-size: 0.85em;
+	background: var(--auri-surface-container-high);
+	border-radius: 5px;
+	padding: 0.1em 0.35em;
+}
+.doc pre {
+	background: var(--auri-surface-container-high);
+	border-radius: var(--auri-shape-md);
+	padding: 0.9rem 1.1rem;
+	overflow-x: auto;
+	margin: 0 0 1rem;
+}
+.doc pre code {
+	background: transparent;
+	padding: 0;
+	font-size: 0.8125rem;
+	line-height: 1.6;
+}
+.doc table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.8125rem;
+	margin: 0 0 1rem;
+}
+.doc th {
+	text-align: start;
+	font-weight: 500;
+	color: var(--auri-on-surface-variant);
+	padding: 0.4rem 0.75rem 0.4rem 0;
+	border-bottom: 1px solid var(--auri-outline-variant);
+}
+.doc td {
+	padding: 0.5rem 0.75rem 0.5rem 0;
+	border-bottom: 1px solid var(--auri-outline-variant);
+	vertical-align: middle;
+}
+.doc .swatch {
+	display: inline-block;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 6px;
+	border: 1px solid var(--auri-outline-variant);
+	vertical-align: middle;
+}
+.doc .demo {
+	border: 1px solid var(--auri-outline-variant);
+	border-radius: var(--auri-shape-lg);
+	padding: 1.25rem;
+	margin: 0 0 1rem;
+	background: var(--auri-surface);
+}
+
+.card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+	gap: 0.75rem;
+}
+.card-grid a {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	padding: 1rem;
+	border: 1px solid var(--auri-outline-variant);
+	border-radius: var(--auri-shape-lg);
+	background: var(--auri-surface-container);
+	text-decoration: none;
+	transition: border-color var(--auri-motion-fast) linear;
+}
+.card-grid a:hover {
+	border-color: var(--auri-primary);
+}
+.card-grid .name {
+	font-weight: 600;
+	color: var(--auri-on-surface);
+}
+.card-grid .blurb {
+	font-size: 0.8125rem;
+	color: var(--auri-on-surface-variant);
+	line-height: 1.5;
+}

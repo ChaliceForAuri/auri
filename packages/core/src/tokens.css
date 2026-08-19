@@ -4,7 +4,7 @@
  * Ground values adopted verbatim from shadcn/ui v4 (MIT, credit in README):
  * chroma-zero oklch neutrals, hairline borders in light, white-alpha borders
  * and translucent fills in dark — depth from layered transparency, not tone.
- * Color is rare: one brand accent (the indigo seed) for primary actions and
+ * Color is rare: one brand accent (the emerald seed) for primary actions and
  * focus, and the five intents as colored text on soft tints. Content is the
  * color everywhere else.
  *
@@ -15,8 +15,8 @@
 
 :where(:root),
 :where(.a2ui-light) {
-	/* --- the accent seed (Tailwind indigo-600) — used sparingly --- */
-	--auri-seed: #4f46e5;
+	/* --- the accent seed (Tailwind emerald-700) — green: the color of healthy --- */
+	--auri-seed: #047857;
 
 	/* --- neutral ground (shadcn v4 values, chroma 0) --- */
 	--auri-surface: oklch(1 0 0);
@@ -97,10 +97,10 @@
 		--auri-outline-variant: oklch(1 0 0 / 10%); /* white-alpha hairline */
 		--auri-input-fill: oklch(1 0 0 / 8%); /* translucent filled inputs */
 
-		--auri-primary: #818cf8;
+		--auri-primary: #34d399;
 		--auri-on-primary: oklch(0.145 0 0);
-		--auri-primary-container: color-mix(in oklab, #818cf8 18%, transparent);
-		--auri-on-primary-container: #a5b4fc;
+		--auri-primary-container: color-mix(in oklab, #34d399 16%, transparent);
+		--auri-on-primary-container: #6ee7b7;
 
 		--auri-intent-good: #34d399;
 		--auri-intent-good-container: color-mix(in oklab, #34d399 14%, transparent);
@@ -139,10 +139,10 @@
 	--auri-outline-variant: oklch(1 0 0 / 10%);
 	--auri-input-fill: oklch(1 0 0 / 8%);
 
-	--auri-primary: #818cf8;
+	--auri-primary: #34d399;
 	--auri-on-primary: oklch(0.145 0 0);
-	--auri-primary-container: color-mix(in oklab, #818cf8 18%, transparent);
-	--auri-on-primary-container: #a5b4fc;
+	--auri-primary-container: color-mix(in oklab, #34d399 16%, transparent);
+	--auri-on-primary-container: #6ee7b7;
 
 	--auri-intent-good: #34d399;
 	--auri-intent-good-container: color-mix(in oklab, #34d399 14%, transparent);
