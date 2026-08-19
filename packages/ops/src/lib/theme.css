@@ -72,7 +72,7 @@
 
 :where(.auri-skeleton) {
 	display: inline-block;
-	border-radius: var(--a2ui-radius-small, 6px);
+	border-radius: var(--auri-shape-sm);
 	background: linear-gradient(
 		90deg,
 		var(--auri-skeleton-base) 40%,

@@ -60,12 +60,12 @@
 </div>
 
 <style>
+	/* Tonal: the high container carries the code — no border (DESIGN 1). */
 	.auri-codeblock {
 		min-width: 0;
 		margin: var(--a2ui-space-leaf);
-		border: 1px solid var(--a2ui-color-border);
-		border-radius: var(--a2ui-radius);
-		background: var(--a2ui-color-surface-raised);
+		border-radius: var(--auri-shape-lg);
+		background: var(--auri-surface-container-high);
 		overflow: hidden;
 	}
 
@@ -74,35 +74,36 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.75rem;
-		padding: 0.4rem 0.75rem;
-		border-bottom: 1px solid var(--a2ui-color-border);
+		padding: 0.55rem 1rem;
+		border-bottom: 1px solid var(--auri-outline-variant);
 	}
 
 	.label {
 		font-size: var(--auri-type-caption-size);
 		font-family: var(--a2ui-font-family-monospace);
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 
 	button {
 		font: inherit;
 		font-size: var(--auri-type-caption-size);
-		color: var(--a2ui-color-text-muted);
-		background: transparent;
-		border: 1px solid var(--a2ui-color-border);
-		border-radius: var(--a2ui-radius-small);
-		padding: 0.1rem 0.6rem;
+		font-weight: 600;
+		color: var(--auri-on-surface-variant);
+		background: var(--auri-intent-neutral-container);
+		border: none;
+		border-radius: var(--auri-shape-pill);
+		padding: 0.2rem 0.85rem;
 		cursor: pointer;
 	}
 	button:hover:not(:disabled) {
-		color: var(--a2ui-color-text);
+		color: var(--auri-on-surface);
 	}
 	button:disabled {
 		opacity: 0.5;
 		cursor: default;
 	}
 	button:focus-visible {
-		outline: 2px solid var(--a2ui-color-primary);
+		outline: 2px solid var(--auri-primary);
 		outline-offset: 1px;
 	}
 
@@ -114,7 +115,7 @@
 		font-family: var(--a2ui-font-family-monospace);
 		font-size: 0.8125rem;
 		line-height: 1.55;
-		color: var(--a2ui-color-text);
+		color: var(--auri-on-surface);
 		tab-size: 2;
 	}
 

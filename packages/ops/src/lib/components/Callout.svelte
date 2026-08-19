@@ -38,49 +38,45 @@
 </div>
 
 <style>
+	/* Tonal: a filled container carries the register — no borders (DESIGN 1/2). */
 	.auri-callout {
 		min-width: 0;
 		margin: var(--a2ui-space-leaf);
-		padding: 0.75rem var(--a2ui-space-inset);
-		border: 1px solid var(--auri-intent-info-border);
-		border-inline-start: 3px solid var(--auri-intent-info);
-		border-radius: var(--a2ui-radius);
-		background: var(--auri-intent-info-surface);
-		color: var(--a2ui-color-text);
+		padding: 0.95rem 1.25rem;
+		border-radius: var(--auri-shape-lg);
+		background: var(--auri-intent-info-container);
+		color: var(--auri-on-intent-info-container);
 	}
 
 	[data-intent='good'] {
-		border-color: var(--auri-intent-good-border);
-		border-inline-start-color: var(--auri-intent-good);
-		background: var(--auri-intent-good-surface);
+		background: var(--auri-intent-good-container);
+		color: var(--auri-on-intent-good-container);
 	}
 	[data-intent='bad'] {
-		border-color: var(--auri-intent-bad-border);
-		border-inline-start-color: var(--auri-intent-bad);
-		background: var(--auri-intent-bad-surface);
+		background: var(--auri-intent-bad-container);
+		color: var(--auri-on-intent-bad-container);
 	}
 	[data-intent='warning'] {
-		border-color: var(--auri-intent-warning-border);
-		border-inline-start-color: var(--auri-intent-warning);
-		background: var(--auri-intent-warning-surface);
+		background: var(--auri-intent-warning-container);
+		color: var(--auri-on-intent-warning-container);
 	}
 	[data-intent='neutral'] {
-		border-color: var(--auri-intent-neutral-border);
-		border-inline-start-color: var(--auri-intent-neutral);
-		background: var(--auri-intent-neutral-surface);
+		background: var(--auri-intent-neutral-container);
+		color: var(--auri-on-intent-neutral-container);
 	}
 
 	.title {
-		margin: 0 0 0.25em;
-		font-weight: 600;
+		margin: 0 0 0.3em;
+		font-weight: 700;
 		font-size: 0.9375rem;
 	}
 
 	.text {
 		margin: 0;
 		font-size: 0.875rem;
-		line-height: 1.5;
+		line-height: 1.55;
 		overflow-wrap: anywhere;
+		opacity: 0.92;
 	}
 
 	.text :global(p) {
@@ -93,11 +89,12 @@
 		font-family: var(--a2ui-font-family-monospace);
 		font-size: 0.9em;
 		/* Neutral gray at low alpha so the chip reads on light and dark tints alike. */
-		background: rgb(150 150 150 / 0.16);
-		border-radius: var(--a2ui-radius-small);
+		background: rgb(150 150 150 / 0.18);
+		border-radius: 6px;
 		padding: 0.1em 0.3em;
 	}
 	.text :global(a) {
-		color: var(--a2ui-color-primary);
+		color: inherit;
+		font-weight: 600;
 	}
 </style>

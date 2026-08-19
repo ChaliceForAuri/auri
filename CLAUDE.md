@@ -29,7 +29,7 @@ Full plan: `docs/PLAN.md`. Read it before designing anything. The quality pillar
 7. **Raw values on the wire** — numbers, ISO timestamps, enums; components format with `Intl` in the host locale. An agent never emits `"1,234.56"` or a pre-baked relative time.
 8. **In-between states are contract concerns** — components arrive before their data binds, so every bound component defines skeleton/empty/error behavior.
 
-`docs/DESIGN.md` (the design language: intent semantics, motion tokens, density, state rules) is authoritative for how components look, move, and degrade — read it before designing or reviewing any contract, and fix conflicts in its favor.
+`docs/DESIGN.md` (the design language: intent semantics, motion tokens, density, state rules) is authoritative for how components look, move, and degrade — read it before designing or reviewing any contract, and fix conflicts in its favor. **The visual language is settled (2026-08-18): the Tonal direction** — Material 3 architecture (color roles, tonal containers-not-borders, shape scale) with palette values from Tailwind's open scales, seeded from `--auri-seed` via `color-mix`; chosen by Hugo on the design canvas (claude.ai artifact "auri Design Directions"). Filled intent containers ARE the signal — no borders, no dots on badges.
 
 ## Naming and identity
 

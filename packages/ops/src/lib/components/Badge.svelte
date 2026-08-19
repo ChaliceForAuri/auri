@@ -21,71 +21,51 @@
 		class="auri-badge auri-enter"
 		data-intent={tone}
 		style:flex-grow={weight}
-		aria-label={ariaLabel}
+		aria-label={ariaLabel}>{text}</span
 	>
-		<span class="dot" aria-hidden="true"></span>{text}
-	</span>
 {/if}
 
 <style>
+	/* Tonal: the filled container IS the signal — no dot, no border (DESIGN 1). */
 	.auri-badge {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.35em;
 		margin: var(--a2ui-space-leaf);
-		padding: 0.15em 0.6em;
-		border: 1px solid var(--auri-intent-neutral-border);
-		border-radius: 999px;
-		background: var(--auri-intent-neutral-surface);
-		color: var(--a2ui-color-text);
+		padding: 0.28em 0.95em;
+		border-radius: var(--auri-shape-pill);
+		background: var(--auri-intent-neutral-container);
+		color: var(--auri-on-intent-neutral-container);
 		font-size: var(--auri-type-label-size);
 		font-weight: var(--auri-type-label-weight);
 		line-height: 1.6;
 		white-space: nowrap;
-	}
-
-	.dot {
-		width: 0.45em;
-		height: 0.45em;
-		border-radius: 50%;
-		background: var(--auri-intent-neutral);
-		/* Intent flips (via data binding) cross-fade — micro state change (DESIGN 4). */
-		transition: background var(--auri-motion-fast) linear;
+		/* Intent flips through the data model cross-fade (DESIGN 4). */
+		transition:
+			background var(--auri-motion-fast) linear,
+			color var(--auri-motion-fast) linear;
 	}
 
 	[data-intent='good'] {
-		border-color: var(--auri-intent-good-border);
-		background: var(--auri-intent-good-surface);
-	}
-	[data-intent='good'] .dot {
-		background: var(--auri-intent-good);
+		background: var(--auri-intent-good-container);
+		color: var(--auri-on-intent-good-container);
 	}
 	[data-intent='bad'] {
-		border-color: var(--auri-intent-bad-border);
-		background: var(--auri-intent-bad-surface);
-	}
-	[data-intent='bad'] .dot {
-		background: var(--auri-intent-bad);
+		background: var(--auri-intent-bad-container);
+		color: var(--auri-on-intent-bad-container);
 	}
 	[data-intent='warning'] {
-		border-color: var(--auri-intent-warning-border);
-		background: var(--auri-intent-warning-surface);
-	}
-	[data-intent='warning'] .dot {
-		background: var(--auri-intent-warning);
+		background: var(--auri-intent-warning-container);
+		color: var(--auri-on-intent-warning-container);
 	}
 	[data-intent='info'] {
-		border-color: var(--auri-intent-info-border);
-		background: var(--auri-intent-info-surface);
-	}
-	[data-intent='info'] .dot {
-		background: var(--auri-intent-info);
+		background: var(--auri-intent-info-container);
+		color: var(--auri-on-intent-info-container);
 	}
 
 	.badge-skeleton {
 		width: 5ch;
-		height: 1.6em;
+		height: 1.9em;
 		margin: var(--a2ui-space-leaf);
-		border-radius: 999px;
+		border-radius: var(--auri-shape-pill);
 	}
 </style>

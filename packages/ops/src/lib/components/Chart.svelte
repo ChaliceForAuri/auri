@@ -151,20 +151,20 @@
 </figure>
 
 <style>
+	/* Tonal: container surface, no border (DESIGN 1). */
 	.auri-chart {
 		min-width: 0;
 		margin: var(--a2ui-space-leaf);
-		padding: 0.75rem var(--a2ui-space-inset) 0.6rem;
-		border: 1px solid var(--a2ui-color-border);
-		border-radius: var(--a2ui-radius);
-		background: var(--a2ui-color-surface-raised);
+		padding: 1rem 1.25rem 0.75rem;
+		border-radius: var(--auri-shape-lg);
+		background: var(--auri-surface-container);
 	}
 
 	figcaption {
 		font-size: var(--auri-type-label-size);
 		font-weight: var(--auri-type-label-weight);
-		color: var(--a2ui-color-text-muted);
-		margin-bottom: 0.4rem;
+		color: var(--auri-on-surface-variant);
+		margin-bottom: 0.5rem;
 	}
 	figcaption .unit {
 		font-weight: 400;
@@ -177,12 +177,12 @@
 	}
 
 	.grid {
-		stroke: var(--a2ui-color-border);
-		stroke-width: 0.5;
+		stroke: var(--auri-outline-variant);
+		stroke-width: 0.75;
 	}
 
 	.tick {
-		fill: var(--a2ui-color-text-muted);
+		fill: var(--auri-on-surface-variant);
 		font-size: 10px;
 		font-variant-numeric: tabular-nums;
 	}
@@ -217,12 +217,12 @@
 		align-items: center;
 		gap: 0.4em;
 		font-size: var(--auri-type-caption-size);
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 	.key i {
 		width: 0.7em;
 		height: 0.7em;
-		border-radius: 2px;
+		border-radius: 3px;
 		background: var(--series-color);
 	}
 
@@ -237,6 +237,6 @@
 		padding: 3rem 0;
 		text-align: center;
 		font-size: 0.875rem;
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 </style>

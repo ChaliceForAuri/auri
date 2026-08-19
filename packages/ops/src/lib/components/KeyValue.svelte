@@ -59,7 +59,7 @@
 		margin: 0 0 0.4rem;
 		font-size: var(--auri-type-label-size);
 		font-weight: var(--auri-type-label-weight);
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 
 	dl {
@@ -71,13 +71,13 @@
 
 	dt {
 		font-size: 0.8125rem;
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 
 	dd {
 		margin: 0;
 		font-size: 0.8125rem;
-		color: var(--a2ui-color-text);
+		color: var(--auri-on-surface);
 		font-variant-numeric: tabular-nums;
 		overflow-wrap: anywhere;
 	}
@@ -90,6 +90,6 @@
 	.empty {
 		margin: 0;
 		font-size: 0.875rem;
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 </style>

@@ -107,17 +107,16 @@
 </section>
 
 <style>
+	/* Tonal: the decision sits on the highest container — no border, no shadow. */
 	.auri-approval {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		gap: 0.6rem;
 		min-width: 0;
 		margin: var(--a2ui-space-leaf);
-		padding: var(--a2ui-space-inset);
-		border: 1px solid var(--a2ui-color-border);
-		border-radius: var(--a2ui-radius);
-		background: var(--a2ui-color-surface-raised);
-		box-shadow: var(--a2ui-elevation);
+		padding: 1.25rem 1.4rem;
+		border-radius: var(--auri-shape-lg);
+		background: var(--auri-surface-container-high);
 	}
 
 	[data-decided] {
@@ -126,16 +125,17 @@
 
 	.title {
 		margin: 0;
-		font-size: 1.0625rem;
-		font-weight: 600;
-		color: var(--a2ui-color-text);
+		font-size: 1.125rem;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		color: var(--auri-on-surface);
 	}
 
 	.summary {
 		margin: 0;
 		font-size: 0.875rem;
 		line-height: 1.5;
-		color: var(--a2ui-color-text);
+		color: var(--auri-on-surface);
 		overflow-wrap: anywhere;
 	}
 	.summary :global(p) {
@@ -147,7 +147,7 @@
 	}
 	summary {
 		cursor: pointer;
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 		font-size: var(--auri-type-label-size);
 	}
 
@@ -159,19 +159,19 @@
 	.comment span {
 		font-size: var(--auri-type-label-size);
 		font-weight: var(--auri-type-label-weight);
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 	textarea {
 		font: inherit;
-		color: var(--a2ui-color-text);
-		background: var(--a2ui-color-surface);
-		border: 1px solid var(--a2ui-color-border);
-		border-radius: var(--a2ui-radius-small);
-		padding: 0.4rem 0.6rem;
+		color: var(--auri-on-surface);
+		background: var(--auri-surface);
+		border: none;
+		border-radius: var(--auri-shape-md);
+		padding: 0.6rem 0.85rem;
 		resize: vertical;
 	}
 	textarea:focus-visible {
-		outline: 2px solid var(--a2ui-color-primary);
+		outline: 2px solid var(--auri-primary);
 		outline-offset: 1px;
 	}
 
@@ -182,11 +182,12 @@
 
 	button {
 		font: inherit;
-		font-weight: 500;
-		min-height: var(--a2ui-control-height);
-		padding: 0 1rem;
-		border-radius: var(--a2ui-radius-small);
-		border: 1px solid transparent;
+		font-weight: 600;
+		font-size: 0.875rem;
+		min-height: 2.5rem;
+		padding: 0 1.5rem;
+		border-radius: var(--auri-shape-pill);
+		border: none;
 		cursor: pointer;
 		transition: filter var(--auri-motion-fast) linear;
 	}
@@ -195,7 +196,7 @@
 		cursor: not-allowed;
 	}
 	button:focus-visible {
-		outline: 2px solid var(--a2ui-color-primary);
+		outline: 2px solid var(--auri-primary);
 		outline-offset: 2px;
 	}
 	button:not(:disabled):hover {
@@ -203,18 +204,17 @@
 	}
 
 	.approve {
-		background: var(--a2ui-color-primary);
-		color: var(--a2ui-color-on-primary);
+		background: var(--auri-primary);
+		color: var(--auri-on-primary);
 	}
 	.reject {
-		background: transparent;
-		color: var(--a2ui-color-text);
-		border-color: var(--a2ui-color-border);
+		background: var(--auri-primary-container);
+		color: var(--auri-on-primary-container);
 	}
 
 	.outcome {
 		margin: 0;
 		font-size: 0.875rem;
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 </style>

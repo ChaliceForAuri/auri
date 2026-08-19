@@ -57,59 +57,65 @@
 </button>
 
 <style>
+	/* Tonal: resting = quiet container pill; armed = the intent container, filled. */
 	.auri-confirm {
 		font: inherit;
-		font-weight: 500;
-		min-height: var(--a2ui-control-height);
+		font-weight: 600;
+		font-size: 0.875rem;
+		min-height: 2.5rem;
 		margin: var(--a2ui-space-leaf);
-		padding: 0 1rem;
-		border-radius: var(--a2ui-radius-small);
-		border: 1px solid var(--a2ui-color-border);
-		background: var(--a2ui-color-surface-raised);
-		color: var(--a2ui-color-text);
+		padding: 0 1.4rem;
+		border-radius: var(--auri-shape-pill);
+		border: none;
+		background: var(--auri-intent-neutral-container);
+		color: var(--auri-on-intent-neutral-container);
 		cursor: pointer;
 		transition:
 			background var(--auri-motion-fast) linear,
-			border-color var(--auri-motion-fast) linear,
 			color var(--auri-motion-fast) linear;
 	}
 
+	.auri-confirm:hover {
+		background: color-mix(in oklab, currentColor 8%, var(--auri-intent-neutral-container));
+	}
+
 	.auri-confirm:focus-visible {
-		outline: 2px solid var(--a2ui-color-primary);
+		outline: 2px solid var(--auri-primary);
 		outline-offset: 2px;
 	}
 
 	/* Resting state hints the judgment; the armed state commits to it. */
 	[data-intent='bad'] {
 		color: var(--auri-intent-bad);
-		border-color: var(--auri-intent-bad-border);
 	}
 	[data-intent='warning'] {
 		color: var(--auri-intent-warning);
-		border-color: var(--auri-intent-warning-border);
 	}
 	[data-intent='good'] {
 		color: var(--auri-intent-good);
-		border-color: var(--auri-intent-good-border);
 	}
 	[data-intent='info'] {
 		color: var(--auri-intent-info);
-		border-color: var(--auri-intent-info-border);
 	}
 
-	.armed {
-		background: var(--auri-intent-neutral-surface);
-	}
 	.armed[data-intent='bad'] {
-		background: var(--auri-intent-bad-surface);
+		background: var(--auri-intent-bad-container);
+		color: var(--auri-on-intent-bad-container);
 	}
 	.armed[data-intent='warning'] {
-		background: var(--auri-intent-warning-surface);
+		background: var(--auri-intent-warning-container);
+		color: var(--auri-on-intent-warning-container);
 	}
 	.armed[data-intent='good'] {
-		background: var(--auri-intent-good-surface);
+		background: var(--auri-intent-good-container);
+		color: var(--auri-on-intent-good-container);
 	}
 	.armed[data-intent='info'] {
-		background: var(--auri-intent-info-surface);
+		background: var(--auri-intent-info-container);
+		color: var(--auri-on-intent-info-container);
+	}
+	.armed[data-intent='neutral'] {
+		background: var(--auri-primary-container);
+		color: var(--auri-on-primary-container);
 	}
 </style>
