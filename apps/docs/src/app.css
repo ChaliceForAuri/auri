@@ -74,21 +74,8 @@ header {
 }
 
 .wordmark .mark {
-	width: 1.25rem;
-	height: 1.25rem;
-	border-radius: 0.4rem;
-	background: var(--auri-primary);
-	position: relative;
-}
-.wordmark .mark::after {
-	content: '';
-	position: absolute;
-	inset: 0;
-	margin: auto;
-	width: 0.45rem;
-	height: 0.45rem;
-	border-radius: 50%;
-	background: var(--auri-on-primary);
+	width: 1.5rem;
+	height: 1.5rem;
 }
 
 nav {
