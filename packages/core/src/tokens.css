@@ -15,8 +15,11 @@
 
 :where(:root),
 :where(.a2ui-light) {
-	/* --- the accent seed (Tailwind emerald-700) — green: the color of healthy --- */
+	/* --- the accent seeds (Tailwind emerald) — green: the color of healthy.
+	   Reseeding is a two-variable API: --auri-seed paints light, --auri-seed-dark
+	   paints dark (accents need different weights per theme to hold contrast). --- */
 	--auri-seed: #047857;
+	--auri-seed-dark: #34d399;
 
 	/* --- neutral ground (shadcn v4 values, chroma 0) --- */
 	--auri-surface: oklch(1 0 0);
@@ -97,10 +100,10 @@
 		--auri-outline-variant: oklch(1 0 0 / 10%); /* white-alpha hairline */
 		--auri-input-fill: oklch(1 0 0 / 8%); /* translucent filled inputs */
 
-		--auri-primary: #34d399;
+		--auri-primary: var(--auri-seed-dark);
 		--auri-on-primary: oklch(0.145 0 0);
-		--auri-primary-container: color-mix(in oklab, #34d399 16%, transparent);
-		--auri-on-primary-container: #6ee7b7;
+		--auri-primary-container: color-mix(in oklab, var(--auri-seed-dark) 16%, transparent);
+		--auri-on-primary-container: color-mix(in oklab, var(--auri-seed-dark) 55%, white);
 
 		--auri-intent-good: #34d399;
 		--auri-intent-good-container: color-mix(in oklab, #34d399 14%, transparent);
@@ -139,10 +142,10 @@
 	--auri-outline-variant: oklch(1 0 0 / 10%);
 	--auri-input-fill: oklch(1 0 0 / 8%);
 
-	--auri-primary: #34d399;
+	--auri-primary: var(--auri-seed-dark);
 	--auri-on-primary: oklch(0.145 0 0);
-	--auri-primary-container: color-mix(in oklab, #34d399 16%, transparent);
-	--auri-on-primary-container: #6ee7b7;
+	--auri-primary-container: color-mix(in oklab, var(--auri-seed-dark) 16%, transparent);
+	--auri-on-primary-container: color-mix(in oklab, var(--auri-seed-dark) 55%, white);
 
 	--auri-intent-good: #34d399;
 	--auri-intent-good-container: color-mix(in oklab, #34d399 14%, transparent);
@@ -169,6 +172,22 @@
 
 	--auri-skeleton-base: oklch(1 0 0 / 0.07);
 	--auri-skeleton-sheen: oklch(1 0 0 / 0.03);
+}
+
+/* Higher-contrast preference: hairlines strengthen rather than hues shifting. */
+@media (prefers-contrast: more) {
+	:where(:root),
+	:where(.a2ui-light) {
+		--auri-outline-variant: oklch(0.5 0 0);
+	}
+	:where(.a2ui-dark) {
+		--auri-outline-variant: oklch(1 0 0 / 0.35);
+	}
+	@media (prefers-color-scheme: dark) {
+		:where(:root) {
+			--auri-outline-variant: oklch(1 0 0 / 0.35);
+		}
+	}
 }
 
 /* Forced colors (Windows High Contrast): intents map to system colors. */

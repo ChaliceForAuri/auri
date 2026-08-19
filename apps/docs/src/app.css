@@ -55,6 +55,8 @@ header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
 	max-width: 72rem;
 	margin: 0 auto;
 	padding: 1rem 1.25rem;
@@ -92,7 +94,8 @@ header {
 nav {
 	display: flex;
 	align-items: center;
-	gap: 1rem;
+	flex-wrap: wrap;
+	gap: 0.4rem 0.9rem;
 }
 
 nav a {

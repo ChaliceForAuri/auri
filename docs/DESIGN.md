@@ -12,7 +12,7 @@ open and credited:
 - **Ground from shadcn/ui v4 (MIT)**: chroma-zero oklch neutrals, hairline borders in light,
   white-alpha borders and translucent fills in dark — depth from layered transparency, never
   tone. Radius 6/10/14. Content is the color.
-- **Color is rare**: one brand accent (`--auri-seed`, indigo) for primary actions and focus, and
+- **Color is rare**: one brand accent (`--auri-seed`, emerald — green, the color of healthy) for primary actions and focus, and
   the five intents as **colored text on soft tints** — full intent fills only at the loudest
   moments. Intent values from Tailwind's open scales.
 - **The site's voice is Geist** (Vercel, SIL OFL, self-hosted); shipped catalog components still
@@ -62,14 +62,14 @@ Rules:
 - **Intent trios recast**: `-container` is a _soft tint_ (9–14%), `on--container` is the strong
   color itself — judged content reads as **colored text on a quiet tint** (badges, delta chips,
   callout titles). Full-strength intent fills are reserved for nothing yet; earn them.
-- **Color budget**: the indigo seed appears only on primary actions, links, focus, and the
+- **Color budget**: the emerald seed appears only on primary actions, links, focus, and the
   wordmark. Intents appear only where the agent made a claim. Everything else is gray — content
   is the color.
 - Light and dark ship together, keyed off the renderer's `.a2ui-dark` class, all at `:where()`
   zero specificity so any host stylesheet wins. Docs site aside: a HOST may re-point `--a2ui-*`
   base tokens at auri roles (ours does); catalog packages never do.
 - Contrast: WCAG 2.2 AA minimum in both themes for every text pairing. `forced-colors` maps
-  intents to system colors; `prefers-contrast: more` thickens hairlines rather than shifting hue.
+  intents to system colors; `prefers-contrast: more` strengthens hairlines (a darker gray in light, brighter alpha in dark) rather than shifting hue.
 
 ## 2b. Shape
 
@@ -108,12 +108,13 @@ Tokens live in `@aurilabs/core`:
 Every component whose props can bind to paths defines all three, in the contract's terms:
 
 - **Skeleton**: the bound path doesn't resolve yet (data hasn't arrived). Component-shaped
-  shimmer, exact final dimensions — the skeleton is the CLS reservation.
+  shimmer sized to the typical value — heights are exact, widths are honest approximations — so
+  arrival shifts as little layout as possible.
 - **Empty**: the path resolves to an empty collection or empty string. A designed quiet state,
   never a blank hole; components may document an `emptyText`-style prop where it earns its place.
-- **Error**: the path resolves to something type-invalid. Render the neutral resting state,
-  log a console warning — never throw, never render garbage. (Same philosophy as the renderer:
-  log and skip.)
+- **Error**: the path resolves to something type-invalid. Today's behavior: the component treats
+  it as unresolved and holds its skeleton — never a throw, never garbage on screen. The stricter
+  ideal (neutral resting render + console warning) is roadmap; when implemented, this line changes.
 
 ## 6. Internationalization
 

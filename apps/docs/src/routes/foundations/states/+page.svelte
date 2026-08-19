@@ -12,8 +12,9 @@
 
 	<h2>Skeleton — the data hasn't arrived</h2>
 	<p>
-		An unresolved binding renders a shimmer in the <em>exact box</em> the value will occupy — the skeleton
-		is the layout reservation, which is how streaming stays zero-CLS. No spinner, no blank.
+		An unresolved binding renders a component-shaped shimmer sized to the typical value — heights
+		are exact, widths are honest approximations — so arrival shifts as little layout as possible. No
+		spinner, no blank.
 	</p>
 	<div class="demo" style="display: flex; flex-direction: column; gap: 0.5rem;">
 		<span class="auri-skeleton" style="width: 5.5ch; height: 2rem;"></span>
@@ -34,9 +35,9 @@
 
 	<h2>Error — the data is the wrong shape</h2>
 	<p>
-		A binding that resolves to something type-invalid renders the component's neutral resting state
-		and logs a console warning. Never a throw, never garbage on screen — the same log-and-skip
-		philosophy the renderer applies to unknown components.
+		A binding that resolves to something type-invalid is treated as unresolved: the component holds
+		its skeleton rather than rendering garbage. Never a throw. (A stricter neutral-fallback with a
+		console warning is on the roadmap; the docs will change when the behavior does.)
 	</p>
 
 	<h2>The wire side</h2>

@@ -114,12 +114,15 @@
 	<h2>Reseeding</h2>
 	<pre><code
 			>:root &#123;
-	--auri-seed: #7c3aed; /* your brand — drives primary + its tint */
+	--auri-seed: #7c3aed; /* your accent in light */
+	--auri-seed-dark: #a78bfa; /* its dark-theme voice */
 &#125;</code
 		></pre>
 	<p>
-		The neutral ground is deliberately fixed (pure gray belongs to everyone); the accent is yours.
-		Intent hues are also tokens if your product needs different ones.
+		Two variables, because accents need different weights per theme to hold contrast — both drive
+		the primary roles and their tints. The neutral ground is deliberately fixed (pure gray belongs
+		to everyone); the accent is yours. Intent hues are also tokens if your product needs different
+		ones.
 	</p>
 
 	<h2>Provenance</h2>

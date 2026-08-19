@@ -58,7 +58,10 @@
 			<code>prefers-reduced-motion</code>: entrances become fades, stagger drops, shimmer freezes.
 		</li>
 		<li><code>forced-colors</code> (Windows High Contrast): intents map to system colors.</li>
-		<li><code>prefers-contrast: more</code>: hairlines thicken rather than hues shifting.</li>
+		<li>
+			<code>prefers-contrast: more</code>: hairlines strengthen — darker in light, brighter alpha in
+			dark — rather than hues shifting.
+		</li>
 		<li>Focus is always visible; nothing keyboard-reachable is pointer-only.</li>
 	</ul>
 </div>
