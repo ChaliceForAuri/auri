@@ -1,6 +1,17 @@
 <script lang="ts">
 	import data from '$lib/eval-data.json';
 
+	interface ModelRun {
+		model: string;
+		family: string;
+		protocol: string;
+		date: string;
+		results: Record<string, string>;
+	}
+
+	const scenarios: string[] = data.scenarios;
+	const models: ModelRun[] = data.models;
+
 	const label = (r: string | undefined) => (r === 'pass' ? '✓' : r === 'fail' ? '✕' : '—');
 </script>
 
@@ -21,16 +32,16 @@
 		<thead>
 			<tr>
 				<th>Scenario</th>
-				{#each data.models as m (m.model)}
+				{#each models as m (m.model)}
 					<th>{m.model}</th>
 				{/each}
 			</tr>
 		</thead>
 		<tbody>
-			{#each data.scenarios as s (s)}
+			{#each scenarios as s (s)}
 				<tr>
 					<td><code>{s}</code></td>
-					{#each data.models as m (m.model)}
+					{#each models as m (m.model)}
 						<td
 							style="font-weight: 600; color: {m.results[s] === 'pass'
 								? 'var(--auri-intent-good)'
@@ -43,7 +54,7 @@
 			{/each}
 			<tr>
 				<td style="color: var(--auri-on-surface-variant);">protocol · date</td>
-				{#each data.models as m (m.model)}
+				{#each models as m (m.model)}
 					<td style="font-size: 0.75rem; color: var(--auri-on-surface-variant);"
 						>{m.protocol}<br />{m.date}</td
 					>
@@ -60,9 +71,9 @@
 		The model receives the <a href="https://chaliceforauri.github.io/auri/catalogs/ops/prompt.md"
 			>prompt-pack</a
 		>
-		as its system prompt — no other context, no retries, no examples beyond what the pack itself
-		teaches — and one realistic scenario ("show the on-call engineer an incident view…"). Its entire
-		output is validated line-by-line against the
+		as its system prompt — no other context, no retries, no examples beyond what the pack itself teaches
+		— and one realistic scenario ("show the on-call engineer an incident view…"). Its entire output is
+		validated line-by-line against the
 		<a href="https://chaliceforauri.github.io/auri/catalogs/ops/v1.json">contract</a> with the same ajv
 		validator our CI uses. A pass is zero schema errors across the full emission.
 	</p>
