@@ -6,7 +6,7 @@
 		family: string;
 		protocol: string;
 		date: string;
-		results: Record<string, string>;
+		results: Record<string, string | undefined>;
 	}
 
 	const scenarios: string[] = data.scenarios;
