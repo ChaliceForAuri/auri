@@ -8,6 +8,9 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # Runners have hung for hours at the apt step of playwright install;
+    # a hang should fail fast and get retried, not burn the 6h job limit.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
 
@@ -25,6 +28,7 @@ jobs:
       - run: npm run check --workspaces --if-present
 
       - run: npx playwright install --with-deps chromium
+        timeout-minutes: 8
 
       - run: npm run test:browser -w @aurilabs/ops
 
