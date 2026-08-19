@@ -46,6 +46,12 @@
 			name: 'Accessibility',
 			blurb:
 				'Enforced by the contract: pages that don’t exist until runtime can’t be audited, so the schema does it.'
+		},
+		{
+			slug: 'shadcn',
+			name: 'Using auri with shadcn',
+			blurb:
+				'Two lanes, one system: the token bridge that makes agent surfaces inherit your shadcn theme.'
 		}
 	];
 </script>
