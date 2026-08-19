@@ -60,27 +60,27 @@
 	.label {
 		font-size: var(--auri-type-label-size);
 		font-weight: var(--auri-type-label-weight);
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 		overflow-wrap: anywhere;
 	}
 
 	.counts {
 		font-size: var(--auri-type-caption-size);
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 		font-variant-numeric: tabular-nums;
 	}
 
 	.track {
-		height: 0.45rem;
-		border-radius: 999px;
-		background: var(--auri-intent-neutral-surface);
+		height: 0.55rem;
+		border-radius: var(--auri-shape-pill);
+		background: var(--auri-intent-neutral-container);
 		overflow: hidden;
 	}
 
 	.fill {
 		height: 100%;
-		border-radius: 999px;
-		background: var(--a2ui-color-primary);
+		border-radius: var(--auri-shape-pill);
+		background: var(--auri-primary);
 		/* Advancing via updateDataModel glides; interruptions retarget (DESIGN 4). */
 		transition: width var(--auri-motion-base) var(--auri-ease-out);
 	}

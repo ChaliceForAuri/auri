@@ -3,18 +3,23 @@
 _Authoritative for how auri components look, move, and degrade. When a contract sketch and this
 document disagree, this document wins. Draft — iterate here, not in component code._
 
-## 0. The stance
+## 0. The stance — the Tonal direction (settled 2026-08-18)
 
-auri is **one authored opinion**, not a synthesis. We borrow principles, never looks:
+auri's visual language is **Material 3, simplified and reseeded** — chosen on the design canvas
+from art-directed candidates. The synthesis, all open:
 
-- from **Material**: motion has meaning — things enter from where they came from, and nothing moves
-  without communicating something;
-- from **Apple**: spring physics and interruptibility — motion feels like matter, and a stream that
-  updates mid-animation retargets instead of snapping;
-- from **shadcn**: restraint — a neutral ground, few accents, and the discipline to say no.
+- **Architecture from Material 3**: color _roles_ (surface / container / on-\*), depth from tone
+  instead of borders, a bold shape scale, state layers, seed-driven theming. Simplified: two
+  container levels (not five elevations), no dynamic-color engine, host fonts.
+- **Palette values from Tailwind's open scales**: indigo (the seed), emerald / red / amber / sky
+  for the intents — the best-calibrated open color values in the industry.
+- **Delivered as plain CSS custom properties**, `:where()` zero specificity. No framework at
+  runtime; the seed is real (`--auri-seed` derives surfaces via `color-mix`), so one variable
+  retunes the whole ground.
 
-The test for any visual decision: does it survive being streamed in piece by piece and still feel
-like one hand drew it?
+Brief in three words: **clean, spacious, bold.** Motion keeps Apple's interruptibility (streams
+retarget, never snap); the discipline to say no stays shadcn's. The test for any visual decision:
+does it survive being streamed in piece by piece and still feel like one hand drew it?
 
 ## 1. The intent scale
 
@@ -42,17 +47,30 @@ Rules:
 - Intent props accept Dynamic values (`{path}`), so a badge can flip from `warning` to `good`
   through `updateDataModel` without re-sending the component.
 
-## 2. Color
+## 2. Color and surface
 
-- Tokens only, no literals in components: `--a2ui-*` base tokens stay authoritative for
-  ground/text/spacing/type so ops components look native beside basic-catalog components;
-  `--auri-intent-good/bad/warning/info/neutral` (plus subdued surface variants) are the additions.
+- **Roles, not colors**: components consume `--auri-surface`, `--auri-surface-container(-high)`,
+  `--auri-on-surface(-variant)`, `--auri-outline-variant`, `--auri-primary` (+ container pair).
+  Surfaces derive from `--auri-seed` via `color-mix`, so hosts retheme with one variable.
+- **Intent trios**: each of `good/bad/warning/info/neutral` ships as strong color +
+  `-container` + `on--container`. **The filled container IS the signal** — judged content
+  (badges, callouts, delta chips, armed confirms) sits on its intent container with on-container
+  text; no borders, no dots. Strong colors are for lines, dots-in-timelines, and text on neutral
+  ground.
+- **Tone budget**: containers everywhere, but _intent_ containers only where the agent made a
+  claim — a dashboard that judges everything judges nothing.
 - Light and dark ship together, keyed off the renderer's `.a2ui-dark` class, all at `:where()`
-  zero specificity so any host stylesheet wins.
-- Intent colors are **accents on a neutral ground** — a dashboard that judges everything judges
-  nothing. Most of any surface is neutral; intent appears where the agent made a claim.
-- Contrast: WCAG 2.2 AA minimum in both themes, checked in CI eventually. `forced-colors` mode
-  maps intents to system colors; `prefers-contrast: more` thickens borders rather than shifting hue.
+  zero specificity so any host stylesheet wins. Docs site aside: a HOST may re-point `--a2ui-*`
+  base tokens at auri roles (ours does); catalog packages never do.
+- Contrast: WCAG 2.2 AA minimum in both themes for every on-container pairing. `forced-colors`
+  maps intents to system colors; `prefers-contrast: more` thickens outlines rather than shifting
+  hue.
+
+## 2b. Shape
+
+M3-derived, simplified: `--auri-shape-sm` 10px (inner elements) · `--auri-shape-md` 16px (inputs,
+nested blocks) · `--auri-shape-lg` 20px (cards, containers) · `--auri-shape-pill` (chips, badges,
+buttons). Corners are bold and consistent; nothing square, nothing timid.
 
 ## 3. Type and density
 

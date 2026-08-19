@@ -82,7 +82,7 @@
 		margin: 0 0 0.5rem;
 		font-size: var(--auri-type-label-size);
 		font-weight: var(--auri-type-label-weight);
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 
 	ol {
@@ -104,7 +104,7 @@
 		top: 0.9rem;
 		bottom: -0.1rem;
 		width: 1px;
-		background: var(--a2ui-color-border);
+		background: var(--auri-outline-variant);
 	}
 	li:last-child::before {
 		display: none;
@@ -146,14 +146,14 @@
 	.title {
 		font-size: 0.875rem;
 		font-weight: 500;
-		color: var(--a2ui-color-text);
+		color: var(--auri-on-surface);
 		overflow-wrap: anywhere;
 	}
 
 	time {
 		flex: none;
 		font-size: var(--auri-type-caption-size);
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -161,7 +161,7 @@
 		margin: 0.15rem 0 0;
 		font-size: 0.8125rem;
 		line-height: 1.5;
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 		overflow-wrap: anywhere;
 	}
 	.text :global(p) {
@@ -176,6 +176,6 @@
 	.empty {
 		margin: 0;
 		font-size: 0.875rem;
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 </style>

@@ -43,11 +43,16 @@
 	{/if}
 	{#if trendGlyph || d || caption}
 		<span class="meta">
-			{#if trendGlyph}
-				<span class="trend" aria-hidden="true">{trendGlyph}</span>
-				<span class="auri-sr-only">trending {trend}</span>
+			{#if trendGlyph || d}
+				<!-- The delta chip: judgment as a filled tonal pill (DESIGN 2, Tonal). -->
+				<span class="chip">
+					{#if trendGlyph}
+						<span aria-hidden="true">{trendGlyph}</span>
+						<span class="auri-sr-only">trending {trend}</span>
+					{/if}
+					{#if d}{d}{/if}
+				</span>
 			{/if}
-			{#if d}<span class="delta">{d}</span>{/if}
 			{#if caption}<span class="caption">{caption}</span>{/if}
 		</span>
 	{/if}
@@ -57,27 +62,27 @@
 	.auri-stat {
 		display: flex;
 		flex-direction: column;
-		gap: 0.25rem;
+		gap: 0.35rem;
 		min-width: 0;
 		margin: var(--a2ui-space-leaf);
-		padding: var(--a2ui-space-inset);
-		border: 1px solid var(--a2ui-color-border);
-		border-radius: var(--a2ui-radius);
-		background: var(--a2ui-color-surface-raised);
+		padding: 1.125rem 1.25rem;
+		border-radius: var(--auri-shape-lg);
+		background: var(--auri-surface-container);
 	}
 
 	.label {
 		font-size: var(--auri-type-label-size);
 		font-weight: var(--auri-type-label-weight);
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 		overflow-wrap: anywhere;
 	}
 
 	.value {
 		font-size: var(--auri-type-value-size);
 		font-weight: var(--auri-type-value-weight);
-		color: var(--a2ui-color-text);
-		line-height: 1.15;
+		letter-spacing: -0.02em;
+		color: var(--auri-on-surface);
+		line-height: 1.12;
 		/* Streaming values must not jiggle their neighbours (DESIGN 3). */
 		font-variant-numeric: tabular-nums;
 	}
@@ -85,46 +90,57 @@
 	.value-skeleton {
 		/* Same box the value line would occupy — the skeleton is the CLS reservation. */
 		width: 5.5ch;
-		height: calc(var(--auri-type-value-size) * 1.15);
+		height: calc(var(--auri-type-value-size) * 1.12);
 	}
 
 	.unit {
 		margin-inline-start: 0.25em;
-		font-size: 0.55em;
-		font-weight: var(--auri-type-label-weight);
-		color: var(--a2ui-color-text-muted);
+		font-size: 0.5em;
+		font-weight: 500;
+		letter-spacing: 0;
+		color: var(--auri-on-surface-variant);
 	}
 
 	.meta {
 		display: flex;
-		align-items: baseline;
-		gap: 0.4em;
+		align-items: center;
+		gap: 0.55em;
 		font-size: var(--auri-type-caption-size);
 		font-variant-numeric: tabular-nums;
 	}
 
-	/* Judgment colors the movement, not the tile (DESIGN 2: accents on neutral ground). */
-	.trend,
-	.delta {
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3em;
 		font-weight: 600;
+		padding: 0.15em 0.75em;
+		border-radius: var(--auri-shape-pill);
+		background: var(--auri-intent-neutral-container);
+		color: var(--auri-on-intent-neutral-container);
+		/* Intent flips through the data model cross-fade (DESIGN 4). */
+		transition:
+			background var(--auri-motion-fast) linear,
+			color var(--auri-motion-fast) linear;
 	}
-	[data-intent='good'] :is(.trend, .delta) {
-		color: var(--auri-intent-good);
+	[data-intent='good'] .chip {
+		background: var(--auri-intent-good-container);
+		color: var(--auri-on-intent-good-container);
 	}
-	[data-intent='bad'] :is(.trend, .delta) {
-		color: var(--auri-intent-bad);
+	[data-intent='bad'] .chip {
+		background: var(--auri-intent-bad-container);
+		color: var(--auri-on-intent-bad-container);
 	}
-	[data-intent='warning'] :is(.trend, .delta) {
-		color: var(--auri-intent-warning);
+	[data-intent='warning'] .chip {
+		background: var(--auri-intent-warning-container);
+		color: var(--auri-on-intent-warning-container);
 	}
-	[data-intent='info'] :is(.trend, .delta) {
-		color: var(--auri-intent-info);
-	}
-	[data-intent='neutral'] :is(.trend, .delta) {
-		color: var(--auri-intent-neutral);
+	[data-intent='info'] .chip {
+		background: var(--auri-intent-info-container);
+		color: var(--auri-on-intent-info-container);
 	}
 
 	.caption {
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 </style>

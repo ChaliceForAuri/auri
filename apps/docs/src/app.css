@@ -1,4 +1,20 @@
-/* The docs shell. Quiet furniture — the streamed surface brings the drama. */
+/* The docs shell. Quiet furniture — the streamed surface brings the drama.
+   This site is a HOST: it re-points the renderer's base tokens at the auri
+   tonal roles, so basic-catalog components go Material here too. Catalog
+   packages never do this — host stylesheets stay in charge. */
+
+:root {
+	--a2ui-color-surface: var(--auri-surface);
+	--a2ui-color-surface-raised: var(--auri-surface-container);
+	--a2ui-color-text: var(--auri-on-surface);
+	--a2ui-color-text-muted: var(--auri-on-surface-variant);
+	--a2ui-color-border: var(--auri-outline-variant);
+	--a2ui-color-primary: var(--auri-primary);
+	--a2ui-color-on-primary: var(--auri-on-primary);
+	--a2ui-radius: var(--auri-shape-md);
+	--a2ui-radius-small: var(--auri-shape-sm);
+	--a2ui-elevation: none;
+}
 
 * {
 	box-sizing: border-box;
@@ -28,11 +44,32 @@ header {
 }
 
 .wordmark {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
 	font-weight: 700;
 	font-size: 1.125rem;
-	letter-spacing: 0.01em;
+	letter-spacing: -0.01em;
 	color: var(--a2ui-color-text);
 	text-decoration: none;
+}
+
+.wordmark .mark {
+	width: 1.375rem;
+	height: 1.375rem;
+	border-radius: 0.5rem;
+	background: var(--auri-primary);
+	position: relative;
+}
+.wordmark .mark::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: 0.45rem;
+	height: 0.45rem;
+	border-radius: 50%;
+	background: var(--auri-on-primary);
 }
 
 nav {
@@ -53,15 +90,17 @@ nav a:hover {
 nav button {
 	font: inherit;
 	font-size: 0.8125rem;
-	color: var(--a2ui-color-text-muted);
-	background: transparent;
-	border: 1px solid var(--a2ui-color-border);
-	border-radius: 999px;
-	padding: 0.2rem 0.75rem;
+	font-weight: 600;
+	color: var(--auri-on-intent-neutral-container);
+	background: var(--auri-intent-neutral-container);
+	border: none;
+	border-radius: var(--auri-shape-pill);
+	padding: 0.3rem 0.9rem;
 	cursor: pointer;
 }
 nav button:hover {
-	color: var(--a2ui-color-text);
+	background: var(--auri-primary-container);
+	color: var(--auri-on-primary-container);
 }
 
 main {

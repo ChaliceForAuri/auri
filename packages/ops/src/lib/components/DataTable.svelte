@@ -155,12 +155,12 @@
 </div>
 
 <style>
+	/* Tonal: the container is the table's surface — no borders (DESIGN 1). */
 	.auri-table {
 		min-width: 0;
 		margin: var(--a2ui-space-leaf);
-		border: 1px solid var(--a2ui-color-border);
-		border-radius: var(--a2ui-radius);
-		background: var(--a2ui-color-surface-raised);
+		border-radius: var(--auri-shape-lg);
+		background: var(--auri-surface-container);
 		overflow-x: auto;
 	}
 
@@ -168,20 +168,20 @@
 		width: 100%;
 		border-collapse: collapse;
 		font-size: 0.875rem;
-		color: var(--a2ui-color-text);
+		color: var(--auri-on-surface);
 	}
 
 	caption {
-		padding: 0.6rem 0.75rem 0.1rem;
+		padding: 0.85rem 1.1rem 0.15rem;
 		text-align: start;
 		font-size: var(--auri-type-label-size);
 		font-weight: var(--auri-type-label-weight);
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 
 	th,
 	td {
-		padding: 0.5rem 0.75rem;
+		padding: 0.55rem 1.1rem;
 		text-align: start;
 	}
 	[data-align='end'] {
@@ -197,8 +197,8 @@
 	thead th {
 		font-size: var(--auri-type-label-size);
 		font-weight: var(--auri-type-label-weight);
-		color: var(--a2ui-color-text-muted);
-		border-bottom: 1px solid var(--a2ui-color-border);
+		color: var(--auri-on-surface-variant);
+		border-bottom: 1px solid var(--auri-outline-variant);
 		white-space: nowrap;
 	}
 
@@ -210,9 +210,9 @@
 		gap: 0.3em;
 	}
 	.sort:focus-visible {
-		outline: 2px solid var(--a2ui-color-primary);
+		outline: 2px solid var(--auri-primary);
 		outline-offset: 2px;
-		border-radius: var(--a2ui-radius-small);
+		border-radius: var(--auri-shape-sm);
 	}
 	.sort-glyph {
 		opacity: 0.5;
@@ -220,17 +220,17 @@
 	}
 
 	tbody tr:not(:last-child) td {
-		border-bottom: 1px solid var(--a2ui-color-border);
+		border-bottom: 1px solid var(--auri-outline-variant);
 	}
 
 	tr.interactive {
 		cursor: pointer;
 	}
 	tr.interactive:hover td {
-		background: rgb(0 0 0 / 0.03);
+		background: var(--auri-state-hover);
 	}
 	tr.interactive:focus-visible {
-		outline: 2px solid var(--a2ui-color-primary);
+		outline: 2px solid var(--auri-primary);
 		outline-offset: -2px;
 	}
 
@@ -241,8 +241,8 @@
 	}
 
 	.empty {
-		padding: 1.25rem 0.75rem;
+		padding: 1.4rem 1.1rem;
 		text-align: center;
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 	}
 </style>

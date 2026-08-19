@@ -24,7 +24,7 @@
 </script>
 
 <header>
-	<a class="wordmark" href="{base}/">auri</a>
+	<a class="wordmark" href="{base}/"><span class="mark" aria-hidden="true"></span>auri</a>
 	<nav>
 		<a href="{base}/">console</a>
 		<a href="{base}/components">components</a>

@@ -108,14 +108,14 @@
 		fill: var(--spark-color);
 	}
 	.empty-line {
-		stroke: var(--a2ui-color-border);
+		stroke: var(--auri-outline-variant);
 		stroke-width: 1;
 		stroke-dasharray: 3 3;
 	}
 
 	.label {
 		font-size: var(--auri-type-caption-size);
-		color: var(--a2ui-color-text-muted);
+		color: var(--auri-on-surface-variant);
 		overflow-wrap: anywhere;
 	}
 
