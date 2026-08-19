@@ -1,6 +1,6 @@
 {
 	"name": "@aurilabs/ops",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"type": "module",
 	"description": "The auri ops catalog for A2UI — agent dashboards, data display, and human-in-the-loop decisions. Svelte 5, plugs into svelte-a2ui.",
 	"license": "Apache-2.0",

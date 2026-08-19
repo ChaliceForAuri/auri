@@ -1,6 +1,6 @@
 {
 	"name": "@aurilabs/core",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"type": "module",
 	"description": "Shared foundations for auri catalogs: design tokens (intent scale, motion, type roles, chart ramp) for the A2UI component ecosystem.",
 	"license": "Apache-2.0",

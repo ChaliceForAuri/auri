@@ -61,7 +61,9 @@ M0 (scaffold) done. **M1 — contract-first design: COMPLETE 2026-08-17.** All 1
 
 ## Workflow (PR hygiene, since 2026-08-18)
 
-`main` is protected by rulesets on **both** `ChaliceForAuri/auri` and `ChaliceForAuri/a2ui-svelte`: no direct pushes — every change lands via PR with the required CI check green (`check` here; `test (22)` + `test (24)` on the renderer); force pushes and branch deletion are blocked. `v*` tags are creation-restricted to repo admins because tags trigger npm publishing. Zero required approvals is deliberate: GitHub won't let a solo maintainer approve their own PR, so CI is the reviewer and Hugo merges. The flow: branch → push → `gh pr create` → wait for checks → squash-merge. Rulesets live at repo Settings → Rules (or `gh api repos/…/rulesets`).
+`main` is protected by rulesets on **both** `ChaliceForAuri/auri` and `ChaliceForAuri/a2ui-svelte`: no direct pushes — every change lands via PR with the required CI check green (`check` here; `test (22)` + `test (24)` on the renderer); force pushes and branch deletion are blocked. `v*` tags are creation-restricted to repo admins because tags trigger npm publishing. Zero required approvals is deliberate: GitHub won't let a solo maintainer approve their own PR, so CI is the reviewer. The flow: branch → push → `gh pr create` → wait for checks → squash-merge. Rulesets live at repo Settings → Rules (or `gh api repos/…/rulesets`).
+
+Releases (Hugo's standing authorization, 2026-08-18: Claude runs the whole release flow including tag pushes): bump both packages in lockstep via PR, merge, then `git tag vX.Y.Z && git push origin vX.Y.Z` — the tag triggers `release.yml` (full CI gate, then npm Trusted Publishing, core before ops). `0.1.0` was published manually (npm requires the package to exist before a trusted publisher can be configured); tagged releases start at `v0.1.1`.
 
 ## Conventions
 
