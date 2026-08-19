@@ -65,4 +65,6 @@ system prompt, and it speaks the vocabulary. `svelte` and `svelte-a2ui` are peer
 Built by **Hugo Pretorius** ([ChaliceForAuri](https://github.com/ChaliceForAuri)), maintainer of
 the svelte-a2ui renderer.
 
-Apache-2.0
+Apache-2.0. Design language inspired by [shadcn/ui](https://ui.shadcn.com) (MIT — neutral
+foundation values adopted with thanks); docs site set in [Geist](https://vercel.com/font)
+(Vercel, SIL OFL 1.1, self-hosted).
