@@ -95,6 +95,19 @@ Five commitments layered onto the plan after the vision review — each is a bar
 
 The written design language (`docs/DESIGN.md`) — intent semantics, type/density, motion tokens, state rules — is what makes twelve components one designed object instead of twelve components. It is due before M1 completes and is authoritative when it and a component sketch disagree.
 
+### 2.5 Atoms and catalogs (clarified 2026-08-19)
+
+Every component is an atom — independently importable, tree-shakeable, dependency-free, sharing
+`@aurilabs/core` tokens — and **atoms live once**: catalogs reference shared components, never
+fork them. A catalog is three thin artifacts over the atoms (contract, prompt-pack + evals,
+registration), and it exists because the second consumer is a model with a context window:
+vocabularies must be taught, context is a budget, choice dilutes emission reliability, and trust
+("emits cleanly across families") is a property of the evaluated _set_, not of individual atoms.
+Catalogs mix freely on one surface via the registry — that is the protocol's design, demoed on the
+docs hero. End state: curated catalogs as the front door plus a **catalog composer** (M5) — pick
+atoms across catalogs, generate a merged contract + prompt-pack, run the emission eval against the
+composition, mint your own catalog id.
+
 ---
 
 ## 3. Technical architecture
@@ -171,7 +184,7 @@ The bar for this site is "out of this world", and the organizing principle is th
 
 **M4 — Launch:** docs site live · `0.1.0` to npm · cross-link from svelte-a2ui's README ("Need richer components? …") · announce alongside/after the A2UI ecosystem listing so the credibility compounds · the flagship page becomes the demo video.
 
-**M5 — Distribution v2 (post-launch):** copy-in ownership via `jsrepo` (the established shadcn-style registry tooling in the Svelte ecosystem) for teams that want to own and modify components; the playground + public eval scoreboard as the recurring reason to come back; `llms.txt` and an MCP endpoint so coding agents can discover and integrate the catalogs themselves; evaluate second catalog (`forms` — richer inputs with the checks system — or `commerce`) based on what people actually ask for.
+**M5 — Distribution v2 (post-launch):** copy-in ownership via `jsrepo` (the established shadcn-style registry tooling in the Svelte ecosystem) for teams that want to own and modify components; the playground + public eval scoreboard as the recurring reason to come back; `llms.txt` and an MCP endpoint so coding agents can discover and integrate the catalogs themselves; the **catalog composer** (2.5) — user-minted vocabularies with generated contract + pack + eval run; evaluate second catalog (`forms` — richer inputs with the checks system — or `commerce`) based on what people actually ask for.
 
 **M6 — Multi-renderer expansion (if auri lands):** roll the design system out to the other official A2UI renderers — `@aurilabs/ops-react`, then Angular/Lit/Flutter by demand. The expansion is cheap by construction: the contract, prompt-pack, eval scoreboard, catalog ids, CSS design tokens, and `DESIGN.md` are all renderer-agnostic and shared; only the component implementation layer is per-framework. Svelte remains the flagship and reference implementation — the other ports inherit its test fixtures (same JSONL replays) and visual language. This flips the pitch at scale: auri stops being "a reason to choose Svelte" and becomes "the design system of agent UI," with Svelte as its home.
 
