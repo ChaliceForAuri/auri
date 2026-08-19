@@ -37,9 +37,30 @@ as a system, a11y enforced by the contract itself. See the
 contract fixture with a scrubbable wire — and the
 [visual sheet](https://chaliceforauri.github.io/auri/sheet).
 
-> **Status: pre-release.** The site, contracts, prompt-packs, and components are done; the first
-> npm release (`@aurilabs/ops`, `@aurilabs/core`) lands shortly. `svelte` and `svelte-a2ui` are
-> peers.
+## Install
+
+```bash
+npm i @aurilabs/ops svelte-a2ui
+```
+
+```svelte
+<script lang="ts">
+	import { A2uiClient, Surface, createCatalogRegistry, basicCatalog } from 'svelte-a2ui';
+	import { opsCatalog } from '@aurilabs/ops';
+	import 'svelte-a2ui/theme.css';
+	import '@aurilabs/ops/theme.css';
+
+	const catalog = createCatalogRegistry([basicCatalog, opsCatalog]);
+	const client = new A2uiClient({ transport: /* your transport */ });
+	client.start();
+</script>
+
+<Surface {client} {catalog} surfaceId="main" />
+```
+
+Then paste the
+[prompt-pack](https://chaliceforauri.github.io/auri/catalogs/ops/prompt.md) into your agent's
+system prompt, and it speaks the vocabulary. `svelte` and `svelte-a2ui` are peers.
 
 Built by **Hugo Pretorius** ([ChaliceForAuri](https://github.com/ChaliceForAuri)), maintainer of
 the svelte-a2ui renderer.
