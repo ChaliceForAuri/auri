@@ -3,6 +3,12 @@
 
 	const pages = [
 		{
+			slug: 'catalogs',
+			name: 'Atoms and catalogs',
+			blurb:
+				'Why agent-facing components ship as evaluated vocabularies — and how catalogs mix on one surface.'
+		},
+		{
 			slug: 'colors',
 			name: 'Colors',
 			blurb:
