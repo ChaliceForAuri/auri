@@ -1,31 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
 	<!-- the glow -->
-	<circle cx="32" cy="17" r="13" fill="#34d399" opacity="0.16" />
-	<circle cx="32" cy="17" r="8" fill="#34d399" opacity="0.14" />
-	<!-- outer flame -->
-	<path d="M32 5.5 C36.5 12 39.5 15 39.5 19.5 C39.5 24.6 36 27.5 32 27.5 C28 27.5 24.5 24.6 24.5 19.5 C24.5 15 27.5 12 32 5.5 Z" fill="#34d399" />
-	<!-- inner flame -->
-	<path d="M32 12 C34.4 15.2 36.2 17 36.2 19.8 C36.2 23 34.3 24.9 32 24.9 C29.7 24.9 27.8 23 27.8 19.8 C27.8 17 29.6 15.2 32 12 Z" fill="#a7f3d0" />
+	<circle cx="24" cy="25" r="19" fill="#34d399" opacity="0.1" />
+	<!-- flame body -->
+	<path d="M24 3 C29 12 37 18 37 28.5 C37 38.5 31.4 45 24 45 C16.6 45 11 38.5 11 28.5 C11 18 19 12 24 3 Z" fill="#34d399" />
+	<!-- mid flame -->
+	<path d="M24 19 C27.8 24.2 31.5 27.6 31.5 33 C31.5 38.6 28.2 42 24 42 C19.8 42 16.5 38.6 16.5 33 C16.5 27.6 20.2 24.2 24 19 Z" fill="#6ee7b7" />
 	<!-- core -->
-	<ellipse cx="32" cy="21" rx="1.9" ry="2.8" fill="#f0fdf9" />
-	<!-- wick -->
-	<rect x="31.1" y="25.5" width="1.8" height="4" rx="0.9" fill="#4a3b2a" />
-	<!-- candle body -->
-	<path d="M23 31 h18 a2.5 2.5 0 0 1 2.5 2.5 v18 a2.5 2.5 0 0 1 -2.5 2.5 h-18 a2.5 2.5 0 0 1 -2.5 -2.5 v-18 a2.5 2.5 0 0 1 2.5 -2.5 Z" fill="#f5ead0" />
-	<!-- body shading, right edge -->
-	<path d="M38 31 h3 a2.5 2.5 0 0 1 2.5 2.5 v18 a2.5 2.5 0 0 1 -2.5 2.5 h-3 Z" fill="#e8d7b4" />
-	<!-- molten top lip -->
-	<ellipse cx="32" cy="31" rx="11.5" ry="3.4" fill="#faf3e0" />
-	<ellipse cx="32" cy="30.6" rx="8" ry="2.1" fill="#fff8e9" />
-	<!-- wax drips -->
-	<path d="M22.6 32.5 v6.5 a2.1 2.1 0 0 0 4.2 0 v-5 Z" fill="#faf3e0" />
-	<path d="M39.6 32.5 v3.8 a1.8 1.8 0 0 0 3.6 0 v-2.6 Z" fill="#faf3e0" />
-	<path d="M30 33.4 v3 a1.5 1.5 0 0 0 3 0 v-2.6 Z" fill="#fff8e9" />
-	<!-- brass dish -->
-	<ellipse cx="32" cy="55.5" rx="15" ry="4.2" fill="#a87c2f" />
-	<ellipse cx="32" cy="54.6" rx="12.4" ry="3.2" fill="#d3a44a" />
-	<ellipse cx="32" cy="54.2" rx="9.5" ry="2.2" fill="#e7bc61" />
-	<!-- carry ring -->
-	<circle cx="49.5" cy="52.5" r="3.4" fill="none" stroke="#a87c2f" stroke-width="2.4" />
-	<circle cx="49.2" cy="52.2" r="3.4" fill="none" stroke="#d3a44a" stroke-width="1.1" />
+	<path d="M24 29.5 C26 32.3 28 34.2 28 37 C28 40 26.2 41.8 24 41.8 C21.8 41.8 20 40 20 37 C20 34.2 22 32.3 24 29.5 Z" fill="#d1fae5" />
 </svg>
