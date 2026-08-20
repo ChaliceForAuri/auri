@@ -1,9 +1,8 @@
 {
 	"name": "@aurilabs/forms",
-	"version": "0.0.0",
-	"private": true,
+	"version": "0.3.0",
 	"type": "module",
-	"description": "The auri forms catalog for A2UI — agent-composed forms that collect answers from humans. Svelte 5, plugs into svelte-a2ui. Private until the first manual npm publish + Trusted Publishing setup (see contract/README.md).",
+	"description": "The auri forms catalog for A2UI — agent-composed forms that collect answers from humans. Svelte 5, plugs into svelte-a2ui.",
 	"license": "Apache-2.0",
 	"author": "Hugo Pretorius <ohheyhugo@gmail.com>",
 	"repository": {
@@ -37,7 +36,8 @@
 		"test:browser": "vitest run",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"package": "svelte-package && publint",
-		"eval": "node ../ops/scripts/emission-eval.js --pack contract/prompt.md --contract contract/catalog.json --scenarios-file contract/emission-scenarios.json"
+		"eval": "node ../ops/scripts/emission-eval.js --pack contract/prompt.md --contract contract/catalog.json --scenarios-file contract/emission-scenarios.json",
+		"prepublishOnly": "npm run package"
 	},
 	"peerDependencies": {
 		"svelte": "^5.55.0",
@@ -72,5 +72,8 @@
 		"sveltekit",
 		"forms",
 		"catalog"
-	]
+	],
+	"publishConfig": {
+		"access": "public"
+	}
 }
