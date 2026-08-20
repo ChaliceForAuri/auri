@@ -12,6 +12,12 @@
 		sortable?: boolean;
 	}
 
+	interface FooterCell {
+		key: string;
+		aggregate: 'sum' | 'mean' | 'count';
+		label?: string;
+	}
+
 	interface Props {
 		columns?: unknown;
 		rows?: unknown;
@@ -19,12 +25,14 @@
 		emptyText?: unknown;
 		/** Registered `raw`: arrives as the wire Action so row context can be merged in. */
 		rowAction?: unknown;
+		footer?: unknown;
 		weight?: number;
 		ariaLabel?: string;
 		a2ui: { id: string; component: string; spec: ComponentSpec; scope: Scope };
 	}
 
-	let { columns, rows, label, emptyText, rowAction, weight, ariaLabel, a2ui }: Props = $props();
+	let { columns, rows, label, emptyText, rowAction, footer, weight, ariaLabel, a2ui }: Props =
+		$props();
 
 	const rc = getRenderContext();
 
@@ -79,6 +87,33 @@
 		if (col.format === 'number' && typeof value === 'number') return formatCellNumber(value);
 		if (col.format === 'datetime') return formatCellDateTime(String(value));
 		return String(value);
+	}
+
+	/* Footer aggregates (issue #19): computed client-side from the resolved
+	   rows — the wire never carries a total that could disagree with them —
+	   and recomputed on every data update, so filtered rows re-total. */
+	const footCells: FooterCell[] = $derived(
+		Array.isArray(footer)
+			? footer.filter(
+					(f): f is FooterCell =>
+						Boolean(f) &&
+						typeof f === 'object' &&
+						typeof f.key === 'string' &&
+						(f.aggregate === 'sum' || f.aggregate === 'mean' || f.aggregate === 'count')
+				)
+			: []
+	);
+
+	function aggregateValue(foot: FooterCell): string {
+		if (!rowList) return '';
+		const values = rowList
+			.map((row) => row?.[foot.key])
+			.filter((v) => v !== undefined && v !== null && v !== '');
+		if (foot.aggregate === 'count') return formatCellNumber(values.length);
+		const nums = values.map(Number).filter((n) => !Number.isNaN(n));
+		if (nums.length === 0) return '—';
+		const sum = nums.reduce((a, b) => a + b, 0);
+		return formatCellNumber(foot.aggregate === 'sum' ? sum : sum / nums.length);
 	}
 </script>
 
@@ -151,6 +186,29 @@
 				{/each}
 			{/if}
 		</tbody>
+		{#if footCells.length > 0 && cols.length > 0}
+			<tfoot>
+				<tr>
+					{#each cols as col (col.key)}
+						{@const foot = footCells.find((f) => f.key === col.key)}
+						<td
+							data-align={col.align === 'center' || col.align === 'end' ? col.align : 'start'}
+							data-format="number"
+						>
+							{#if foot}
+								{#if !rowList}
+									<!-- Rows still loading: a ledger reading 0 would be a lie. -->
+									<span class="auri-skeleton cell-skeleton" aria-hidden="true"></span>
+								{:else}
+									{#if foot.label}<span class="foot-label">{foot.label}</span>{/if}
+									<span class="foot-value">{aggregateValue(foot)}</span>
+								{/if}
+							{/if}
+						</td>
+					{/each}
+				</tr>
+			</tfoot>
+		{/if}
 	</table>
 </div>
 
@@ -239,6 +297,20 @@
 		width: 100%;
 		max-width: 8ch;
 		height: 1em;
+	}
+
+	tfoot td {
+		border-top: 1px solid var(--auri-outline-variant);
+		font-variant-numeric: tabular-nums;
+	}
+	.foot-label {
+		display: block;
+		font-size: var(--auri-type-caption-size);
+		font-weight: var(--auri-type-label-weight);
+		color: var(--auri-on-surface-variant);
+	}
+	.foot-value {
+		font-weight: 600;
 	}
 
 	.empty {
