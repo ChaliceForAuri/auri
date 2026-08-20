@@ -35,3 +35,14 @@ both models derived the mechanism.
 M1 exit criterion met — implementation (M3) may begin: 5 Svelte components, with SourceAudit's
 media player and VelocityScatter's shape-summarising text alternative as the hard parts, and
 DrillStack's focus restoration as a browser test.
+
+## M3 — 2026-08-20, implementation complete
+
+All five components live Svelte (`src/lib/`), 9 browser tests. One implementation finding worth
+the log: **exact focus restoration requires the levels to survive** — DrillStack's first cut
+keyed-remounted the active level, which destroyed the element focus should return to; the fix
+renders every level mounted-but-hidden, so "returns exactly where it left" is literal element
+identity, verified by the browser test. Also kept from the issues: SourceAudit never autoplays
+and treats an empty transcript as "still processing"; VelocityScatter's text alternative
+summarises the shape (falling count, largest, fastest) and traverses weight-descending; the
+subject merge (#20) is one shared helper (`subject.ts`) used by every raw action.
