@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-const CATALOGS = ['ops', 'forms'];
+const CATALOGS = ['ops', 'forms', 'intel'];
 
 for (const key of CATALOGS) {
 	const contract = join(here, '..', '..', '..', 'packages', key, 'contract');

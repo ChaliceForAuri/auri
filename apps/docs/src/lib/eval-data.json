@@ -98,6 +98,55 @@
 					}
 				}
 			]
+		},
+		{
+			"key": "intel",
+			"scenarios": [
+				"surface-insight",
+				"account-velocity",
+				"risk-clusters",
+				"drill-path",
+				"case-audit",
+				"feedback-response"
+			],
+			"models": [
+				{
+					"model": "GPT-5.6",
+					"family": "OpenAI",
+					"protocol": "harness",
+					"date": "2026-08-20",
+					"results": {
+						"surface-insight": "pass",
+						"account-velocity": "pass",
+						"risk-clusters": "pass",
+						"drill-path": "pass",
+						"case-audit": "pass",
+						"feedback-response": "pass"
+					}
+				},
+				{
+					"model": "Claude Fable",
+					"family": "Anthropic",
+					"protocol": "fresh-session",
+					"date": "2026-08-20",
+					"results": {
+						"surface-insight": "pass",
+						"drill-path": "pass",
+						"feedback-response": "pass"
+					}
+				},
+				{
+					"model": "Claude Sonnet",
+					"family": "Anthropic",
+					"protocol": "fresh-session",
+					"date": "2026-08-20",
+					"results": {
+						"account-velocity": "pass",
+						"risk-clusters": "pass",
+						"case-audit": "pass"
+					}
+				}
+			]
 		}
 	]
 }

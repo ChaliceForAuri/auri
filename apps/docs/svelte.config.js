@@ -15,7 +15,9 @@ const config = {
 			'@aurilabs/ops/theme.css': '../../packages/ops/src/lib/theme.css',
 			'@aurilabs/ops': '../../packages/ops/src/lib/index.ts',
 			'@aurilabs/forms/theme.css': '../../packages/forms/src/lib/theme.css',
-			'@aurilabs/forms': '../../packages/forms/src/lib/index.ts'
+			'@aurilabs/forms': '../../packages/forms/src/lib/index.ts',
+			'@aurilabs/intel/theme.css': '../../packages/intel/src/lib/theme.css',
+			'@aurilabs/intel': '../../packages/intel/src/lib/index.ts'
 		}
 	}
 };
