@@ -121,9 +121,9 @@ OPENAI_API_KEY=... npm run eval -- --models openai:gpt-5.6</code
 		<a href="https://github.com/ChaliceForAuri/auri/blob/main/packages/ops/scripts/emission-eval.js"
 			>scripts/emission-eval.js</a
 		>
-		— providers activate on env keys (Anthropic, OpenAI, Gemini), results include the raw
-		transcripts, and the <code>--pack</code>/<code>--contract</code>/<code>--scenarios-file</code> flags
-		point it at any catalog or composed vocabulary. Scores on this page are regenerated from real runs,
-		never edited by hand.
+		— providers activate on env keys (Anthropic, OpenAI, Gemini), results include the raw transcripts,
+		and the <code>--pack</code>/<code>--contract</code>/<code>--scenarios-file</code> flags point it at
+		any catalog or composed vocabulary. Scores on this page are regenerated from real runs, never edited
+		by hand.
 	</p>
 </div>
