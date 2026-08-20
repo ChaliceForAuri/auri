@@ -1,9 +1,12 @@
 name: Release
 
-# Publishes @aurilabs/core and @aurilabs/ops to npm when a v* tag is pushed,
-# via npm Trusted Publishing (OIDC). No token lives in this repo: npmjs.com is
-# configured to trust this exact workflow, and npm generates provenance
-# attestations automatically. Both packages version in lockstep with the tag.
+# Publishes @aurilabs/core, @aurilabs/ops, and @aurilabs/forms to npm when a
+# v* tag is pushed, via npm Trusted Publishing (OIDC). No token lives in this
+# repo: npmjs.com is configured to trust this exact workflow, and npm generates
+# provenance attestations automatically. All packages version in lockstep with
+# the tag. (forms 0.3.0 was published manually — npm requires the package to
+# exist before a trusted publisher can be configured; tagged releases carry it
+# from v0.4.0.)
 on:
   push:
     tags: ['v*']
@@ -38,8 +41,10 @@ jobs:
       - run: npx playwright install chromium
         timeout-minutes: 5
       - run: npm run test:browser -w @aurilabs/ops
+      - run: npm run test:browser -w @aurilabs/forms
 
-      # core first — ops depends on it.
+      # core first — the catalogs depend on it.
       - run: npm publish -w @aurilabs/core
       # prepublishOnly runs svelte-package + publint.
       - run: npm publish -w @aurilabs/ops
+      - run: npm publish -w @aurilabs/forms
