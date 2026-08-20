@@ -1,0 +1,13 @@
+{
+	"name": "@aurilabs/forms",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"description": "The auri forms catalog for A2UI — M1 contract-first stage: contract + prompt-pack only. No implementation until the emission gate passes (see contract/README.md). Goes public and joins lockstep versioning at M3.",
+	"license": "Apache-2.0",
+	"author": "Hugo Pretorius <ohheyhugo@gmail.com>",
+	"scripts": {
+		"test": "node --test tests/*.test.js",
+		"eval": "node ../ops/scripts/emission-eval.js --pack contract/prompt.md --contract contract/catalog.json --scenarios-file contract/emission-scenarios.json"
+	}
+}
