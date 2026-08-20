@@ -13,7 +13,9 @@ const config = {
 		// can't be the resolution path (CI check failed exactly that way).
 		alias: {
 			'@aurilabs/ops/theme.css': '../../packages/ops/src/lib/theme.css',
-			'@aurilabs/ops': '../../packages/ops/src/lib/index.ts'
+			'@aurilabs/ops': '../../packages/ops/src/lib/index.ts',
+			'@aurilabs/forms/theme.css': '../../packages/forms/src/lib/theme.css',
+			'@aurilabs/forms': '../../packages/forms/src/lib/index.ts'
 		}
 	}
 };

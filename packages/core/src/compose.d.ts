@@ -44,3 +44,28 @@ export function composePrompt(input: ComposePromptInput): string;
 export function composeCatalog(
 	input: ComposeInput & Omit<ComposePromptInput, 'components'>
 ): Composition;
+
+export interface ComposeSource {
+	/** Short catalog key, e.g. 'ops' — used in headings and the result. */
+	key: string;
+	contract: CatalogContract;
+	prompt: string;
+	fixtures?: Record<string, string>;
+}
+
+export interface MixedComposition {
+	/** Key of the catalog whose id the surface uses; null when nothing was picked. */
+	primary: string | null;
+	/** One composed contract per source that contributed components. */
+	contracts: { key: string; contract: CatalogContract }[];
+	prompt: string;
+	/** All picked components, grouped by source order. */
+	chosen: string[];
+	missing: string[];
+}
+
+export function composeMixed(input: {
+	sources: ComposeSource[];
+	components: string[];
+	title?: string;
+}): MixedComposition;

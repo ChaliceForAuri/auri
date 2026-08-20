@@ -3,12 +3,13 @@
 	import { base } from '$app/paths';
 	import { A2uiClient, Surface, createCatalogRegistry, basicCatalog } from 'svelte-a2ui';
 	import { opsCatalog } from '@aurilabs/ops';
+	import { formsCatalog } from '@aurilabs/forms';
 	import { componentDoc } from '$lib/components-data';
 	import Copy from '$lib/Copy.svelte';
 
 	let { data } = $props();
 
-	const catalog = createCatalogRegistry([opsCatalog, basicCatalog]);
+	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, basicCatalog]);
 	const doc = $derived(componentDoc(data.name));
 
 	/**
@@ -65,7 +66,7 @@
 </svelte:head>
 
 <nav class="crumbs" aria-label="breadcrumb">
-	<a href="{base}/components">components</a> / <span>{doc.name}</span>
+	<a href="{base}/components">components</a> / <span>{doc.catalog}</span> / <span>{doc.name}</span>
 </nav>
 
 <section class="intro">

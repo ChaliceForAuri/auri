@@ -2,9 +2,10 @@
 	import { onMount } from 'svelte';
 	import { A2uiClient, Surface, createCatalogRegistry, basicCatalog } from 'svelte-a2ui';
 	import { opsCatalog } from '@aurilabs/ops';
+	import { formsCatalog } from '@aurilabs/forms';
 	import { createIncidentReplay, SURFACE, type RailLine } from '$lib/incident';
 
-	const catalog = createCatalogRegistry([opsCatalog, basicCatalog]);
+	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, basicCatalog]);
 
 	let rail = $state<RailLine[]>([]);
 	let client = $state<A2uiClient | null>(null);

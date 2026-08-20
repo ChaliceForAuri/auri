@@ -3,10 +3,11 @@
 	import { A2uiClient, Surface, createCatalogRegistry, basicCatalog } from 'svelte-a2ui';
 	import type { AgentToRenderer } from 'svelte-a2ui';
 	import { opsCatalog } from '@aurilabs/ops';
+	import { formsCatalog } from '@aurilabs/forms';
 	import Copy from '$lib/Copy.svelte';
 	import data from '$lib/playground-data.json';
 
-	const catalog = createCatalogRegistry([opsCatalog, basicCatalog]);
+	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, basicCatalog]);
 
 	const scenarios = data.scenarios.map((s) => ({
 		...s,
@@ -75,10 +76,10 @@
 <section class="intro">
 	<h1>Playground</h1>
 	<p>
-		Six realistic asks from the emission-eval suite, each answered by <strong>{data.model}</strong>
-		cold — the prompt-pack as system prompt, the ask below as the only user message, captured by the harness
-		on {data.ranAt} and replayed here <em>unedited</em>. This is the product claim in running form:
-		models emit this vocabulary without fine-tuning or retries.
+		Twelve realistic asks from the emission-eval suites — six ops, six forms — each answered by
+		<strong>{data.model}</strong> cold: the catalog's prompt-pack as system prompt, the ask below as
+		the only user message, captured by the harness and replayed here <em>unedited</em>. This is the
+		product claim in running form: models emit these vocabularies without fine-tuning or retries.
 	</p>
 </section>
 
@@ -89,7 +90,7 @@
 			role="tab"
 			aria-selected={i === selected}
 			class:active={i === selected}
-			onclick={() => (selected = i)}>{s.title}</button
+			onclick={() => (selected = i)}><span class="cat">{s.catalog}</span>{s.title}</button
 		>
 	{/each}
 </div>
@@ -211,6 +212,12 @@
 		color: var(--auri-on-primary-container);
 		background: var(--auri-primary-container);
 		border-color: transparent;
+	}
+	.picker .cat {
+		font-family: var(--a2ui-font-family-monospace);
+		font-size: 0.6875rem;
+		opacity: 0.65;
+		margin-inline-end: 0.4rem;
 	}
 
 	.ask {

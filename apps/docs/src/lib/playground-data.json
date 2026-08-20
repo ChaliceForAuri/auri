@@ -12,7 +12,8 @@
 				"{\"version\":\"v1.0\",\"createSurface\":{\"surfaceId\":\"api-status\",\"catalogId\":\"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json\"}}",
 				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"api-status\",\"value\":{\"uptime\":99.2,\"latencyP95\":340,\"latencyDelta\":45}}}",
 				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"api-status\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"service\",\"metrics\",\"maintenance\"]},{\"id\":\"service\",\"component\":\"KeyValue\",\"label\":\"Service status\",\"items\":[{\"key\":\"Endpoint\",\"value\":\"api.acme.dev\"},{\"key\":\"Monitoring window\",\"value\":\"Last 24 hours\"}]},{\"id\":\"metrics\",\"component\":\"Row\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"uptime\",\"latency\"]},{\"id\":\"uptime\",\"component\":\"Stat\",\"label\":\"Uptime\",\"value\":{\"path\":\"/uptime\"},\"unit\":\"%\",\"intent\":\"good\",\"caption\":\"Last 24 hours\"},{\"id\":\"latency\",\"component\":\"Stat\",\"label\":\"p95 latency\",\"value\":{\"path\":\"/latencyP95\"},\"unit\":\"ms\",\"delta\":{\"path\":\"/latencyDelta\"},\"trend\":\"up\",\"intent\":\"warning\",\"caption\":\"Change in the last hour\"},{\"id\":\"maintenance\",\"component\":\"Callout\",\"title\":\"Scheduled database failover\",\"text\":\"A database failover is scheduled for **tonight at 02:00 UTC**. A brief connection blip may occur.\",\"intent\":\"warning\"}]}}"
-			]
+			],
+			"catalog": "ops"
 		},
 		{
 			"id": "payments-snapshot",
@@ -24,7 +25,8 @@
 				"{\"version\":\"v1.0\",\"createSurface\":{\"surfaceId\":\"payments_snapshot\",\"catalogId\":\"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json\"}}",
 				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"payments_snapshot\",\"value\":{\"revenueToday\":12400,\"revenueDelta\":1200,\"refundRate\":0.8,\"failedCharges\":23}}}",
 				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"payments_snapshot\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"metrics\",\"processor_warning\"]},{\"id\":\"metrics\",\"component\":\"Row\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"revenue\",\"refund_rate\",\"failed_charges\"]},{\"id\":\"revenue\",\"component\":\"Stat\",\"label\":\"Revenue today\",\"value\":{\"path\":\"/revenueToday\"},\"unit\":\"USD\",\"delta\":{\"path\":\"/revenueDelta\"},\"trend\":\"up\",\"intent\":\"good\",\"caption\":\"vs yesterday\"},{\"id\":\"refund_rate\",\"component\":\"Stat\",\"label\":\"Refund rate\",\"value\":{\"path\":\"/refundRate\"},\"unit\":\"%\",\"trend\":\"flat\",\"intent\":\"neutral\",\"caption\":\"today\"},{\"id\":\"failed_charges\",\"component\":\"Stat\",\"label\":\"Failed charges\",\"value\":{\"path\":\"/failedCharges\"},\"trend\":\"up\",\"intent\":\"warning\",\"caption\":\"today\"},{\"id\":\"processor_warning\",\"component\":\"Callout\",\"title\":\"Card processor degraded\",\"text\":\"The card processor has reported degraded performance since **14:10 UTC**.\",\"intent\":\"warning\"}]}}"
-			]
+			],
+			"catalog": "ops"
 		},
 		{
 			"id": "incident-hard-mode",
@@ -38,7 +40,8 @@
 				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"checkout-incident-4190\",\"path\":\"/deploys\",\"value\":[{\"service\":\"payments-api\",\"build\":4190,\"status\":\"Live\",\"startedAt\":\"2026-08-19T14:02:11Z\",\"durationSec\":142},{\"service\":\"checkout-web\",\"build\":\"\",\"status\":\"Canary\",\"startedAt\":\"2026-08-19T14:10:40Z\",\"durationSec\":98},{\"service\":\"search-index\",\"build\":\"\",\"status\":\"Failed\",\"startedAt\":\"2026-08-19T13:55:03Z\",\"durationSec\":311}]}}",
 				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"checkout-incident-4190\",\"path\":\"/rollback\",\"value\":{\"service\":\"payments-api\",\"deployBuild\":4190,\"targetBuild\":4189}}}",
 				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"checkout-incident-4190\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"incident_note\",\"error_chart\",\"deploy_table\",\"rollback_approval\"]},{\"id\":\"incident_note\",\"component\":\"Callout\",\"title\":\"Checkout errors elevated after deploy 4190\",\"text\":\"The error rate rose after `payments-api` build **4190** went live today at 14:02 UTC and peaked at **4.8%**. The latest reading is **3.9%**.\",\"intent\":\"bad\"},{\"id\":\"error_chart\",\"component\":\"Chart\",\"kind\":\"line\",\"label\":\"Checkout error rate — last hour\",\"unit\":\"%\",\"series\":[{\"label\":\"Error rate\",\"values\":{\"path\":\"/errorRateReadings\"}}],\"xLabels\":{\"path\":\"/readingTimes\"},\"xFormat\":\"datetime\"},{\"id\":\"deploy_table\",\"component\":\"DataTable\",\"label\":\"Today's deploys\",\"columns\":[{\"key\":\"service\",\"label\":\"Service\"},{\"key\":\"build\",\"label\":\"Build\",\"align\":\"end\",\"format\":\"number\"},{\"key\":\"status\",\"label\":\"Status\"},{\"key\":\"startedAt\",\"label\":\"Started\",\"format\":\"datetime\"},{\"key\":\"durationSec\",\"label\":\"Duration (seconds)\",\"align\":\"end\",\"format\":\"number\"}],\"rows\":{\"path\":\"/deploys\"},\"emptyText\":\"No deploys recorded today.\"},{\"id\":\"rollback_approval\",\"component\":\"ApprovalCard\",\"title\":\"Roll payments-api back to build 4189?\",\"summary\":\"Deploy **4190** coincided with the checkout error-rate spike. Approving will roll `payments-api` back to build **4189**.\",\"requireComment\":true,\"approveLabel\":\"Approve rollback\",\"rejectLabel\":\"Keep build 4190\",\"approveAction\":{\"event\":{\"name\":\"payments_api_rollback_approved\",\"context\":{\"service\":{\"path\":\"/rollback/service\"},\"fromBuild\":{\"path\":\"/rollback/deployBuild\"},\"toBuild\":{\"path\":\"/rollback/targetBuild\"}}}},\"rejectAction\":{\"event\":{\"name\":\"payments_api_rollback_rejected\",\"context\":{\"service\":{\"path\":\"/rollback/service\"},\"currentBuild\":{\"path\":\"/rollback/deployBuild\"},\"proposedBuild\":{\"path\":\"/rollback/targetBuild\"}}}}}]}}"
-			]
+			],
+			"catalog": "ops"
 		},
 		{
 			"id": "deploy-live-ops",
@@ -52,7 +55,8 @@
 				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"deploy-4191\",\"path\":\"/events\",\"value\":[{\"title\":\"Build started\",\"time\":\"2026-08-19T14:20:05Z\",\"intent\":\"info\",\"text\":\"Build 4191 started deploying to payments-api.\"},{\"title\":\"Canary healthy\",\"time\":\"2026-08-19T14:21:40Z\",\"intent\":\"good\",\"text\":\"Canary checks passed.\"},{\"title\":\"Rollout began\",\"time\":\"2026-08-19T14:22:10Z\",\"intent\":\"info\",\"text\":\"Production pods began updating.\"},{\"title\":\"Readiness probe running slow\",\"time\":\"2026-08-19T14:24:02Z\",\"intent\":\"warning\",\"text\":\"Pod 4's readiness probe is taking longer than expected; watching closely.\"}]}}",
 				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"deploy-4191\",\"path\":\"/logTail\",\"value\":\"pulling image\\nstarting pod 4 of 10\\nwaiting on readiness probe for pod 4\"}}",
 				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"deploy-4191\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"deploy_status\",\"rollout_progress\",\"timeline\",\"log_tail\",\"abort\"]},{\"id\":\"deploy_status\",\"component\":\"Badge\",\"text\":{\"path\":\"/status\"},\"intent\":\"info\"},{\"id\":\"rollout_progress\",\"component\":\"Progress\",\"label\":\"payments-api build 4191 rollout\",\"value\":{\"path\":\"/podsReady\"},\"max\":{\"path\":\"/podsTotal\"},\"intent\":\"warning\"},{\"id\":\"timeline\",\"component\":\"Timeline\",\"label\":\"Deploy timeline\",\"items\":{\"path\":\"/events\"},\"emptyText\":\"No deploy events yet.\"},{\"id\":\"log_tail\",\"component\":\"CodeBlock\",\"label\":\"Deploy log tail\",\"language\":\"log\",\"wrap\":true,\"code\":{\"path\":\"/logTail\"}},{\"id\":\"abort\",\"component\":\"ConfirmButton\",\"label\":\"Abort rollout\",\"confirmLabel\":\"Really abort rollout?\",\"intent\":\"bad\",\"action\":{\"event\":{\"name\":\"rollout_aborted\",\"context\":{\"buildId\":{\"path\":\"/buildId\"},\"service\":{\"path\":\"/service\"}}}}}]}}"
-			]
+			],
+			"catalog": "ops"
 		},
 		{
 			"id": "service-passport",
@@ -65,7 +69,8 @@
 				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"checkout-web-overview\",\"value\":{\"stage\":\"Canary\"}}}",
 				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"checkout-web-overview\",\"path\":\"/latencyReadings\",\"value\":[178,182,175,190,260,240,210,195,188,199,205,214]}}",
 				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"checkout-web-overview\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"facts\",\"status_row\"]},{\"id\":\"facts\",\"component\":\"KeyValue\",\"label\":\"checkout-web\",\"items\":[{\"key\":\"Region\",\"value\":\"eu-west-1\"},{\"key\":\"Runtime\",\"value\":\"node 24\"},{\"key\":\"Owner\",\"value\":\"team payments\"},{\"key\":\"Last deployed\",\"value\":\"2026-08-17T09:12:00Z\"}]},{\"id\":\"status_row\",\"component\":\"Row\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"latency_trend\",\"deploy_stage\"]},{\"id\":\"latency_trend\",\"component\":\"Sparkline\",\"label\":\"p95 latency, last 12 readings (ms)\",\"values\":{\"path\":\"/latencyReadings\"},\"intent\":\"warning\"},{\"id\":\"deploy_stage\",\"component\":\"Badge\",\"text\":{\"path\":\"/stage\"},\"intent\":\"warning\"}]}}"
-			]
+			],
+			"catalog": "ops"
 		},
 		{
 			"id": "weekly-review",
@@ -78,6 +83,101 @@
 				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"weekly-oncall-review\",\"value\":{\"incidentCounts\":[2,0,5,1,3,0,1]}}}",
 				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"weekly-oncall-review\",\"path\":\"/alerts\",\"value\":[{\"alert\":\"HighLatencyP95\",\"firedCount\":41,\"lastFiredAt\":\"2026-08-15T22:14:00Z\"},{\"alert\":\"DiskPressure\",\"firedCount\":28,\"lastFiredAt\":\"2026-08-16T03:41:00Z\"},{\"alert\":\"PodRestartLoop\",\"firedCount\":17,\"lastFiredAt\":\"2026-08-14T11:05:00Z\"},{\"alert\":\"CertExpirySoon\",\"firedCount\":9,\"lastFiredAt\":\"2026-08-13T09:00:00Z\"}]}}",
 				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"weekly-oncall-review\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"incidents_chart\",\"wednesday_callout\",\"alerts_table\",\"mute_approval\"]},{\"id\":\"incidents_chart\",\"component\":\"Chart\",\"kind\":\"bar\",\"label\":\"Incidents per day this week\",\"series\":[{\"label\":\"Incidents\",\"values\":{\"path\":\"/incidentCounts\"}}],\"xLabels\":[\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\",\"Saturday\",\"Sunday\"],\"xFormat\":\"text\"},{\"id\":\"wednesday_callout\",\"component\":\"Callout\",\"title\":\"Wednesday was rough\",\"text\":\"Wednesday was the busiest incident day this week. Review the clustering, escalation load, and handoff notes for follow-up opportunities.\",\"intent\":\"warning\"},{\"id\":\"alerts_table\",\"component\":\"DataTable\",\"label\":\"Four noisiest alerts\",\"columns\":[{\"key\":\"alert\",\"label\":\"Alert\",\"format\":\"text\",\"sortable\":true},{\"key\":\"firedCount\",\"label\":\"Times fired\",\"align\":\"end\",\"format\":\"number\",\"sortable\":true},{\"key\":\"lastFiredAt\",\"label\":\"Last fired\",\"format\":\"datetime\",\"sortable\":true}],\"rows\":{\"path\":\"/alerts\"},\"emptyText\":\"No alert activity this week.\"},{\"id\":\"mute_approval\",\"component\":\"ApprovalCard\",\"title\":\"Mute HighLatencyP95 for seven days?\",\"summary\":\"Temporarily mute `HighLatencyP95` for seven days to reduce repeated paging while the underlying latency issue is reviewed.\",\"approveLabel\":\"Approve mute\",\"rejectLabel\":\"Keep active\",\"requireComment\":false,\"approveAction\":{\"event\":{\"name\":\"alert_mute_approved\",\"context\":{\"alert\":\"HighLatencyP95\",\"durationDays\":7}}},\"rejectAction\":{\"event\":{\"name\":\"alert_mute_rejected\",\"context\":{\"alert\":\"HighLatencyP95\",\"durationDays\":7}}}}]}}"
+			],
+			"catalog": "ops"
+		},
+		{
+			"id": "contact-form",
+			"catalog": "forms",
+			"title": "Contact form",
+			"prompt": "Ask the user how we can reach them: full name (required), work email (required, must be a valid email), and an optional phone number. When they submit, you need the name and email. Seed everything empty.",
+			"components": ["TextField", "SubmitBar"],
+			"ms": 4799,
+			"lines": [
+				"{\"version\":\"v1.0\",\"createSurface\":{\"surfaceId\":\"contact\",\"catalogId\":\"https://chaliceforauri.github.io/auri/catalogs/forms/v1.json\"}}",
+				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"contact\",\"value\":{\"fullName\":\"\",\"workEmail\":\"\",\"phone\":\"\"}}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"contact\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"full_name\",\"work_email\",\"phone\",\"submit\"]},{\"id\":\"full_name\",\"component\":\"TextField\",\"label\":\"Full name\",\"value\":{\"path\":\"/fullName\"},\"checks\":[{\"call\":\"required\",\"message\":\"Enter your full name.\"}]},{\"id\":\"work_email\",\"component\":\"TextField\",\"label\":\"Work email\",\"kind\":\"email\",\"value\":{\"path\":\"/workEmail\"},\"checks\":[{\"call\":\"required\",\"message\":\"Enter your work email.\"},{\"call\":\"email\",\"message\":\"Enter a valid email address.\"}]}]}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"contact\",\"components\":[{\"id\":\"phone\",\"component\":\"TextField\",\"label\":\"Phone number (optional)\",\"kind\":\"tel\",\"value\":{\"path\":\"/phone\"}},{\"id\":\"submit\",\"component\":\"SubmitBar\",\"submitLabel\":\"Submit\",\"submitAction\":{\"event\":{\"name\":\"contact_details_submitted\",\"context\":{\"name\":{\"path\":\"/fullName\"},\"email\":{\"path\":\"/workEmail\"}}}}}]}}"
+			]
+		},
+		{
+			"id": "postmortem-intake",
+			"catalog": "forms",
+			"title": "Postmortem intake",
+			"prompt": "Collect an incident postmortem: a severity choice between Sev 1 (total outage), Sev 2 (degraded), and Sev 3 (cosmetic), defaulting to Sev 2; a summary of what happened that must be at least 50 characters; the date the incident started (it can't be in the future — today is 2026-08-19); and whether follow-up review is needed, defaulting to yes. Group the severity and date under a section titled 'Classification' and the rest under 'Details'. On submit you need all four answers.",
+			"components": ["FormSection", "RadioGroup", "DateField", "TextArea", "Toggle", "SubmitBar"],
+			"ms": 7314,
+			"lines": [
+				"{\"version\":\"v1.0\",\"createSurface\":{\"surfaceId\":\"incident-postmortem\",\"catalogId\":\"https://chaliceforauri.github.io/auri/catalogs/forms/v1.json\"}}",
+				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"incident-postmortem\",\"value\":{\"severity\":\"sev2\",\"summary\":\"\",\"startDate\":\"\",\"followUpReview\":true}}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"incident-postmortem\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"classification\",\"details\",\"submit\"]},{\"id\":\"classification\",\"component\":\"FormSection\",\"title\":\"Classification\",\"children\":[\"severity\",\"startDate\"]},{\"id\":\"details\",\"component\":\"FormSection\",\"title\":\"Details\",\"children\":[\"summary\",\"followUpReview\"]}]}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"incident-postmortem\",\"components\":[{\"id\":\"severity\",\"component\":\"RadioGroup\",\"label\":\"Severity\",\"value\":{\"path\":\"/severity\"},\"options\":[{\"value\":\"sev1\",\"label\":\"Sev 1 — total outage\"},{\"value\":\"sev2\",\"label\":\"Sev 2 — degraded\"},{\"value\":\"sev3\",\"label\":\"Sev 3 — cosmetic\"}],\"checks\":[{\"call\":\"required\",\"message\":\"Choose a severity.\"}]},{\"id\":\"startDate\",\"component\":\"DateField\",\"label\":\"Incident start date\",\"value\":{\"path\":\"/startDate\"},\"max\":\"2026-08-19\",\"hint\":\"The start date cannot be in the future.\",\"checks\":[{\"call\":\"required\",\"message\":\"Choose the incident start date.\"}]}]}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"incident-postmortem\",\"components\":[{\"id\":\"summary\",\"component\":\"TextArea\",\"label\":\"Summary of what happened\",\"value\":{\"path\":\"/summary\"},\"rows\":5,\"checks\":[{\"call\":\"required\",\"message\":\"Enter a summary of what happened.\"},{\"call\":\"length\",\"args\":{\"min\":50},\"message\":\"Provide at least 50 characters.\"}]},{\"id\":\"followUpReview\",\"component\":\"Toggle\",\"label\":\"Follow-up review is needed\",\"value\":{\"path\":\"/followUpReview\"}},{\"id\":\"submit\",\"component\":\"SubmitBar\",\"submitLabel\":\"Submit postmortem\",\"submitAction\":{\"event\":{\"name\":\"incident_postmortem_submitted\",\"context\":{\"severity\":{\"path\":\"/severity\"},\"summary\":{\"path\":\"/summary\"},\"startDate\":{\"path\":\"/startDate\"},\"followUpReview\":{\"path\":\"/followUpReview\"}}}}}]}}"
+			]
+		},
+		{
+			"id": "deploy-approval-form",
+			"catalog": "forms",
+			"title": "Rollback justification",
+			"prompt": "Before you roll payments-api back to build 4189, collect: a justification of at least 30 characters (required), and which environments to roll back — production, staging, or both (at least implied by checkboxes for Production and Staging, defaulting to production only). The submit button should say 'Roll back' and you need the justification and environments when it fires. While you process the rollback the form should show a busy state you can control from your side.",
+			"components": ["TextArea", "CheckboxGroup", "SubmitBar"],
+			"ms": 5236,
+			"lines": [
+				"{\"version\":\"v1.0\",\"createSurface\":{\"surfaceId\":\"rollback-payments-api\",\"catalogId\":\"https://chaliceforauri.github.io/auri/catalogs/forms/v1.json\"}}",
+				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"rollback-payments-api\",\"value\":{\"justification\":\"\",\"environments\":[\"production\"],\"pending\":false}}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"rollback-payments-api\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"justification\",\"environments\",\"submit\"]},{\"id\":\"justification\",\"component\":\"TextArea\",\"label\":\"Rollback justification\",\"value\":{\"path\":\"/justification\"},\"rows\":4,\"hint\":\"Explain why payments-api build 4189 should be restored.\",\"checks\":[{\"call\":\"required\",\"message\":\"Enter a justification.\"},{\"call\":\"length\",\"args\":{\"min\":30},\"message\":\"Enter at least 30 characters.\"}]}]}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"rollback-payments-api\",\"components\":[{\"id\":\"environments\",\"component\":\"CheckboxGroup\",\"label\":\"Environments to roll back\",\"value\":{\"path\":\"/environments\"},\"options\":[{\"value\":\"production\",\"label\":\"Production\"},{\"value\":\"staging\",\"label\":\"Staging\"}],\"hint\":\"Production is selected by default.\",\"checks\":[{\"call\":\"required\",\"message\":\"Select at least one environment.\"}]},{\"id\":\"submit\",\"component\":\"SubmitBar\",\"submitLabel\":\"Roll back\",\"pending\":{\"path\":\"/pending\"},\"submitAction\":{\"event\":{\"name\":\"rollback_payments_api_to_build_4189\",\"context\":{\"justification\":{\"path\":\"/justification\"},\"environments\":{\"path\":\"/environments\"}}}}}]}}"
+			]
+		},
+		{
+			"id": "settings-server-validation",
+			"catalog": "forms",
+			"title": "Service settings",
+			"prompt": "Render a settings form for the checkout-web service: a replica count between 1 and 20 (currently 4), a region select with eu-west-1 (Europe) and us-east-1 (US East), currently eu-west-1, and a toggle for canary deploys, currently off. Validate bounds as the user types. When they save, you will verify the change server-side and may need to display a rejection message that arrives after submission — wire the form so your response can land in it.",
+			"components": ["NumberField", "SelectField", "Toggle", "SubmitBar"],
+			"ms": 12957,
+			"lines": [
+				"{\"version\":\"v1.0\",\"createSurface\":{\"surfaceId\":\"checkout-web-settings\",\"catalogId\":\"https://chaliceforauri.github.io/auri/catalogs/forms/v1.json\"}}",
+				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"checkout-web-settings\",\"value\":{\"replicas\":4,\"region\":\"eu-west-1\",\"canaryDeploys\":false,\"pending\":false,\"serverError\":\"\"}}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"checkout-web-settings\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"replicas\",\"region\",\"canary\",\"server_message\",\"submit\"]},{\"id\":\"replicas\",\"component\":\"NumberField\",\"label\":\"Replica count\",\"value\":{\"path\":\"/replicas\"},\"min\":1,\"max\":20,\"step\":1,\"checks\":[{\"call\":\"required\",\"message\":\"Enter a replica count.\"},{\"call\":\"numeric\",\"args\":{\"min\":1,\"max\":20},\"message\":\"Choose between 1 and 20 replicas.\"}]},{\"id\":\"region\",\"component\":\"SelectField\",\"label\":\"Region\",\"value\":{\"path\":\"/region\"},\"options\":[{\"value\":\"eu-west-1\",\"label\":\"Europe\"},{\"value\":\"us-east-1\",\"label\":\"US East\"}],\"checks\":[{\"call\":\"required\",\"message\":\"Choose a region.\"}]}]}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"checkout-web-settings\",\"components\":[{\"id\":\"canary\",\"component\":\"Toggle\",\"label\":\"Enable canary deploys\",\"value\":{\"path\":\"/canaryDeploys\"}},{\"id\":\"server_message\",\"component\":\"Text\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"text\":{\"path\":\"/serverError\"}},{\"id\":\"submit\",\"component\":\"SubmitBar\",\"submitLabel\":\"Save settings\",\"pending\":{\"path\":\"/pending\"},\"submitAction\":{\"event\":{\"name\":\"checkout_web_settings_saved\",\"context\":{\"replicas\":{\"path\":\"/replicas\"},\"region\":{\"path\":\"/region\"},\"canaryDeploys\":{\"path\":\"/canaryDeploys\"}},\"wantResponse\":true,\"responsePath\":\"/serverError\"}}}]}}"
+			]
+		},
+		{
+			"id": "survey-sections",
+			"catalog": "forms",
+			"title": "Developer survey",
+			"prompt": "A two-part developer survey. Part 'About you': role (select: Engineer, SRE, Manager), years of experience (number, 0 to 50). Part 'Your tooling': which CI systems they use from GitHub Actions, Jenkins, CircleCI (any number), and one thing they'd change about their deploy process (free text, optional, up to 500 characters). Submit says 'Send survey'. You need every answer on submit.",
+			"components": [
+				"FormSection",
+				"SelectField",
+				"NumberField",
+				"CheckboxGroup",
+				"TextArea",
+				"SubmitBar"
+			],
+			"ms": 7084,
+			"lines": [
+				"{\"version\":\"v1.0\",\"createSurface\":{\"surfaceId\":\"developer-survey\",\"catalogId\":\"https://chaliceforauri.github.io/auri/catalogs/forms/v1.json\"}}",
+				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"developer-survey\",\"value\":{\"role\":\"\",\"yearsExperience\":0,\"ciSystems\":[],\"deployChange\":\"\"}}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"developer-survey\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"about-you\",\"your-tooling\",\"submit\"]},{\"id\":\"about-you\",\"component\":\"FormSection\",\"title\":\"About you\",\"children\":[\"role\",\"years-experience\"]},{\"id\":\"your-tooling\",\"component\":\"FormSection\",\"title\":\"Your tooling\",\"children\":[\"ci-systems\",\"deploy-change\"]}]}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"developer-survey\",\"components\":[{\"id\":\"role\",\"component\":\"SelectField\",\"label\":\"Role\",\"value\":{\"path\":\"/role\"},\"placeholder\":\"Choose your role…\",\"options\":[\"Engineer\",\"SRE\",\"Manager\"],\"checks\":[{\"call\":\"required\",\"message\":\"Choose your role.\"}]},{\"id\":\"years-experience\",\"component\":\"NumberField\",\"label\":\"Years of experience\",\"value\":{\"path\":\"/yearsExperience\"},\"min\":0,\"max\":50,\"step\":1,\"unit\":\"years\",\"checks\":[{\"call\":\"required\",\"message\":\"Enter your years of experience.\"},{\"call\":\"numeric\",\"args\":{\"min\":0,\"max\":50},\"message\":\"Enter a number from 0 to 50.\"}]}]}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"developer-survey\",\"components\":[{\"id\":\"ci-systems\",\"component\":\"CheckboxGroup\",\"label\":\"Which CI systems do you use?\",\"value\":{\"path\":\"/ciSystems\"},\"options\":[\"GitHub Actions\",\"Jenkins\",\"CircleCI\"],\"hint\":\"Select any that apply.\"},{\"id\":\"deploy-change\",\"component\":\"TextArea\",\"label\":\"What is one thing you’d change about your deploy process?\",\"value\":{\"path\":\"/deployChange\"},\"rows\":4,\"maxLength\":500,\"hint\":\"Optional; up to 500 characters.\",\"checks\":[{\"call\":\"length\",\"args\":{\"max\":500},\"message\":\"Keep your answer to 500 characters or fewer.\"}]}]}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"developer-survey\",\"components\":[{\"id\":\"submit\",\"component\":\"SubmitBar\",\"submitLabel\":\"Send survey\",\"submitAction\":{\"event\":{\"name\":\"developer_survey_submitted\",\"context\":{\"role\":{\"path\":\"/role\"},\"yearsExperience\":{\"path\":\"/yearsExperience\"},\"ciSystems\":{\"path\":\"/ciSystems\"},\"deployChange\":{\"path\":\"/deployChange\"}}}}}]}}"
+			]
+		},
+		{
+			"id": "signup-checks",
+			"catalog": "forms",
+			"title": "Sign-up with checks",
+			"prompt": "A sign-up form: email (required, valid email), a handle that must be 3-15 characters of lowercase letters, digits or dashes only (required — explain the format to the user when it fails), and a start date no earlier than 2026-09-01. On submit, named 'Create account', you need the email and handle, and you'll confirm account creation asynchronously from your side.",
+			"components": ["TextField", "DateField", "SubmitBar"],
+			"ms": 8640,
+			"lines": [
+				"{\"version\":\"v1.0\",\"createSurface\":{\"surfaceId\":\"signup\",\"catalogId\":\"https://chaliceforauri.github.io/auri/catalogs/forms/v1.json\"}}",
+				"{\"version\":\"v1.0\",\"updateDataModel\":{\"surfaceId\":\"signup\",\"value\":{\"email\":\"\",\"handle\":\"\",\"startDate\":\"\",\"pending\":false,\"accountResult\":null}}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"signup\",\"components\":[{\"id\":\"root\",\"component\":\"Column\",\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\",\"children\":[\"email\",\"handle\",\"start_date\",\"submit\"]},{\"id\":\"email\",\"component\":\"TextField\",\"label\":\"Email\",\"kind\":\"email\",\"value\":{\"path\":\"/email\"},\"checks\":[{\"call\":\"required\",\"message\":\"Enter your email address.\"},{\"call\":\"email\",\"message\":\"Enter a valid email address.\"}]},{\"id\":\"handle\",\"component\":\"TextField\",\"label\":\"Handle\",\"kind\":\"text\",\"value\":{\"path\":\"/handle\"},\"hint\":\"Use 3–15 lowercase letters, digits, or dashes.\",\"checks\":[{\"call\":\"required\",\"message\":\"Choose a handle.\"},{\"call\":\"length\",\"args\":{\"min\":3,\"max\":15},\"message\":\"Your handle must be between 3 and 15 characters.\"},{\"call\":\"regex\",\"args\":{\"pattern\":\"^[a-z0-9-]+$\"},\"message\":\"Use lowercase letters, digits, or dashes only.\"}]}]}}",
+				"{\"version\":\"v1.0\",\"updateComponents\":{\"surfaceId\":\"signup\",\"components\":[{\"id\":\"start_date\",\"component\":\"DateField\",\"label\":\"Start date\",\"value\":{\"path\":\"/startDate\"},\"min\":\"2026-09-01\",\"hint\":\"Choose September 1, 2026 or later.\"},{\"id\":\"submit\",\"component\":\"SubmitBar\",\"submitLabel\":\"Create account\",\"pending\":{\"path\":\"/pending\"},\"submitAction\":{\"event\":{\"name\":\"create_account\",\"context\":{\"email\":{\"path\":\"/email\"},\"handle\":{\"path\":\"/handle\"}},\"wantResponse\":true,\"responsePath\":\"/accountResult\"}}}]}}"
 			]
 		}
 	]
