@@ -4,12 +4,13 @@
 	import { A2uiClient, Surface, createCatalogRegistry, basicCatalog } from 'svelte-a2ui';
 	import { opsCatalog } from '@aurilabs/ops';
 	import { formsCatalog } from '@aurilabs/forms';
+	import { intelCatalog } from '@aurilabs/intel';
 	import { componentDoc } from '$lib/components-data';
 	import Copy from '$lib/Copy.svelte';
 
 	let { data } = $props();
 
-	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, basicCatalog]);
+	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, intelCatalog, basicCatalog]);
 	const doc = $derived(componentDoc(data.name));
 
 	/**

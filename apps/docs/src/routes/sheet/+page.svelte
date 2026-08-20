@@ -2,6 +2,7 @@
 	import { A2uiClient, Surface, createCatalogRegistry, basicCatalog } from 'svelte-a2ui';
 	import { opsCatalog, OPS_CATALOG_ID } from '@aurilabs/ops';
 	import { formsCatalog, FORMS_CATALOG_ID } from '@aurilabs/forms';
+	import { intelCatalog, INTEL_CATALOG_ID } from '@aurilabs/intel';
 
 	/**
 	 * The visual sheet: every component of both catalogs in every intent, plus
@@ -12,8 +13,9 @@
 	 */
 
 	const BASIC = 'https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json';
-	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, basicCatalog]);
+	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, intelCatalog, basicCatalog]);
 	const form = (spec: Record<string, unknown>) => ({ catalogId: FORMS_CATALOG_ID, ...spec });
+	const intel = (spec: Record<string, unknown>) => ({ catalogId: INTEL_CATALOG_ID, ...spec });
 	const client = new A2uiClient();
 
 	const col = (id: string, children: string[]) => ({
@@ -104,6 +106,75 @@
 					canary: true,
 					region: 'eu-west-1',
 					pending: true
+				},
+				sheetIntel: {
+					caseCount: 312,
+					arr: 1200000,
+					depth: 0,
+					clusters: [
+						{
+							id: 'cl-ra',
+							label: 'Report accuracy',
+							size: 12,
+							intent: 'warning',
+							reason: "Export totals don't match on-screen figures"
+						},
+						{
+							id: 'cl-sso',
+							label: 'SSO friction',
+							size: 7,
+							intent: 'bad',
+							reason: 'Session drops force daily re-login'
+						},
+						{
+							id: 'cl-wh',
+							label: 'Webhook delays',
+							size: 4,
+							intent: 'neutral',
+							reason: 'Events arriving minutes late'
+						}
+					],
+					accounts: [
+						{
+							id: 'acct-acme',
+							label: 'Acme Corp',
+							x: 84,
+							y: 32,
+							dx: 9,
+							dy: -12,
+							intent: 'bad',
+							weight: 480000
+						},
+						{
+							id: 'acct-globex',
+							label: 'Globex',
+							x: 41,
+							y: 58,
+							dx: 2,
+							dy: -4,
+							intent: 'warning',
+							weight: 350000
+						},
+						{
+							id: 'acct-initech',
+							label: 'Initech',
+							x: 12,
+							y: 77,
+							dx: -1,
+							dy: 3,
+							intent: 'good',
+							weight: 210000
+						}
+					],
+					transcript: [
+						{
+							startSeconds: 62,
+							speaker: 'Customer',
+							text: 'The export says 1.2 million but the screen says 1.4.'
+						},
+						{ startSeconds: 81, speaker: 'Agent', text: 'Let me pull that report up.' }
+					],
+					emptyTranscript: []
 				}
 			},
 			components: [
@@ -142,7 +213,16 @@
 					'h_form_choices',
 					'form_choices',
 					'h_form_submit',
-					'form_submit_row'
+					'form_submit_row',
+					'h_intel_insight',
+					'intel_insights',
+					'h_intel_maps',
+					'intel_cluster',
+					'intel_scatter',
+					'h_intel_audit',
+					'intel_audits',
+					'h_intel_drill',
+					'intel_drill'
 				]),
 
 				heading('h_spark', 'Sparkline — word-sized trends, generated text alternative'),
@@ -550,6 +630,105 @@
 					submitLabel: 'Saving…',
 					pending: { path: '/sheetForm/pending' },
 					submitAction: { event: { name: 'sheet_save' } }
+				}),
+
+				heading(
+					'h_intel_insight',
+					'intel: InsightCard — confidence as a band, feedback acknowledges live'
+				),
+				row('intel_insights', ['ic_full', 'ic_minimal']),
+				intel({
+					id: 'ic_full',
+					component: 'InsightCard',
+					weight: 1,
+					headline: 'Report-accuracy complaints are accelerating',
+					subjectKind: 'cluster',
+					subjectId: 'cl-ra',
+					summary:
+						'Export totals not matching on-screen figures; three enterprise accounts affected.',
+					signalType: 'friction',
+					intent: 'warning',
+					trend: 'up',
+					caseCount: { path: '/sheetIntel/caseCount' },
+					windowStart: '2026-08-01T00:00:00Z',
+					windowEnd: '2026-08-20T00:00:00Z',
+					confidence: 0.8,
+					revenueAtRisk: { path: '/sheetIntel/arr' },
+					currency: 'USD',
+					themes: [
+						{ label: 'Export totals', count: 204 },
+						{ label: 'Rounding', count: 68 }
+					],
+					drillAction: { event: { name: 'sheet_drill' } },
+					feedbackAction: { event: { name: 'sheet_feedback' } }
+				}),
+				intel({
+					id: 'ic_minimal',
+					component: 'InsightCard',
+					weight: 1,
+					headline: 'CSV import guidance is missing from the knowledge base',
+					subjectKind: 'theme',
+					subjectId: 'th-csv',
+					signalType: 'kb_gap',
+					intent: 'info',
+					confidence: 0.45,
+					caseCount: 44
+				}),
+
+				heading(
+					'h_intel_maps',
+					'intel: ClusterMap (reason-forward) / VelocityScatter (momentum, weight-ordered traversal)'
+				),
+				intel({
+					id: 'intel_cluster',
+					component: 'ClusterMap',
+					label: 'Accounts at risk, by reason',
+					clusters: { path: '/sheetIntel/clusters' },
+					clusterAction: { event: { name: 'sheet_cluster' } }
+				}),
+				intel({
+					id: 'intel_scatter',
+					component: 'VelocityScatter',
+					label: 'Account health velocity',
+					xLabel: 'Support volume (30d)',
+					yLabel: 'Sentiment',
+					points: { path: '/sheetIntel/accounts' },
+					pointAction: { event: { name: 'sheet_point' } }
+				}),
+
+				heading(
+					'h_intel_audit',
+					'intel: SourceAudit — synced transcript, and the processing state'
+				),
+				row('intel_audits', ['sa_lines', 'sa_processing']),
+				intel({
+					id: 'sa_lines',
+					component: 'SourceAudit',
+					weight: 1,
+					label: 'Support call — Acme Corp, 14 Aug',
+					mediaKind: 'audio',
+					durationSeconds: 847,
+					transcript: { path: '/sheetIntel/transcript' }
+				}),
+				intel({
+					id: 'sa_processing',
+					component: 'SourceAudit',
+					weight: 1,
+					label: 'Renewal call — Globex, 19 Aug',
+					mediaKind: 'audio',
+					durationSeconds: 1204,
+					transcript: { path: '/sheetIntel/emptyTranscript' }
+				}),
+
+				heading('h_intel_drill', 'intel: DrillStack — depth is data; crumbs and Escape work live'),
+				intel({
+					id: 'intel_drill',
+					component: 'DrillStack',
+					levels: [
+						{ title: 'Insights', componentId: 'ic_full' },
+						{ title: 'Affected accounts', componentId: 'intel_cluster' }
+					],
+					activeIndex: { path: '/sheetIntel/depth' }
 				})
 			] as never[]
 		}

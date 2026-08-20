@@ -8,8 +8,10 @@
 import type { AgentToRenderer } from 'svelte-a2ui';
 import opsContract from '$lib/generated/ops/catalog.json';
 import formsContract from '$lib/generated/forms/catalog.json';
+import intelContract from '$lib/generated/intel/catalog.json';
 import opsPack from '$lib/generated/ops/prompt.md?raw';
 import formsPack from '$lib/generated/forms/prompt.md?raw';
+import intelPack from '$lib/generated/intel/prompt.md?raw';
 
 const fixtureFiles = import.meta.glob('$lib/generated/*/examples/*.jsonl', {
 	query: '?raw',
@@ -30,7 +32,7 @@ function kebab(name: string): string {
 }
 
 export interface CatalogInfo {
-	key: 'ops' | 'forms';
+	key: 'ops' | 'forms' | 'intel';
 	title: string;
 	blurb: string;
 	contract: Record<string, unknown>;
@@ -59,6 +61,14 @@ export const CATALOGS: CatalogInfo[] = [
 		contract: formsContract as ContractDoc,
 		pack: formsPack,
 		components: Object.keys((formsContract as ContractDoc).components)
+	},
+	{
+		key: 'intel',
+		title: 'intel',
+		blurb: 'revenue-intelligence surfaces — insight feeds and drill paths from aggregate to source',
+		contract: intelContract as ContractDoc,
+		pack: intelPack,
+		components: Object.keys((intelContract as ContractDoc).components)
 	}
 ];
 
@@ -67,7 +77,7 @@ export const COMPONENT_NAMES = CATALOGS.flatMap((c) => c.components);
 
 export interface ComponentDoc {
 	name: string;
-	catalog: 'ops' | 'forms';
+	catalog: 'ops' | 'forms' | 'intel';
 	description: string;
 	tagline: string;
 	fixtureText: string;

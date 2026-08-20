@@ -2,6 +2,7 @@
 	import 'svelte-a2ui/theme.css';
 	import '@aurilabs/ops/theme.css';
 	import '@aurilabs/forms/theme.css';
+	import '@aurilabs/intel/theme.css';
 	import '../app.css';
 	import { base } from '$app/paths';
 	import { page } from '$app/state';
