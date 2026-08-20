@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"module": "esnext",
+		"target": "es2022",
+		"moduleResolution": "bundler",
+		"verbatimModuleSyntax": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"noEmit": true,
+		"allowJs": true,
+		"checkJs": false
+	},
+	"include": ["src/**/*.ts", "src/**/*.svelte", "tests/browser/**/*.ts", "vitest.config.ts"]
+}
