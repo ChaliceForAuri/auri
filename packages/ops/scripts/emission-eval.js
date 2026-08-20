@@ -139,7 +139,10 @@ const { validateStream } = createValidator(
 	contractPath ? JSON.parse(readFileSync(contractPath, 'utf8')) : catalog
 );
 
-const allScenarios = JSON.parse(readFileSync(join(here, 'emission-scenarios.json'), 'utf8'));
+// --scenarios-file lets other catalogs (forms, compositions) bring their own
+// scenario suites through this same harness.
+const scenariosPath = flag('scenarios-file') ?? join(here, 'emission-scenarios.json');
+const allScenarios = JSON.parse(readFileSync(scenariosPath, 'utf8'));
 const wantedScenarios = flag('scenarios')?.split(',');
 const scenarios = wantedScenarios
 	? allScenarios.filter((scenario) => wantedScenarios.includes(scenario.id))
