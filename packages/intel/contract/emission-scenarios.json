@@ -1,0 +1,26 @@
+[
+	{
+		"id": "surface-insight",
+		"prompt": "312 cases since 1 August cluster around report accuracy — export totals not matching the on-screen figure. It's accelerating, and it's hitting three enterprise accounts worth $1.2M ARR combined. You're about 80% sure this is one cluster. Surface it as an insight the user can drill into and give feedback on."
+	},
+	{
+		"id": "account-velocity",
+		"prompt": "Plot my accounts by support volume and sentiment, show me who's moving, and let me click the one that worries you most. The accounts: Acme Corp (volume 84, sentiment 32, volume up 9 and sentiment down 12 over two weeks, $480k ARR — this one worries you), Globex (volume 41, sentiment 58, volume up 2, sentiment down 4, $350k ARR), Initech (volume 12, sentiment 77, volume down 1, sentiment up 3, $210k ARR)."
+	},
+	{
+		"id": "risk-clusters",
+		"prompt": "Group my at-risk accounts by why they're at risk: 12 accounts share report-accuracy complaints (export totals don't match on-screen figures), 7 share SSO friction (session drops force daily re-login), 4 share webhook delays (events arriving minutes late). Let me click a group to drill into its accounts."
+	},
+	{
+		"id": "drill-path",
+		"prompt": "Build me the drill view for the report-accuracy cluster, all on one page: level one is the insight itself (312 cases, accelerating, warning), level two is the affected accounts as a table — Acme Corp $480000, Globex $350000, Initech $210000, with the total ARR at risk computed in the table. Wire it so you can push me to level two by changing data when I drill, without re-sending anything."
+	},
+	{
+		"id": "case-audit",
+		"prompt": "Show me the source for case ac-2214: the support call recording from Acme Corp on 14 August (video at https://media.example.com/calls/ac-2214.mp4, captions at https://media.example.com/calls/ac-2214.vtt, 14 minutes 7 seconds long). The transcript is still being processed — wire it so lines can stream in later. Two lines are already done: at 62 seconds the customer says 'The export says 1.2 million but the screen says 1.4', at 81 seconds our agent says 'Let me pull that report up.'"
+	},
+	{
+		"id": "feedback-response",
+		"prompt": "Surface two insights: the report-accuracy cluster (312 cases, warning, accelerating) and a knowledge-base gap around CSV imports (44 cases, informational). Wire both for feedback. Then the user thumbs-down the CSV one — show me the stream you'd send in response, de-emphasizing it without re-sending components."
+	}
+]
