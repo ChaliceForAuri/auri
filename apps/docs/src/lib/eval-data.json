@@ -1,49 +1,103 @@
 {
-	"updated": "2026-08-19",
-	"scenarios": [
-		"status-view",
-		"payments-snapshot",
-		"incident-hard-mode",
-		"deploy-live-ops",
-		"service-passport",
-		"weekly-review"
-	],
-	"models": [
+	"updated": "2026-08-20",
+	"catalogs": [
 		{
-			"model": "GPT-5.6",
-			"family": "OpenAI",
-			"protocol": "harness",
-			"date": "2026-08-19",
-			"results": {
-				"status-view": "pass",
-				"payments-snapshot": "pass",
-				"incident-hard-mode": "pass",
-				"deploy-live-ops": "pass",
-				"service-passport": "pass",
-				"weekly-review": "pass"
-			}
+			"key": "ops",
+			"scenarios": [
+				"status-view",
+				"payments-snapshot",
+				"incident-hard-mode",
+				"deploy-live-ops",
+				"service-passport",
+				"weekly-review"
+			],
+			"models": [
+				{
+					"model": "GPT-5.6",
+					"family": "OpenAI",
+					"protocol": "harness",
+					"date": "2026-08-19",
+					"results": {
+						"status-view": "pass",
+						"payments-snapshot": "pass",
+						"incident-hard-mode": "pass",
+						"deploy-live-ops": "pass",
+						"service-passport": "pass",
+						"weekly-review": "pass"
+					}
+				},
+				{
+					"model": "Claude Fable",
+					"family": "Anthropic",
+					"protocol": "fresh-session",
+					"date": "2026-08-17",
+					"results": {
+						"status-view": "pass",
+						"incident-hard-mode": "pass",
+						"deploy-live-ops": "pass"
+					}
+				},
+				{
+					"model": "Claude Sonnet",
+					"family": "Anthropic",
+					"protocol": "fresh-session",
+					"date": "2026-08-17",
+					"results": {
+						"payments-snapshot": "pass",
+						"weekly-review": "pass",
+						"service-passport": "pass"
+					}
+				}
+			]
 		},
 		{
-			"model": "Claude Fable",
-			"family": "Anthropic",
-			"protocol": "fresh-session",
-			"date": "2026-08-17",
-			"results": {
-				"status-view": "pass",
-				"incident-hard-mode": "pass",
-				"deploy-live-ops": "pass"
-			}
-		},
-		{
-			"model": "Claude Sonnet",
-			"family": "Anthropic",
-			"protocol": "fresh-session",
-			"date": "2026-08-17",
-			"results": {
-				"payments-snapshot": "pass",
-				"weekly-review": "pass",
-				"service-passport": "pass"
-			}
+			"key": "forms",
+			"scenarios": [
+				"contact-form",
+				"postmortem-intake",
+				"deploy-approval-form",
+				"settings-server-validation",
+				"survey-sections",
+				"signup-checks"
+			],
+			"models": [
+				{
+					"model": "GPT-5.6",
+					"family": "OpenAI",
+					"protocol": "harness",
+					"date": "2026-08-19",
+					"results": {
+						"contact-form": "pass",
+						"postmortem-intake": "pass",
+						"deploy-approval-form": "pass",
+						"settings-server-validation": "pass",
+						"survey-sections": "pass",
+						"signup-checks": "pass"
+					}
+				},
+				{
+					"model": "Claude Fable",
+					"family": "Anthropic",
+					"protocol": "fresh-session",
+					"date": "2026-08-19",
+					"results": {
+						"contact-form": "pass",
+						"deploy-approval-form": "pass",
+						"survey-sections": "pass"
+					}
+				},
+				{
+					"model": "Claude Sonnet",
+					"family": "Anthropic",
+					"protocol": "fresh-session",
+					"date": "2026-08-19",
+					"results": {
+						"postmortem-intake": "pass",
+						"settings-server-validation": "pass",
+						"signup-checks": "pass"
+					}
+				}
+			]
 		}
 	]
 }
