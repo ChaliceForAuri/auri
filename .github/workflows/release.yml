@@ -42,9 +42,11 @@ jobs:
         timeout-minutes: 5
       - run: npm run test:browser -w @aurilabs/ops
       - run: npm run test:browser -w @aurilabs/forms
+      - run: npm run test:browser -w @aurilabs/intel
 
       # core first — the catalogs depend on it.
       - run: npm publish -w @aurilabs/core
       # prepublishOnly runs svelte-package + publint.
       - run: npm publish -w @aurilabs/ops
       - run: npm publish -w @aurilabs/forms
+      - run: npm publish -w @aurilabs/intel
