@@ -106,13 +106,22 @@ The agent telling the user something in prose: a heads-up, a caveat, a status no
 Columns are declared on the component; rows live in the data model and update without re-sending
 the component — including single cells (`"path": "/deploys/1/status"`).
 
-| prop        | type                | required | notes                                                                              |
-| ----------- | ------------------- | -------- | ---------------------------------------------------------------------------------- |
-| `columns`   | array of columns    | yes      | see column shape below                                                             |
-| `rows`      | array \| `{"path"}` | yes      | bind it — rows are data, not components                                            |
-| `label`     | string              | no       | table caption, e.g. `"Today's deploys"`                                            |
-| `emptyText` | string              | no       | shown when rows is empty; quiet and factual                                        |
-| `rowAction` | action              | no       | fired on row activation; `row` + `rowIndex` are added to its context automatically |
+| prop        | type                | required | notes                                                                                                                                     |
+| ----------- | ------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `columns`   | array of columns    | yes      | see column shape below                                                                                                                    |
+| `rows`      | array \| `{"path"}` | yes      | bind it — rows are data, not components                                                                                                   |
+| `label`     | string              | no       | table caption, e.g. `"Today's deploys"`                                                                                                   |
+| `emptyText` | string              | no       | shown when rows is empty; quiet and factual                                                                                               |
+| `rowAction` | action              | no       | fired on row activation; `row` + `rowIndex` are added to its context automatically                                                        |
+| `footer`    | array of aggregates | no       | totals row, **computed client-side from the rows** — never emit a precomputed total; it can silently disagree with the rows it sits under |
+
+Footer cell shape — `key` (a column key) and `aggregate` (`sum | mean | count`) required;
+`label` optional. Aggregates recompute on every `updateDataModel` — filter the rows, the total
+follows:
+
+```
+{"key":"arr","aggregate":"sum","label":"Total ARR at risk"}
+```
 
 Column shape — `key` and `label` required:
 
@@ -152,14 +161,16 @@ receive the event with that context (plus `comment` when `requireComment` is tru
 
 ### Chart — line / bar / area with axes
 
-| prop      | type                        | required | notes                                                                   |
-| --------- | --------------------------- | -------- | ----------------------------------------------------------------------- |
-| `kind`    | `"line" \| "bar" \| "area"` | yes      | line = trend, bar = comparison                                          |
-| `label`   | string                      | yes      | title and accessible name                                               |
-| `series`  | array \| `{"path"}`         | yes      | series shape below; bind `values` to stream                             |
-| `xLabels` | string[] \| `{"path"}`      | no       | one label per point                                                     |
-| `xFormat` | `"text" \| "datetime"`      | no       | `datetime`: xLabels are ISO 8601 strings, rendered in the user's locale |
-| `unit`    | string                      | no       | value-axis unit: `"ms"`, `"%"`, `"USD"` …                               |
+| prop          | type                        | required | notes                                                                                                                                            |
+| ------------- | --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `kind`        | `"line" \| "bar" \| "area"` | yes      | line = trend, bar = comparison                                                                                                                   |
+| `label`       | string                      | yes      | title and accessible name                                                                                                                        |
+| `series`      | array \| `{"path"}`         | yes      | series shape below; bind `values` to stream                                                                                                      |
+| `xLabels`     | string[] \| `{"path"}`      | no       | one label per point                                                                                                                              |
+| `xFormat`     | `"text" \| "datetime"`      | no       | `datetime`: xLabels are ISO 8601 strings, rendered in the user's locale                                                                          |
+| `unit`        | string                      | no       | value-axis unit: `"ms"`, `"%"`, `"USD"` …                                                                                                        |
+| `markers`     | array \| `{"path"}`         | no       | labelled anomaly/event glyphs; marker shape below                                                                                                |
+| `pointAction` | action                      | no       | fired on point activation; `seriesLabel`, `pointIndex`, `xLabel`, `value` are added to its context automatically — put your own ids in `context` |
 
 Series shape — `label` and `values` (raw numbers) required:
 
@@ -167,8 +178,15 @@ Series shape — `label` and `values` (raw numbers) required:
 {"label":"5xx","values":{"path":"/err5xx"}}
 ```
 
+Marker shape — `pointIndex` (zero-based x position) and `label` (human text; it joins the chart's
+text alternative) required; `intent` defaults `"warning"`:
+
 ```
-{"id":"errors","component":"Chart","kind":"line","label":"Error rate by class","unit":"%","series":[{"label":"5xx","values":{"path":"/err5xx"}},{"label":"4xx","values":{"path":"/err4xx"}}],"xLabels":{"path":"/times"},"xFormat":"datetime"}
+{"pointIndex":13,"intent":"bad","label":"Sentiment fell 22%"}
+```
+
+```
+{"id":"errors","component":"Chart","kind":"line","label":"Error rate by class","unit":"%","series":[{"label":"5xx","values":{"path":"/err5xx"}},{"label":"4xx","values":{"path":"/err4xx"}}],"xLabels":{"path":"/times"},"xFormat":"datetime","markers":[{"pointIndex":3,"intent":"bad","label":"Deploy 4190 went out"}],"pointAction":{"event":{"name":"point_drilled","context":{"clusterId":"cl-report-accuracy"}}}}
 ```
 
 To stream a new reading, append to the bound array with `updateDataModel` (send the whole updated

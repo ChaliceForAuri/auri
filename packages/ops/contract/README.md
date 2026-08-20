@@ -25,3 +25,20 @@ The gate for every component: paste `prompt.md` into a fresh session of at least
 **2026-08-16 — DataTable, ApprovalCard, Chart (the hard three), cold run.** Same protocol, harder scenarios (incident view and weekly review, each composing chart + table + approval). Claude Fable and Claude Sonnet: **zero schema errors in both**. Both bound rows/values with `{"path"}` unprompted, hand-picked action contexts (`{alert, durationDays: 7}`), used custom approve/reject labels well ("Roll back" / "Keep 4190"), and mixed basic-catalog layout correctly. Two findings, both fixed contract-first: (1) Fable emitted ISO timestamps as `xLabels` — correct by the raw-values rule, but the contract rendered xLabels as-given → added `xFormat: 'text'|'datetime'` mirroring the DataTable column `format`; (2) Sonnet embedded a raw ISO timestamp in ApprovalCard summary prose → rule 1 now distinguishes data props (raw) from prose (human). Still open for all six: a second model family (GPT or Gemini).
 
 **2026-08-16 — Stat, Badge, Callout, first cold run.** Prompt-pack pasted into fresh sessions, no repo context, one realistic scenario each. Claude Fable (on-call status view) and Claude Sonnet (payments snapshot): **zero schema errors in both**; rules held under pressure — raw `12400` + `unit: "USD"` instead of `"$12.4K"`, intent omitted on an unremarkable metric, `trend: "up"` with `intent: "warning"` kept as independent axes, explicit `catalogId` on basic-catalog layout containers (inferred for `Row` from a `Column`-only example). Contract refinement from the run: `unit` now explicitly blesses ISO 4217 currency codes. **Open before these three pass the gate: a second model family (GPT or Gemini).**
+
+## Round — 2026-08-20, consumer extensions (#18, #19)
+
+First consumer-driven contract change: Hyphen RIE requested Chart `pointAction` + `markers` and
+DataTable `footer` (additive optional props — same v1 catalog id). Gate, all cold on the updated
+pack:
+
+- **GPT-5.6 (harness): 8/8** — the six original scenarios (zero regression) plus
+  `sentiment-anomaly` (marker on the right index, cluster id in the click context) and
+  `impact-ledger` (client-side `sum` footer, never a precomputed total).
+- **Claude Fable** (fresh session, sentiment-anomaly): PASS — marker at pointIndex 13 with a
+  human label, pointAction context carrying the cluster id.
+- **Claude Sonnet** (fresh session, impact-ledger): PASS — exact requested footer shape.
+
+No contract fixes needed this round: both props were emitted correctly on first cold contact by
+all three models. The requesting issues specified the shapes in this catalog's own idiom — the
+prompt-pack discipline works in both directions.

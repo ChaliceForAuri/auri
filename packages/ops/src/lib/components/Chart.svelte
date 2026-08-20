@@ -1,6 +1,14 @@
 <script lang="ts">
+	import { getRenderContext, isEventAction } from 'svelte-a2ui';
+	import type { Action, ComponentSpec, Scope } from 'svelte-a2ui';
 	import { normalizeSeries, niceCeil, sampleIndices } from '../chart.js';
 	import { formatCellNumber, formatTimelineTime } from '../format.js';
+
+	interface Marker {
+		pointIndex: number;
+		intent?: string;
+		label: string;
+	}
 
 	interface Props {
 		kind?: unknown;
@@ -9,11 +17,29 @@
 		xLabels?: unknown;
 		xFormat?: unknown;
 		unit?: unknown;
+		markers?: unknown;
+		/** Registered `raw`: arrives as the wire Action so point context can be merged in. */
+		pointAction?: unknown;
 		weight?: number;
 		ariaLabel?: string;
+		a2ui: { id: string; component: string; spec: ComponentSpec; scope: Scope };
 	}
 
-	let { kind, label, series, xLabels, xFormat, unit, weight, ariaLabel }: Props = $props();
+	let {
+		kind,
+		label,
+		series,
+		xLabels,
+		xFormat,
+		unit,
+		markers,
+		pointAction,
+		weight,
+		ariaLabel,
+		a2ui
+	}: Props = $props();
+
+	const rc = getRenderContext();
 
 	const mark = $derived(kind === 'bar' || kind === 'area' ? kind : 'line');
 	// undefined -> binding unresolved (skeleton); [] -> nothing to draw yet.
@@ -61,19 +87,96 @@
 		return xFormat === 'datetime' ? formatTimelineTime(raw) : raw;
 	}
 
+	/* Markers (issue #18): labelled, intent-implied glyphs on an x position.
+	   Out-of-range indices are dropped with a warning — never a floating mark. */
+	const markList: Marker[] = $derived.by(() => {
+		if (!Array.isArray(markers) || pointCount === 0) return [];
+		const valid: Marker[] = [];
+		for (const m of markers as Marker[]) {
+			if (!m || typeof m !== 'object' || typeof m.label !== 'string') continue;
+			if (typeof m.pointIndex !== 'number' || m.pointIndex < 0 || m.pointIndex >= pointCount) {
+				console.warn(`[auri] Chart marker pointIndex ${m?.pointIndex} out of range, dropped`);
+				continue;
+			}
+			valid.push(m);
+		}
+		return valid;
+	});
+	const markerColor = (m: Marker) =>
+		`var(--auri-intent-${['good', 'bad', 'warning', 'info', 'neutral'].includes(m.intent ?? '') ? m.intent : 'warning'})`;
+	const markX = (i: number) => (mark === 'bar' ? M.left + i * band + band / 2 : x(i));
+
 	const summary = $derived.by(() => {
 		if (!all || all.length === 0) return 'no data yet';
-		return all
+		const seriesPart = all
 			.map((s) => {
 				const latest = s.values.at(-1);
 				return `${s.label || 'series'} latest ${latest === undefined ? '—' : formatCellNumber(latest)}${typeof unit === 'string' ? ` ${unit}` : ''}`;
 			})
 			.join('; ');
+		// Markers join the text alternative: they exist to be read, not just seen.
+		const markerPart = markList
+			.map((m) => `marked ${xTickLabel(m.pointIndex)}: ${m.label}`)
+			.join('; ');
+		return markerPart ? `${seriesPart}; ${markerPart}` : seriesPart;
 	});
 
 	function seriesColor(si: number): string {
 		return `var(--auri-chart-${(si % 6) + 1})`;
 	}
+
+	/* pointAction (issue #18): one tab stop, arrow-key traversal, Enter/Space
+	   activates. The documented contract: seriesLabel, pointIndex, xLabel, and
+	   value are merged into the action context; xLabel is the RAW wire label
+	   (an ISO string under xFormat datetime) — raw values on the wire both ways. */
+	const interactive = $derived(Boolean(pointAction) && typeof pointAction === 'object');
+	let cursor = $state<{ si: number; pi: number } | null>(null);
+
+	function clampCursor(si: number, pi: number) {
+		if (!all || all.length === 0 || pointCount === 0) return;
+		const s = Math.max(0, Math.min(si, all.length - 1));
+		const p = Math.max(0, Math.min(pi, (all[s]?.values.length ?? 1) - 1));
+		cursor = { si: s, pi: p };
+	}
+
+	function activate(si: number, pi: number) {
+		if (!interactive || !all) return;
+		const action = pointAction as Action;
+		const merged: Action = isEventAction(action)
+			? {
+					event: {
+						...action.event,
+						context: {
+							...(action.event.context ?? {}),
+							seriesLabel: all[si]?.label ?? '',
+							pointIndex: pi,
+							xLabel: labels[pi] ?? String(pi + 1),
+							value: all[si]?.values[pi]
+						}
+					}
+				}
+			: action;
+		rc.client.dispatch(rc.surfaceId, merged, a2ui.id, a2ui.scope);
+	}
+
+	function onKey(e: KeyboardEvent) {
+		if (!interactive || !all || all.length === 0) return;
+		const c = cursor ?? { si: 0, pi: -1 };
+		if (e.key === 'ArrowRight') clampCursor(c.si, c.pi + 1);
+		else if (e.key === 'ArrowLeft') clampCursor(c.si, Math.max(0, c.pi - 1));
+		else if (e.key === 'ArrowDown') clampCursor(c.si + 1, Math.max(0, c.pi));
+		else if (e.key === 'ArrowUp') clampCursor(c.si - 1, Math.max(0, c.pi));
+		else if ((e.key === 'Enter' || e.key === ' ') && cursor) activate(cursor.si, cursor.pi);
+		else return;
+		e.preventDefault();
+	}
+
+	const cursorText = $derived.by(() => {
+		if (!cursor || !all) return '';
+		const s = all[cursor.si];
+		const v = s?.values[cursor.pi];
+		return `${xTickLabel(cursor.pi)}: ${v === undefined ? '—' : formatCellNumber(v)}${typeof unit === 'string' ? ` ${unit}` : ''}, ${s?.label ?? ''}`;
+	});
 </script>
 
 <figure
@@ -90,12 +193,46 @@
 	{:else if all.length === 0 || pointCount === 0}
 		<p class="empty">no data yet</p>
 	{:else}
-		<svg viewBox="0 0 {W} {H}" role="img" aria-label={summary}>
+		<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+		<!-- tabindex and role travel together: 0 + application when pointAction
+		     is declared, undefined + img otherwise — static analysis can't pair
+		     the two conditionals. -->
+		<svg
+			viewBox="0 0 {W} {H}"
+			role={interactive ? 'application' : 'img'}
+			aria-label={interactive
+				? `${summary}. Arrow keys move between points, Enter drills in.`
+				: summary}
+			tabindex={interactive ? 0 : undefined}
+			onkeydown={interactive ? onKey : undefined}
+			onfocus={() => {
+				if (interactive && !cursor) clampCursor(0, 0);
+			}}
+			onblur={() => (cursor = null)}
+		>
 			{#each yTicks as tick (tick)}
 				<line class="grid" x1={M.left} y1={y(tick)} x2={W - M.right} y2={y(tick)} />
 				<text class="tick" x={M.left - 6} y={y(tick) + 3} text-anchor="end"
 					>{formatCellNumber(tick)}</text
 				>
+			{/each}
+
+			{#each markList as m (m.pointIndex + m.label)}
+				<line
+					class="marker-guide"
+					style:--marker-color={markerColor(m)}
+					x1={markX(m.pointIndex)}
+					y1={M.top}
+					x2={markX(m.pointIndex)}
+					y2={M.top + plotH}
+				/>
+				<path
+					class="marker-glyph"
+					style:--marker-color={markerColor(m)}
+					d="M {markX(m.pointIndex)} {M.top} l 5 -7 h -10 Z"
+				>
+					<title>{m.label}</title>
+				</path>
 			{/each}
 
 			{#each all as s, si (si)}
@@ -138,7 +275,38 @@
 					{xTickLabel(i)}
 				</text>
 			{/each}
+
+			{#if interactive}
+				<!-- Pointer hit targets only: the keyboard path is the svg's own
+				     roving cursor (arrows + Enter), so these are hidden from AT. -->
+				{#each all as s, si (si)}
+					{#each s.values as v, pi (pi)}
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<circle
+							class="hit"
+							aria-hidden="true"
+							cx={mark === 'bar' ? M.left + pi * band + band / 2 : x(pi)}
+							cy={mark === 'bar' ? y(v / 2) : y(v)}
+							r="11"
+							onclick={() => activate(si, pi)}
+						/>
+					{/each}
+				{/each}
+				{#if cursor && all[cursor.si]?.values[cursor.pi] !== undefined}
+					<circle
+						class="cursor-ring"
+						cx={markX(cursor.pi)}
+						cy={mark === 'bar'
+							? y(all[cursor.si]!.values[cursor.pi]!)
+							: y(all[cursor.si]!.values[cursor.pi]!)}
+						r="7"
+					/>
+				{/if}
+			{/if}
 		</svg>
+		{#if interactive}
+			<span class="auri-sr-only" aria-live="polite">{cursorText}</span>
+		{/if}
 
 		{#if all.length > 1}
 			<div class="legend" aria-hidden="true">
@@ -225,6 +393,32 @@
 		height: 0.7em;
 		border-radius: 3px;
 		background: var(--series-color);
+	}
+
+	.marker-guide {
+		stroke: var(--marker-color);
+		stroke-width: 1.25;
+		stroke-dasharray: 3 3;
+		opacity: 0.7;
+	}
+	.marker-glyph {
+		fill: var(--marker-color);
+	}
+
+	.hit {
+		fill: transparent;
+		cursor: pointer;
+	}
+	.cursor-ring {
+		fill: none;
+		stroke: var(--auri-primary);
+		stroke-width: 2;
+		pointer-events: none;
+	}
+	svg:focus-visible {
+		outline: 2px solid var(--auri-primary);
+		outline-offset: 2px;
+		border-radius: var(--auri-shape-sm);
 	}
 
 	.chart-skeleton {

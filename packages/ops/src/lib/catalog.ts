@@ -37,7 +37,7 @@ export const OPS_COMPONENTS: Record<string, CatalogEntry> = {
 		slots: { details: 'child' },
 		raw: ['approveAction', 'rejectAction']
 	}),
-	Chart: entry(Chart),
+	Chart: entry(Chart, { raw: ['pointAction'] }),
 	Timeline: entry(Timeline),
 	Sparkline: entry(Sparkline),
 	Progress: entry(Progress),

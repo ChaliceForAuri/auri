@@ -22,5 +22,13 @@
 	{
 		"id": "weekly-review",
 		"prompt": "Give me the weekly on-call review. Incidents per day this week: Monday 2, Tuesday 0, Wednesday 5, Thursday 1, Friday 3, Saturday 0, Sunday 1 — Wednesday was rough, call that out. Then a sortable table of the four noisiest alerts: HighLatencyP95 fired 41 times, last at 2026-08-15T22:14:00Z; DiskPressure fired 28 times, last at 2026-08-16T03:41:00Z; PodRestartLoop fired 17 times, last at 2026-08-14T11:05:00Z; CertExpirySoon fired 9 times, last at 2026-08-13T09:00:00Z. Finally ask me to approve muting HighLatencyP95 for seven days — no comment needed. Numbers should be updatable later."
+	},
+	{
+		"id": "sentiment-anomaly",
+		"prompt": "Sentiment dipped sharply on 14 August. Chart the daily average sentiment for 1-20 August (readings: 62, 64, 63, 61, 65, 64, 66, 63, 62, 60, 61, 59, 58, 41, 44, 47, 52, 55, 58, 60), mark the dip, and let me click any day to see what drove it — include the cluster id cl-report-accuracy in the click context so you can look it up when the event comes back."
+	},
+	{
+		"id": "impact-ledger",
+		"prompt": "Show the accounts hit by the report-accuracy cluster — company, tier, and ARR (Acme Corp, Enterprise, 480000; Globex, Enterprise, 350000; Initech, Growth, 210000; Umbrella, Growth, 160000) — with the total ARR at risk computed in the table, and let me click through to any account."
 	}
 ]

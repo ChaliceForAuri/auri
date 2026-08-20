@@ -10,11 +10,15 @@
 		"Stat": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "Stat" },
+						"component": {
+							"const": "Stat"
+						},
 						"label": {
 							"$ref": "#/$defs/dynamicString",
 							"description": "Short name of the metric, e.g. 'Error rate'. Required — it is also the tile's accessible name."
@@ -54,11 +58,15 @@
 		"Badge": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "Badge" },
+						"component": {
+							"const": "Badge"
+						},
 						"text": {
 							"$ref": "#/$defs/dynamicString",
 							"description": "The chip's short text, e.g. 'Canary', 'Live', 'Degraded'. Required — it is the badge's accessible name. Keep it to a word or two."
@@ -78,11 +86,15 @@
 		"Callout": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "Callout" },
+						"component": {
+							"const": "Callout"
+						},
 						"title": {
 							"$ref": "#/$defs/dynamicString",
 							"description": "Optional short heading for the callout."
@@ -106,21 +118,34 @@
 		"DataTable": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "DataTable" },
+						"component": {
+							"const": "DataTable"
+						},
 						"columns": {
 							"type": "array",
 							"minItems": 1,
-							"items": { "$ref": "#/$defs/column" },
+							"items": {
+								"$ref": "#/$defs/column"
+							},
 							"description": "Flat column descriptors; each names a key present in the row objects."
 						},
 						"rows": {
 							"oneOf": [
-								{ "type": "array", "items": { "type": "object" } },
-								{ "$ref": "#/$defs/pathRef" }
+								{
+									"type": "array",
+									"items": {
+										"type": "object"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
 							],
 							"description": "The row objects. Bind with {\"path\": ...} so rows and individual cells can update via updateDataModel."
 						},
@@ -135,6 +160,13 @@
 						"rowAction": {
 							"$ref": "#/$defs/action",
 							"description": "Fired when the user activates a row. The renderer adds `row` (the row object) and `rowIndex` to the action context automatically."
+						},
+						"footer": {
+							"type": "array",
+							"items": {
+								"$ref": "#/$defs/footerCell"
+							},
+							"description": "Aggregate footer row. Values are computed client-side from the resolved rows — never emit a precomputed total; it can silently disagree with the rows it sits under."
 						}
 					},
 					"required": ["component", "columns", "rows"]
@@ -146,11 +178,15 @@
 		"ApprovalCard": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "ApprovalCard" },
+						"component": {
+							"const": "ApprovalCard"
+						},
 						"title": {
 							"$ref": "#/$defs/dynamicString",
 							"description": "The decision being asked, as a short question, e.g. \"Roll back payments-api?\"."
@@ -194,11 +230,15 @@
 		"Chart": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "Chart" },
+						"component": {
+							"const": "Chart"
+						},
 						"kind": {
 							"type": "string",
 							"enum": ["line", "bar", "area"],
@@ -210,15 +250,30 @@
 						},
 						"series": {
 							"oneOf": [
-								{ "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/series" } },
-								{ "$ref": "#/$defs/pathRef" }
+								{
+									"type": "array",
+									"minItems": 1,
+									"items": {
+										"$ref": "#/$defs/series"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
 							],
 							"description": "The data series. Bind each series' values with {\"path\": ...} so the chart streams."
 						},
 						"xLabels": {
 							"oneOf": [
-								{ "type": "array", "items": { "type": "string" } },
-								{ "$ref": "#/$defs/pathRef" }
+								{
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
 							],
 							"description": "Labels along the x axis, one per data point. With xFormat 'datetime', supply ISO 8601 strings and the renderer formats them in the user's locale."
 						},
@@ -231,6 +286,24 @@
 						"unit": {
 							"type": "string",
 							"description": "Unit for the value axis: 'ms', '%', 'req/s', or an ISO 4217 currency code."
+						},
+						"markers": {
+							"oneOf": [
+								{
+									"type": "array",
+									"items": {
+										"$ref": "#/$defs/marker"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
+							],
+							"description": "Anomaly/event markers: each marks one x position with a labelled, intent-coloured glyph. Bind with {\"path\": ...} to add markers as you learn more."
+						},
+						"pointAction": {
+							"$ref": "#/$defs/action",
+							"description": "Fired when the user activates a data point (click, or arrow-key traversal + Enter). The renderer adds seriesLabel, pointIndex, xLabel, and value to the action context automatically — put your own drill context (e.g. a cluster id) in context."
 						}
 					},
 					"required": ["component", "kind", "label", "series"]
@@ -242,19 +315,30 @@
 		"Timeline": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "Timeline" },
+						"component": {
+							"const": "Timeline"
+						},
 						"label": {
 							"$ref": "#/$defs/dynamicString",
 							"description": "Optional heading for the feed, e.g. 'Incident timeline'."
 						},
 						"items": {
 							"oneOf": [
-								{ "type": "array", "items": { "$ref": "#/$defs/timelineItem" } },
-								{ "$ref": "#/$defs/pathRef" }
+								{
+									"type": "array",
+									"items": {
+										"$ref": "#/$defs/timelineItem"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
 							],
 							"description": "The events, oldest first. Bind with {\"path\": ...} and append by rewriting the array — the feed grows without re-sending the component."
 						},
@@ -272,19 +356,30 @@
 		"Sparkline": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "Sparkline" },
+						"component": {
+							"const": "Sparkline"
+						},
 						"label": {
 							"$ref": "#/$defs/dynamicString",
 							"description": "What the trend shows, e.g. 'p95 latency, last hour'. Required — it is the accessible name; the renderer also derives a text summary from the data."
 						},
 						"values": {
 							"oneOf": [
-								{ "type": "array", "items": { "type": "number" } },
-								{ "$ref": "#/$defs/pathRef" }
+								{
+									"type": "array",
+									"items": {
+										"type": "number"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
 							],
 							"description": "The data points, raw numbers. Bind with {\"path\": ...} to stream new readings."
 						},
@@ -303,11 +398,15 @@
 		"Progress": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "Progress" },
+						"component": {
+							"const": "Progress"
+						},
 						"label": {
 							"$ref": "#/$defs/dynamicString",
 							"description": "What is progressing, e.g. 'Rolling out build 4191'. Required — it is the accessible name."
@@ -336,19 +435,30 @@
 		"KeyValue": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "KeyValue" },
+						"component": {
+							"const": "KeyValue"
+						},
 						"label": {
 							"$ref": "#/$defs/dynamicString",
 							"description": "Optional heading for the list."
 						},
 						"items": {
 							"oneOf": [
-								{ "type": "array", "items": { "$ref": "#/$defs/kvItem" } },
-								{ "$ref": "#/$defs/pathRef" }
+								{
+									"type": "array",
+									"items": {
+										"$ref": "#/$defs/kvItem"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
 							],
 							"description": "The facts. Each value may bind with {\"path\": ...} so single facts update live."
 						}
@@ -362,11 +472,15 @@
 		"CodeBlock": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "CodeBlock" },
+						"component": {
+							"const": "CodeBlock"
+						},
 						"code": {
 							"$ref": "#/$defs/dynamicString",
 							"description": "The code or log text, verbatim. Bind with {\"path\": ...} to stream a growing log."
@@ -394,11 +508,15 @@
 		"ConfirmButton": {
 			"type": "object",
 			"allOf": [
-				{ "$ref": "#/$defs/componentCommon" },
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
 				{
 					"type": "object",
 					"properties": {
-						"component": { "const": "ConfirmButton" },
+						"component": {
+							"const": "ConfirmButton"
+						},
 						"label": {
 							"$ref": "#/$defs/dynamicString",
 							"description": "The button text, naming the action, e.g. 'Abort rollout'."
@@ -428,46 +546,80 @@
 	"$defs": {
 		"pathRef": {
 			"type": "object",
-			"properties": { "path": { "type": "string" } },
+			"properties": {
+				"path": {
+					"type": "string"
+				}
+			},
 			"required": ["path"],
 			"additionalProperties": false
 		},
 		"functionRef": {
 			"type": "object",
 			"properties": {
-				"call": { "type": "string" },
-				"args": { "type": "object" }
+				"call": {
+					"type": "string"
+				},
+				"args": {
+					"type": "object"
+				}
 			},
 			"required": ["call"],
 			"additionalProperties": false
 		},
 		"dynamicString": {
 			"oneOf": [
-				{ "type": "string" },
-				{ "$ref": "#/$defs/pathRef" },
-				{ "$ref": "#/$defs/functionRef" }
+				{
+					"type": "string"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				},
+				{
+					"$ref": "#/$defs/functionRef"
+				}
 			]
 		},
 		"dynamicNumber": {
 			"oneOf": [
-				{ "type": "number" },
-				{ "$ref": "#/$defs/pathRef" },
-				{ "$ref": "#/$defs/functionRef" }
+				{
+					"type": "number"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				},
+				{
+					"$ref": "#/$defs/functionRef"
+				}
 			]
 		},
 		"dynamicBoolean": {
 			"oneOf": [
-				{ "type": "boolean" },
-				{ "$ref": "#/$defs/pathRef" },
-				{ "$ref": "#/$defs/functionRef" }
+				{
+					"type": "boolean"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				},
+				{
+					"$ref": "#/$defs/functionRef"
+				}
 			]
 		},
 		"dynamicValue": {
 			"oneOf": [
-				{ "type": "string" },
-				{ "type": "number" },
-				{ "$ref": "#/$defs/pathRef" },
-				{ "$ref": "#/$defs/functionRef" }
+				{
+					"type": "string"
+				},
+				{
+					"type": "number"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				},
+				{
+					"$ref": "#/$defs/functionRef"
+				}
 			]
 		},
 		"intent": {
@@ -476,9 +628,15 @@
 		},
 		"dynamicIntent": {
 			"oneOf": [
-				{ "$ref": "#/$defs/intent" },
-				{ "$ref": "#/$defs/pathRef" },
-				{ "$ref": "#/$defs/functionRef" }
+				{
+					"$ref": "#/$defs/intent"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				},
+				{
+					"$ref": "#/$defs/functionRef"
+				}
 			]
 		},
 		"trend": {
@@ -487,9 +645,15 @@
 		},
 		"dynamicTrend": {
 			"oneOf": [
-				{ "$ref": "#/$defs/trend" },
-				{ "$ref": "#/$defs/pathRef" },
-				{ "$ref": "#/$defs/functionRef" }
+				{
+					"$ref": "#/$defs/trend"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				},
+				{
+					"$ref": "#/$defs/functionRef"
+				}
 			]
 		},
 		"action": {
@@ -500,10 +664,18 @@
 						"event": {
 							"type": "object",
 							"properties": {
-								"name": { "type": "string" },
-								"context": { "type": "object" },
-								"wantResponse": { "type": "boolean" },
-								"responsePath": { "type": "string" }
+								"name": {
+									"type": "string"
+								},
+								"context": {
+									"type": "object"
+								},
+								"wantResponse": {
+									"type": "boolean"
+								},
+								"responsePath": {
+									"type": "string"
+								}
 							},
 							"required": ["name"],
 							"additionalProperties": false
@@ -514,7 +686,11 @@
 				},
 				{
 					"type": "object",
-					"properties": { "functionCall": { "$ref": "#/$defs/functionRef" } },
+					"properties": {
+						"functionCall": {
+							"$ref": "#/$defs/functionRef"
+						}
+					},
 					"required": ["functionCall"],
 					"additionalProperties": false
 				}
@@ -561,8 +737,15 @@
 				},
 				"values": {
 					"oneOf": [
-						{ "type": "array", "items": { "type": "number" } },
-						{ "$ref": "#/$defs/pathRef" }
+						{
+							"type": "array",
+							"items": {
+								"type": "number"
+							}
+						},
+						{
+							"$ref": "#/$defs/pathRef"
+						}
 					],
 					"description": "The data points, raw numbers. Bind with {\"path\": ...} to stream new points."
 				}
@@ -611,16 +794,71 @@
 		"componentCommon": {
 			"type": "object",
 			"properties": {
-				"id": { "type": "string" },
-				"component": { "type": "string" },
-				"catalogId": { "type": "string" },
-				"weight": { "type": "number" },
-				"visible": { "$ref": "#/$defs/dynamicBoolean" },
-				"disabled": { "$ref": "#/$defs/dynamicBoolean" },
-				"semanticId": { "type": "string" },
-				"ariaLabel": { "$ref": "#/$defs/dynamicString" }
+				"id": {
+					"type": "string"
+				},
+				"component": {
+					"type": "string"
+				},
+				"catalogId": {
+					"type": "string"
+				},
+				"weight": {
+					"type": "number"
+				},
+				"visible": {
+					"$ref": "#/$defs/dynamicBoolean"
+				},
+				"disabled": {
+					"$ref": "#/$defs/dynamicBoolean"
+				},
+				"semanticId": {
+					"type": "string"
+				},
+				"ariaLabel": {
+					"$ref": "#/$defs/dynamicString"
+				}
 			},
 			"required": ["id", "component"]
+		},
+		"marker": {
+			"type": "object",
+			"properties": {
+				"pointIndex": {
+					"type": "number",
+					"description": "Zero-based x position the marker sits on. Out-of-range markers are dropped with a console warning, never floated."
+				},
+				"intent": {
+					"$ref": "#/$defs/intent",
+					"default": "warning",
+					"description": "Judgment of the marked event; default 'warning'. Intent implies the glyph — markers are never colour-only."
+				},
+				"label": {
+					"type": "string",
+					"description": "Human text for the marker, e.g. 'Sentiment fell 22%'. Required — it is the marker's accessible name and joins the chart's generated text alternative."
+				}
+			},
+			"required": ["pointIndex", "label"],
+			"additionalProperties": false
+		},
+		"footerCell": {
+			"type": "object",
+			"properties": {
+				"key": {
+					"type": "string",
+					"description": "Column key this aggregate is computed over and rendered under."
+				},
+				"aggregate": {
+					"enum": ["sum", "mean", "count"],
+					"description": "Computed client-side from the resolved rows and recomputed on every updateDataModel — filter the rows and the total follows."
+				},
+				"label": {
+					"type": "string",
+					"description": "Optional caption rendered with the value, e.g. 'Total ARR at risk'."
+				}
+			},
+			"required": ["key", "aggregate"],
+			"additionalProperties": false
 		}
 	}
 }
