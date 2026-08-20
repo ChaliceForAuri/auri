@@ -94,3 +94,81 @@ test('the full composition round-trips all 12 components', () => {
 	assert.equal(Object.keys(c.$defs).length, Object.keys(contract.$defs).length);
 	for (const name of all) assert.match(p, new RegExp(`### ${name} — `));
 });
+
+/* ------------------------------------------------------------------ mixing */
+
+import { composeMixed } from '../src/compose.js';
+
+const formsContractDir = join(
+	dirname(fileURLToPath(import.meta.url)),
+	'..',
+	'..',
+	'forms',
+	'contract'
+);
+const formsContract = JSON.parse(readFileSync(join(formsContractDir, 'catalog.json'), 'utf8'));
+const formsPrompt = readFileSync(join(formsContractDir, 'prompt.md'), 'utf8');
+const formsFixtures = Object.fromEntries(
+	readdirSync(join(formsContractDir, 'examples'))
+		.filter((f) => f.endsWith('.jsonl'))
+		.map((f) => [
+			basename(f, '.jsonl')
+				.split('-')
+				.map((p) => p[0].toUpperCase() + p.slice(1))
+				.join(''),
+			readFileSync(join(formsContractDir, 'examples', f), 'utf8')
+		])
+);
+
+const SOURCES = [
+	{ key: 'ops', contract, prompt, fixtures },
+	{ key: 'forms', contract: formsContract, prompt: formsPrompt, fixtures: formsFixtures }
+];
+
+test('mixed composition: primary structure, secondary rides the mixing rule', () => {
+	const mixed = composeMixed({ sources: SOURCES, components: ['Stat', 'TextField'] });
+	assert.equal(mixed.primary, 'ops');
+	assert.deepEqual(
+		mixed.contracts.map((c) => c.key),
+		['ops', 'forms']
+	);
+	assert.deepEqual(Object.keys(mixed.contracts[0].contract.components), ['Stat']);
+	assert.deepEqual(Object.keys(mixed.contracts[1].contract.components), ['TextField']);
+	// Primary pack structure once; secondary sections labeled and scoped.
+	assert.match(mixed.prompt, /## The forms catalog — mixed onto this surface/);
+	assert.match(mixed.prompt, /### Rules for forms components/);
+	assert.match(mixed.prompt, /### TextField — /);
+	assert.doesNotMatch(mixed.prompt, /### Badge — /);
+	assert.doesNotMatch(mixed.prompt, /### TextArea — /);
+});
+
+test('mixed examples remap the secondary fixture onto the primary surface', () => {
+	const mixed = composeMixed({ sources: SOURCES, components: ['Stat', 'TextField'] });
+	const example = mixed.prompt.slice(mixed.prompt.indexOf('One mixed TextField stream'));
+	const lines = example
+		.split('\n')
+		.filter((l) => l.startsWith('{'))
+		.map((l) => JSON.parse(l));
+	const create = lines.find((m) => m.createSurface);
+	assert.equal(create.createSurface.catalogId, contract.catalogId);
+	const specs = lines.flatMap((m) => m.updateComponents?.components ?? []);
+	const field = specs.find((s) => s.component === 'TextField');
+	assert.equal(field.catalogId, formsContract.catalogId);
+	// The basic-catalog root keeps its own explicit id, untouched.
+	const root = specs.find((s) => s.id === 'root');
+	assert.match(root.catalogId, /basic/);
+});
+
+test('single-source picks degrade to the plain composition', () => {
+	const mixed = composeMixed({ sources: SOURCES, components: ['TextField', 'SubmitBar'] });
+	assert.equal(mixed.primary, 'forms');
+	assert.equal(mixed.contracts.length, 1);
+	assert.match(mixed.prompt, /## Examples/);
+	assert.doesNotMatch(mixed.prompt, /mixed onto this surface/);
+});
+
+test('mixed reports unknown names and preserves per-source order', () => {
+	const mixed = composeMixed({ sources: SOURCES, components: ['Toggle', 'Stat', 'Nope'] });
+	assert.deepEqual(mixed.chosen, ['Stat', 'Toggle']);
+	assert.deepEqual(mixed.missing, ['Nope']);
+});

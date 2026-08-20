@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { A2uiClient, Surface, createCatalogRegistry, basicCatalog } from 'svelte-a2ui';
 	import { opsCatalog, OPS_CATALOG_ID } from '@aurilabs/ops';
+	import { formsCatalog, FORMS_CATALOG_ID } from '@aurilabs/forms';
 
 	/**
-	 * The visual sheet: every M2 component in every intent, plus the in-between
-	 * states (skeleton via deliberately-unresolved bindings, designed empty).
+	 * The visual sheet: every component of both catalogs in every intent, plus
+	 * the in-between states (skeleton via deliberately-unresolved bindings,
+	 * designed empty). The forms fields are live — type in them; the sheet's
+	 * seeds keep the surface valid so the ready SubmitBar stays enabled.
 	 * Screenshot-diffed manually before releases; toggle dark in the header.
 	 */
 
 	const BASIC = 'https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json';
-	const catalog = createCatalogRegistry([opsCatalog, basicCatalog]);
+	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, basicCatalog]);
+	const form = (spec: Record<string, unknown>) => ({ catalogId: FORMS_CATALOG_ID, ...spec });
 	const client = new A2uiClient();
 
 	const col = (id: string, children: string[]) => ({
@@ -88,7 +92,19 @@
 					}
 				],
 				logTail:
-					'14:22:10 pulling image registry/payments-api:4191\n14:22:31 starting pod 4 of 10\n14:22:44 waiting on readiness probe (pod 4)\n14:23:02 pod 4 ready\n14:23:05 starting pod 5 of 10'
+					'14:22:10 pulling image registry/payments-api:4191\n14:22:31 starting pod 4 of 10\n14:22:44 waiting on readiness probe (pod 4)\n14:23:02 pod 4 ready\n14:23:05 starting pod 5 of 10',
+				sheetForm: {
+					email: 'auri@example.dev',
+					handle: '',
+					replicas: 4,
+					date: '2026-08-22',
+					notes: '',
+					severity: 'sev2',
+					channels: ['Email', 'Slack'],
+					canary: true,
+					region: 'eu-west-1',
+					pending: true
+				}
 			},
 			components: [
 				col('root', [
@@ -119,7 +135,14 @@
 					'h_approval',
 					'approval',
 					'h_confirm',
-					'confirm_row'
+					'confirm_row',
+					'h_form_fields',
+					'form_fields_a',
+					'form_fields_b',
+					'h_form_choices',
+					'form_choices',
+					'h_form_submit',
+					'form_submit_row'
 				]),
 
 				heading('h_spark', 'Sparkline — word-sized trends, generated text alternative'),
@@ -407,7 +430,127 @@
 					component: 'ConfirmButton',
 					label: 'Restart worker pool',
 					action: { event: { name: 'pool_restarted', context: { pool: 'workers-eu1' } } }
-				}
+				},
+
+				heading(
+					'h_form_fields',
+					'forms: TextField / NumberField / DateField / TextArea — live, checks evaluate as you type'
+				),
+				row('form_fields_a', ['ff_email', 'ff_handle', 'ff_replicas', 'ff_date']),
+				form({
+					id: 'ff_email',
+					component: 'TextField',
+					label: 'Work email',
+					kind: 'email',
+					value: { path: '/sheetForm/email' },
+					hint: 'Seeded valid — break it and blur.',
+					checks: [
+						{ call: 'required', message: 'Enter your email.' },
+						{ call: 'email', message: "That doesn't look like an email address." }
+					]
+				}),
+				form({
+					id: 'ff_handle',
+					component: 'TextField',
+					label: 'Handle',
+					placeholder: 'e.g. auri-dev',
+					value: { path: '/sheetForm/handle' },
+					hint: 'Placeholder and hint, no checks.'
+				}),
+				form({
+					id: 'ff_replicas',
+					component: 'NumberField',
+					label: 'Replica count',
+					value: { path: '/sheetForm/replicas' },
+					min: 1,
+					max: 20,
+					unit: 'pods',
+					checks: [{ call: 'numeric', args: { min: 1, max: 20 }, message: '1 to 20 replicas.' }]
+				}),
+				form({
+					id: 'ff_date',
+					component: 'DateField',
+					label: 'Start date',
+					value: { path: '/sheetForm/date' },
+					min: '2026-08-20'
+				}),
+				row('form_fields_b', ['ff_notes', 'ff_disabled']),
+				form({
+					id: 'ff_notes',
+					component: 'TextArea',
+					label: 'Notes',
+					value: { path: '/sheetForm/notes' },
+					rows: 3,
+					maxLength: 200,
+					hint: 'The counter is live.'
+				}),
+				form({
+					id: 'ff_disabled',
+					component: 'TextField',
+					label: 'Disabled field',
+					value: { path: '/sheetForm/email' },
+					disabled: true,
+					hint: 'disabled via ComponentCommon.'
+				}),
+
+				heading('h_form_choices', 'forms: RadioGroup / CheckboxGroup / SelectField / Toggle'),
+				row('form_choices', ['fc_severity', 'fc_channels', 'fc_region_toggle']),
+				form({
+					id: 'fc_severity',
+					component: 'RadioGroup',
+					label: 'Severity',
+					value: { path: '/sheetForm/severity' },
+					options: [
+						{ value: 'sev1', label: 'Sev 1 — total outage' },
+						{ value: 'sev2', label: 'Sev 2 — degraded' },
+						{ value: 'sev3', label: 'Sev 3 — cosmetic' }
+					],
+					checks: [{ call: 'required', message: 'Choose a severity.' }]
+				}),
+				form({
+					id: 'fc_channels',
+					component: 'CheckboxGroup',
+					label: 'Notify via',
+					value: { path: '/sheetForm/channels' },
+					options: ['Email', 'Slack', 'PagerDuty'],
+					hint: 'Bare-string options.'
+				}),
+				col('fc_region_toggle', ['fc_region', 'fc_canary']),
+				form({
+					id: 'fc_region',
+					component: 'SelectField',
+					label: 'Region',
+					value: { path: '/sheetForm/region' },
+					options: [
+						{ value: 'eu-west-1', label: 'Europe (Ireland)' },
+						{ value: 'us-east-1', label: 'US East (Virginia)' }
+					]
+				}),
+				form({
+					id: 'fc_canary',
+					component: 'Toggle',
+					label: 'Canary deploys',
+					value: { path: '/sheetForm/canary' },
+					hint: 'A boolean in the data model.'
+				}),
+
+				heading('h_form_submit', 'forms: SubmitBar — surface-gated, pending, with cancel'),
+				row('form_submit_row', ['fs_ready', 'fs_pending']),
+				form({
+					id: 'fs_ready',
+					component: 'SubmitBar',
+					submitLabel: 'File report',
+					cancelLabel: 'Discard',
+					submitAction: { event: { name: 'sheet_submit' } },
+					cancelAction: { event: { name: 'sheet_cancel' } }
+				}),
+				form({
+					id: 'fs_pending',
+					component: 'SubmitBar',
+					submitLabel: 'Saving…',
+					pending: { path: '/sheetForm/pending' },
+					submitAction: { event: { name: 'sheet_save' } }
+				})
 			] as never[]
 		}
 	});

@@ -14,6 +14,7 @@ import type { AgentToRenderer, RendererToAgent, Transport } from 'svelte-a2ui';
 import { createEmitter } from 'svelte-a2ui';
 
 const OPS = 'https://chaliceforauri.github.io/auri/catalogs/ops/v1.json';
+const FORMS = 'https://chaliceforauri.github.io/auri/catalogs/forms/v1.json';
 const BASIC = 'https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json';
 export const SURFACE = 'console';
 
@@ -354,7 +355,99 @@ const SCRIPT: Step[] = [
 			text: 'Error rate back under **1%** and holding. Keeping the incident open for 30 minutes of observation.',
 			intent: 'good'
 		}
-	])
+	]),
+
+	// Act two: the incident is over, so the agent switches vocabulary — the
+	// forms catalog mixes onto the SAME surface (explicit catalogId per
+	// component, the protocol's mixing rule) to file the postmortem. The
+	// SubmitBar arrives gated: the required summary is empty. Then the agent
+	// drafts the summary itself via the data model, and the gate opens live —
+	// no component re-sends, just data.
+	{ __pause: 3200 },
+	patch('/pm', { severity: 'sev2', summary: '', followUp: true }),
+	components([
+		{
+			id: 'root',
+			component: 'Column',
+			catalogId: BASIC,
+			children: [
+				'header_row',
+				'stats_row',
+				'spike_note',
+				'rollback',
+				'error_chart',
+				'evidence_row',
+				'deploys_table',
+				'postmortem'
+			]
+		},
+		{
+			id: 'postmortem',
+			component: 'FormSection',
+			catalogId: FORMS,
+			title: 'File the postmortem',
+			description: 'Resolved — capture it while it is fresh. I drafted the summary; edit and file.',
+			children: ['pm_severity', 'pm_summary', 'pm_followup', 'pm_submit']
+		},
+		{
+			id: 'pm_severity',
+			component: 'RadioGroup',
+			catalogId: FORMS,
+			label: 'Severity',
+			value: { path: '/pm/severity' },
+			options: [
+				{ value: 'sev1', label: 'Sev 1 — total outage' },
+				{ value: 'sev2', label: 'Sev 2 — degraded' },
+				{ value: 'sev3', label: 'Sev 3 — cosmetic' }
+			],
+			checks: [{ call: 'required', message: 'Choose a severity.' }]
+		},
+		{
+			id: 'pm_summary',
+			component: 'TextArea',
+			catalogId: FORMS,
+			label: 'What happened?',
+			value: { path: '/pm/summary' },
+			rows: 4,
+			checks: [
+				{
+					call: 'length',
+					args: { min: 30 },
+					message: 'A sentence or two more helps the review.'
+				}
+			]
+		},
+		{
+			id: 'pm_followup',
+			component: 'Toggle',
+			catalogId: FORMS,
+			label: 'Schedule a follow-up review',
+			value: { path: '/pm/followUp' }
+		},
+		{
+			id: 'pm_submit',
+			component: 'SubmitBar',
+			catalogId: FORMS,
+			submitLabel: 'File postmortem',
+			submitAction: {
+				event: {
+					name: 'postmortem_filed',
+					context: {
+						severity: { path: '/pm/severity' },
+						summary: { path: '/pm/summary' },
+						followUp: { path: '/pm/followUp' }
+					}
+				}
+			}
+		}
+	]),
+	// The gate is closed (summary too short) — watch it open as the agent
+	// writes its draft into the data model.
+	{ __pause: 2600 },
+	patch(
+		'/pm/summary',
+		'Deploy 4190 regressed checkout payment auth; 5xx peaked at 4.8% for 22 minutes. Rolled back to 4189 at 14:26 UTC; recovery confirmed by 14:31.'
+	)
 ];
 
 export interface RailLine {

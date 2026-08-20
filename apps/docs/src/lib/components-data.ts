@@ -2,30 +2,72 @@
  * The component pages' data: everything comes from the synced contract
  * artifacts — the fixture IS the demo stream, the schema excerpt IS the
  * contract, the prompt snippet IS the pack section. Nothing here is written
- * for the docs; the docs render what ships.
+ * for the docs; the docs render what ships. Two catalogs, one shape.
  */
 
 import type { AgentToRenderer } from 'svelte-a2ui';
-import catalog from '$lib/generated/catalog.json';
-import promptPack from '$lib/generated/prompt.md?raw';
+import opsContract from '$lib/generated/ops/catalog.json';
+import formsContract from '$lib/generated/forms/catalog.json';
+import opsPack from '$lib/generated/ops/prompt.md?raw';
+import formsPack from '$lib/generated/forms/prompt.md?raw';
 
-const fixtures = import.meta.glob('$lib/generated/examples/*.jsonl', {
+const fixtureFiles = import.meta.glob('$lib/generated/*/examples/*.jsonl', {
 	query: '?raw',
 	import: 'default',
 	eager: true
 }) as Record<string, string>;
 
-/** Component name -> fixture basename, where lowercasing isn't enough. */
+/** Component name -> fixture basename, where kebab-casing isn't mechanical. */
 const FIXTURE_NAMES: Record<string, string> = {
 	DataTable: 'datatable',
-	ApprovalCard: 'approval-card',
 	KeyValue: 'keyvalue',
-	CodeBlock: 'codeblock',
-	ConfirmButton: 'confirm-button'
+	CodeBlock: 'codeblock'
 };
+
+/** Stat -> stat, ApprovalCard -> approval-card, TextField -> text-field. */
+function kebab(name: string): string {
+	return FIXTURE_NAMES[name] ?? name.replace(/(?<=[a-z])(?=[A-Z])/g, '-').toLowerCase();
+}
+
+export interface CatalogInfo {
+	key: 'ops' | 'forms';
+	title: string;
+	blurb: string;
+	contract: Record<string, unknown>;
+	pack: string;
+	components: string[];
+}
+
+interface ContractDoc {
+	components: Record<string, { description?: string }>;
+	[key: string]: unknown;
+}
+
+export const CATALOGS: CatalogInfo[] = [
+	{
+		key: 'ops',
+		title: 'ops',
+		blurb: 'dashboards, data display, and human-in-the-loop decisions',
+		contract: opsContract as ContractDoc,
+		pack: opsPack,
+		components: Object.keys((opsContract as ContractDoc).components)
+	},
+	{
+		key: 'forms',
+		title: 'forms',
+		blurb: 'agent-composed forms that collect answers from humans',
+		contract: formsContract as ContractDoc,
+		pack: formsPack,
+		components: Object.keys((formsContract as ContractDoc).components)
+	}
+];
+
+/** Every component name, both catalogs — names don't collide by design. */
+export const COMPONENT_NAMES = CATALOGS.flatMap((c) => c.components);
 
 export interface ComponentDoc {
 	name: string;
+	catalog: 'ops' | 'forms';
 	description: string;
 	tagline: string;
 	fixtureText: string;
@@ -35,41 +77,45 @@ export interface ComponentDoc {
 	promptSnippet: string;
 }
 
-const components = catalog.components as Record<string, { description?: string }>;
+function catalogOf(name: string): CatalogInfo {
+	const info = CATALOGS.find((c) => c.components.includes(name));
+	if (!info) throw new Error(`unknown component ${name}`);
+	return info;
+}
 
-export const COMPONENT_NAMES = Object.keys(components);
-
-function fixtureFor(name: string): string {
-	const base = FIXTURE_NAMES[name] ?? name.toLowerCase();
-	const path = Object.keys(fixtures).find((p) => p.endsWith(`/${base}.jsonl`));
-	if (!path) throw new Error(`no fixture for ${name}`);
-	return fixtures[path]!.trim();
+function fixtureFor(info: CatalogInfo, name: string): string {
+	const path = Object.keys(fixtureFiles).find((p) =>
+		p.endsWith(`/${info.key}/examples/${kebab(name)}.jsonl`)
+	);
+	if (!path) throw new Error(`no fixture for ${info.key}/${name}`);
+	return fixtureFiles[path]!.trim();
 }
 
 /** The pack section for one component: from its `### Name —` to the next heading. */
-function promptSectionFor(name: string): string {
-	const start = promptPack.indexOf(`### ${name} —`);
+function promptSectionFor(pack: string, name: string): string {
+	const start = pack.indexOf(`### ${name} —`);
 	if (start === -1) return '';
-	const rest = promptPack.slice(start);
+	const rest = pack.slice(start);
 	const next = rest.slice(4).search(/\n###? /);
 	return (next === -1 ? rest : rest.slice(0, next + 4)).trim();
 }
 
 export function componentDoc(name: string): ComponentDoc {
-	const spec = components[name];
-	if (!spec) throw new Error(`unknown component ${name}`);
+	const info = catalogOf(name);
+	const spec = (info.contract as ContractDoc).components[name]!;
 
-	const fixtureText = fixtureFor(name);
+	const fixtureText = fixtureFor(info, name);
 	const messages = fixtureText.split('\n').map((line) => JSON.parse(line) as AgentToRenderer);
 	const surfaceId = messages.find((m) => m.createSurface)?.createSurface?.surfaceId ?? 'demo';
 
 	const description = spec.description ?? '';
-	const promptSnippet = promptSectionFor(name);
+	const promptSnippet = promptSectionFor(info.pack, name);
 	// The pack heading's em-dash tail is the human tagline, e.g. "a KPI tile".
 	const tagline = promptSnippet.match(/^### .+? — (.+)$/m)?.[1] ?? '';
 
 	return {
 		name,
+		catalog: info.key,
 		description,
 		tagline,
 		fixtureText,

@@ -124,3 +124,152 @@ export function composeCatalog({ contract, prompt, fixtures = {}, components, ti
 		missing
 	};
 }
+
+/* ------------------------------------------------------------------ mixing */
+
+/** Extract one `### Name — …` section (until the next heading). */
+function componentSection(prompt, name) {
+	const start = prompt.indexOf(`### ${name} —`);
+	if (start === -1) return '';
+	const rest = prompt.slice(start);
+	const next = rest.slice(4).search(/\n###? /);
+	return (next === -1 ? rest : rest.slice(0, next + 4)).trim();
+}
+
+/** Extract one `## Heading` block (until the next `## `). */
+function topSection(prompt, heading) {
+	const start = prompt.indexOf(`${heading}\n`);
+	if (start === -1) return '';
+	const rest = prompt.slice(start);
+	const next = rest.slice(3).search(/\n## /);
+	return (next === -1 ? rest : rest.slice(0, next + 3)).trim();
+}
+
+/**
+ * Rewrite one catalog's fixture into a mixed-surface example: the surface
+ * keeps the PRIMARY catalog id, and every component this fixture's own
+ * catalog defines gains an explicit catalogId — exactly the idiom an agent
+ * must emit when mixing.
+ */
+function remapFixture(jsonl, primaryId, secondaryId, secondaryContract) {
+	const known = new Set(Object.keys(secondaryContract.components ?? {}));
+	return jsonl
+		.trim()
+		.split('\n')
+		.map((line) => {
+			const message = JSON.parse(line);
+			if (message.createSurface) message.createSurface.catalogId = primaryId;
+			const list = message.updateComponents?.components ?? message.createSurface?.components;
+			if (Array.isArray(list)) {
+				for (const spec of list) {
+					if (known.has(spec.component) && spec.catalogId === undefined) {
+						spec.catalogId = secondaryId;
+					}
+				}
+			}
+			return JSON.stringify(message);
+		})
+		.join('\n');
+}
+
+/**
+ * Compose across catalogs. The first source with picks is the PRIMARY: its
+ * pack structure carries the composition, and the surface uses its catalog
+ * id. Every other source's components ride along the protocol's mixing rule —
+ * an explicit per-component catalogId — with their pack sections, their
+ * catalog-specific rules, and their fixtures rewritten into mixed examples.
+ * One contract is composed per participating source (validation is
+ * per-catalog: foreign components are each contract's out-of-scope).
+ */
+export function composeMixed({ sources, components, title }) {
+	const picks = sources
+		.map((source) => ({
+			source,
+			chosen: Object.keys(source.contract.components ?? {}).filter((name) =>
+				components.includes(name)
+			)
+		}))
+		.filter((pick) => pick.chosen.length > 0);
+
+	const known = new Set(sources.flatMap((s) => Object.keys(s.contract.components ?? {})));
+	const missing = components.filter((name) => !known.has(name));
+
+	const contracts = picks.map(({ source, chosen }) => ({
+		key: source.key,
+		contract: composeContract({ contract: source.contract, components: chosen, title })
+	}));
+
+	if (picks.length === 0) {
+		return { primary: null, contracts, prompt: '', chosen: [], missing };
+	}
+
+	const [primary, ...rest] = picks;
+	const primaryId = primary.source.contract.catalogId;
+
+	// Single-source picks degrade to the plain composition, fixtures included.
+	if (rest.length === 0) {
+		const prompt = composePrompt({
+			prompt: primary.source.prompt,
+			components: primary.chosen,
+			title,
+			fixtures: primary.source.fixtures ?? {}
+		});
+		return { primary: primary.source.key, contracts, prompt, chosen: primary.chosen, missing };
+	}
+
+	const out = [
+		composePrompt({ prompt: primary.source.prompt, components: primary.chosen, title }).trimEnd()
+	];
+
+	for (const { source, chosen } of rest) {
+		const secondaryId = source.contract.catalogId;
+		out.push('', `## The ${source.key} catalog — mixed onto this surface`, '');
+		out.push(
+			`The components below come from a second catalog. Emit each of them with an explicit`,
+			`\`"catalogId": "${secondaryId}"\` — the surface's default catalog stays`,
+			`\`${primaryId}\`.`,
+			''
+		);
+		const rules = topSection(source.prompt, '## Rules');
+		if (rules) out.push(rules.replace('## Rules', `### Rules for ${source.key} components`), '');
+		for (const name of chosen) {
+			const section = componentSection(source.prompt, name);
+			if (section) out.push(section, '');
+		}
+	}
+
+	out.push('', '## Examples', '');
+	for (const name of primary.chosen) {
+		const fixture = primary.source.fixtures?.[name];
+		if (fixture) out.push(`One ${name} stream:`, '', '```jsonl', fixture.trim(), '```', '');
+	}
+	for (const { source, chosen } of rest) {
+		const secondaryId = source.contract.catalogId;
+		for (const name of chosen) {
+			const fixture = source.fixtures?.[name];
+			if (!fixture) continue;
+			out.push(
+				`One mixed ${name} stream (note the explicit catalogId):`,
+				'',
+				'```jsonl',
+				remapFixture(fixture, primaryId, secondaryId, source.contract),
+				'```',
+				''
+			);
+		}
+	}
+
+	const prompt =
+		out
+			.join('\n')
+			.replace(/\n{3,}/g, '\n\n')
+			.trimEnd() + '\n';
+
+	return {
+		primary: primary.source.key,
+		contracts,
+		prompt,
+		chosen: picks.flatMap((pick) => pick.chosen),
+		missing
+	};
+}

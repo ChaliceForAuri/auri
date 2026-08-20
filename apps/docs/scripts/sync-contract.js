@@ -1,10 +1,10 @@
 /**
- * Single-source-of-truth plumbing. From packages/ops/contract this copies:
+ * Single-source-of-truth plumbing. For every catalog package this copies:
  *
- * - catalog.json -> static/catalogs/ops/v1.json  (the catalog id is a real,
+ * - catalog.json -> static/catalogs/<key>/v1.json  (the catalog id is a real,
  *   resolving URL on the deployed site)
- * - catalog.json, prompt.md, examples/*.jsonl -> src/lib/generated/  (the
- *   component pages render the actual artifacts: fixtures are the demo
+ * - catalog.json, prompt.md, examples/*.jsonl -> src/lib/generated/<key>/
+ *   (the component pages render the actual artifacts: fixtures are the demo
  *   streams, the contract and prompt-pack are excerpted verbatim)
  *
  * Runs before dev/build/check. Everything it writes is generated, gitignored,
@@ -16,19 +16,26 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const contract = join(here, '..', '..', '..', 'packages', 'ops', 'contract');
 
-const catalogDir = join(here, '..', 'static', 'catalogs', 'ops');
-mkdirSync(catalogDir, { recursive: true });
-copyFileSync(join(contract, 'catalog.json'), join(catalogDir, 'v1.json'));
-// The prompt-pack and fixtures are served too — agents (and llms.txt) fetch them.
-copyFileSync(join(contract, 'prompt.md'), join(catalogDir, 'prompt.md'));
-cpSync(join(contract, 'examples'), join(catalogDir, 'examples'), { recursive: true });
+const CATALOGS = ['ops', 'forms'];
 
-const generated = join(here, '..', 'src', 'lib', 'generated');
-mkdirSync(generated, { recursive: true });
-copyFileSync(join(contract, 'catalog.json'), join(generated, 'catalog.json'));
-copyFileSync(join(contract, 'prompt.md'), join(generated, 'prompt.md'));
-cpSync(join(contract, 'examples'), join(generated, 'examples'), { recursive: true });
+for (const key of CATALOGS) {
+	const contract = join(here, '..', '..', '..', 'packages', key, 'contract');
 
-console.log('contract artifacts synced -> static/catalogs, src/lib/generated');
+	const catalogDir = join(here, '..', 'static', 'catalogs', key);
+	mkdirSync(catalogDir, { recursive: true });
+	copyFileSync(join(contract, 'catalog.json'), join(catalogDir, 'v1.json'));
+	// The prompt-pack and fixtures are served too — agents (and llms.txt) fetch them.
+	copyFileSync(join(contract, 'prompt.md'), join(catalogDir, 'prompt.md'));
+	cpSync(join(contract, 'examples'), join(catalogDir, 'examples'), { recursive: true });
+
+	const generated = join(here, '..', 'src', 'lib', 'generated', key);
+	mkdirSync(generated, { recursive: true });
+	copyFileSync(join(contract, 'catalog.json'), join(generated, 'catalog.json'));
+	copyFileSync(join(contract, 'prompt.md'), join(generated, 'prompt.md'));
+	cpSync(join(contract, 'examples'), join(generated, 'examples'), { recursive: true });
+}
+
+console.log(
+	`contract artifacts synced (${CATALOGS.join(', ')}) -> static/catalogs, src/lib/generated`
+);
