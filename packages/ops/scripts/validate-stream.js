@@ -18,69 +18,85 @@ const contractDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'contrac
 export const catalog = JSON.parse(readFileSync(join(contractDir, 'catalog.json'), 'utf8'));
 export const OPS_CATALOG_ID = catalog.catalogId;
 
-// strict:false — the catalog carries spec-style non-keyword fields (catalogId,
-// instructions, components) that ajv's strict mode would reject.
-const ajv = new Ajv2020({ allErrors: true, strict: false });
-ajv.addSchema(catalog);
-
-const validators = Object.fromEntries(
-	Object.keys(catalog.components).map((name) => [
-		name,
-		ajv.compile({ $ref: `${catalog.$id}#/components/${name}` })
-	])
-);
-
 /**
- * @param {string} text - JSONL stream (blank lines ignored)
- * @returns {{errors: string[], componentsSeen: Set<string>}} errors are
- *   human-readable, prefixed with 1-based line numbers.
+ * Build a validator for any contract document — the shipped ops contract or a
+ * composed subset (compose keeps the source catalogId, so a model emitting a
+ * component that was cut from the composition fails here as "not a component
+ * of this contract", which is exactly the vocabulary-escape signal an eval of
+ * a composition needs).
+ *
+ * @param {object} contractJson - a catalog.json-shaped contract document
  */
-export function validateStream(text) {
-	const errors = [];
-	const componentsSeen = new Set();
+export function createValidator(contractJson) {
+	// strict:false — the catalog carries spec-style non-keyword fields
+	// (catalogId, instructions, components) that ajv's strict mode would reject.
+	const ajv = new Ajv2020({ allErrors: true, strict: false });
+	ajv.addSchema(contractJson);
+	const catalogId = contractJson.catalogId;
 
-	const lines = text.split('\n');
-	lines.forEach((line, index) => {
-		if (!line.trim()) return;
-		const at = `line ${index + 1}`;
+	const validators = Object.fromEntries(
+		Object.keys(contractJson.components).map((name) => [
+			name,
+			ajv.compile({ $ref: `${contractJson.$id}#/components/${name}` })
+		])
+	);
 
-		let message;
-		try {
-			message = JSON.parse(line);
-		} catch (cause) {
-			errors.push(`${at}: not valid JSON (${cause.message})`);
-			return;
-		}
+	/**
+	 * @param {string} text - JSONL stream (blank lines ignored)
+	 * @returns {{errors: string[], componentsSeen: Set<string>}} errors are
+	 *   human-readable, prefixed with 1-based line numbers.
+	 */
+	function validateStream(text) {
+		const errors = [];
+		const componentsSeen = new Set();
 
-		if (message.version !== 'v1.0') {
-			errors.push(
-				`${at}: missing or wrong envelope version (got ${JSON.stringify(message.version)})`
-			);
-		}
+		const lines = text.split('\n');
+		lines.forEach((line, index) => {
+			if (!line.trim()) return;
+			const at = `line ${index + 1}`;
 
-		const components =
-			message.updateComponents?.components ?? message.createSurface?.components ?? [];
-		for (const spec of components) {
-			const foreign = spec.catalogId !== undefined && spec.catalogId !== OPS_CATALOG_ID;
-			if (foreign) continue; // basic-catalog (or other) components are out of scope here
-			const validate = validators[spec.component];
-			if (!validate) {
-				errors.push(
-					`${at}: '${spec.component}' (id '${spec.id}') is not an ops component and carries no foreign catalogId`
-				);
-				continue;
+			let message;
+			try {
+				message = JSON.parse(line);
+			} catch (cause) {
+				errors.push(`${at}: not valid JSON (${cause.message})`);
+				return;
 			}
-			componentsSeen.add(spec.component);
-			if (!validate(spec)) {
+
+			if (message.version !== 'v1.0') {
 				errors.push(
-					`${at}: ${spec.component} '${spec.id}': ${ajv.errorsText(validate.errors, { separator: '; ' })}`
+					`${at}: missing or wrong envelope version (got ${JSON.stringify(message.version)})`
 				);
 			}
-		}
-	});
 
-	return { errors, componentsSeen };
+			const components =
+				message.updateComponents?.components ?? message.createSurface?.components ?? [];
+			for (const spec of components) {
+				const foreign = spec.catalogId !== undefined && spec.catalogId !== catalogId;
+				if (foreign) continue; // basic-catalog (or other) components are out of scope here
+				const validate = validators[spec.component];
+				if (!validate) {
+					errors.push(
+						`${at}: '${spec.component}' (id '${spec.id}') is not a component of this contract and carries no foreign catalogId`
+					);
+					continue;
+				}
+				componentsSeen.add(spec.component);
+				if (!validate(spec)) {
+					errors.push(
+						`${at}: ${spec.component} '${spec.id}': ${ajv.errorsText(validate.errors, { separator: '; ' })}`
+					);
+				}
+			}
+		});
+
+		return { errors, componentsSeen };
+	}
+
+	return { validateStream };
 }
+
+export const { validateStream } = createValidator(catalog);
 
 const invokedDirectly =
 	process.argv[1] &&

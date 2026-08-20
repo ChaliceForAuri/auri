@@ -16,7 +16,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateStream } from './validate-stream.js';
+import { catalog, createValidator } from './validate-stream.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const contractDir = join(here, '..', 'contract');
@@ -122,9 +122,22 @@ function flag(name) {
 	return index === -1 ? undefined : (args[index + 1] ?? '');
 }
 
-const promptPack = readFileSync(join(contractDir, 'prompt.md'), 'utf8');
-// Everything below the first horizontal rule is the pack; above it is repo framing.
-const system = promptPack.slice(promptPack.indexOf('\n---\n') + 5);
+// --pack / --contract point the harness at composed artifacts (see
+// @aurilabs/core/compose and the docs /composer page): the composed pack
+// becomes the system prompt, and the composed contract validates the output —
+// so a model reaching for a component that was cut from the composition fails
+// the eval instead of slipping through against the full contract.
+const packPath = flag('pack') ?? join(contractDir, 'prompt.md');
+const promptPack = readFileSync(packPath, 'utf8');
+// Everything below the first horizontal rule is the pack; above it is repo
+// framing. Composed packs have no rule and are used whole.
+const rule = promptPack.indexOf('\n---\n');
+const system = rule === -1 ? promptPack : promptPack.slice(rule + 5);
+
+const contractPath = flag('contract');
+const { validateStream } = createValidator(
+	contractPath ? JSON.parse(readFileSync(contractPath, 'utf8')) : catalog
+);
 
 const allScenarios = JSON.parse(readFileSync(join(here, 'emission-scenarios.json'), 'utf8'));
 const wantedScenarios = flag('scenarios')?.split(',');

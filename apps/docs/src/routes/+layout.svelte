@@ -31,6 +31,7 @@
 		{ href: '/', label: 'console' },
 		{ href: '/components', label: 'components' },
 		{ href: '/playground', label: 'playground' },
+		{ href: '/composer', label: 'composer' },
 		{ href: '/foundations', label: 'foundations' },
 		{ href: '/install', label: 'install' },
 		{ href: '/evals', label: 'evals' },
