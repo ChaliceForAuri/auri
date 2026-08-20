@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { base } from '$app/paths';
+</script>
+
 <svelte:head>
 	<title>auri — atoms and catalogs</title>
 </svelte:head>
@@ -79,12 +83,12 @@
 		in progress.
 	</p>
 
-	<h2>Roadmap: compose your own</h2>
+	<h2>Compose your own</h2>
 	<p>
-		The end state honors both instincts: curated catalogs as the front door, and a
-		<em>catalog composer</em> for teams that want their own vocabulary — pick atoms across catalogs,
-		get a generated contract, a merged prompt-pack, and an emission-eval run against
-		<em>your</em> composition, under your own catalog id. Ownership of the vocabulary itself, with the
-		same evidence behind it.
+		The end state honors both instincts: curated catalogs as the front door, and the
+		<a href="{base}/composer">catalog composer</a> for teams that want their own vocabulary — pick
+		atoms across catalogs, get a generated contract, a merged prompt-pack, and an emission-eval run
+		against <em>your</em> composition. Ownership of the vocabulary itself, with the same evidence behind
+		it.
 	</p>
 </div>
