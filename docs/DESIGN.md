@@ -139,7 +139,16 @@ Every component whose props can bind to paths defines all three, in the contract
 - Focus is always visible; nothing keyboard-reachable is pointer-only; WCAG 2.2 target sizes on
   anything clickable.
 
-## 8. Writing voice (microcopy)
+## 8. Feedback must visibly respond
+
+Any control that collects a user's judgment (thumbs, votes, ratings) must be able to express the
+consequence: an acknowledged state on the control itself, and de-emphasis or removal of the judged
+element — driven through the data model (`visible` bindings), never by re-sending components.
+"Feedback that visibly changes nothing teaches users their input is decorative" — principle
+contributed by Hyphen RIE (issue #20), adopted verbatim. A fire-and-forget feedback control does
+not ship.
+
+## 9. Writing voice (microcopy)
 
 Anything auri itself renders (empty states, confirm labels, copy buttons in docs): plain,
 lowercase-calm, no exclamation marks, no "oops". The agent brings the drama; the furniture stays

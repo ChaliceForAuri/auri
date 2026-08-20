@@ -1,0 +1,13 @@
+{
+	"name": "@aurilabs/intel",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"description": "The auri intel catalog for A2UI — revenue-intelligence surfaces: insight feeds, drill paths from aggregate to source, account risk pictures. M1 contract-first stage: contract + prompt-pack only (see contract/README.md).",
+	"license": "Apache-2.0",
+	"author": "Hugo Pretorius <ohheyhugo@gmail.com>",
+	"scripts": {
+		"test": "node --test tests/*.test.js",
+		"eval": "node ../ops/scripts/emission-eval.js --pack contract/prompt.md --contract contract/catalog.json --scenarios-file contract/emission-scenarios.json"
+	}
+}
