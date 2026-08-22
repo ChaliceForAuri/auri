@@ -31,7 +31,11 @@
 			"default": "./src/compose.js"
 		},
 		"./package.json": "./package.json",
-		"./tokens.json": "./src/tokens.json"
+		"./tokens.json": "./src/tokens.json",
+		"./conformance": {
+			"types": "./src/conformance.d.ts",
+			"default": "./src/conformance.js"
+		}
 	},
 	"scripts": {
 		"build:tokens": "node scripts/build-tokens.js",
