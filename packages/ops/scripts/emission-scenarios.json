@@ -9,26 +9,28 @@
 	},
 	{
 		"id": "incident-hard-mode",
-		"prompt": "Checkout error rate spiked right after deploy 4190 went out at 14:02 UTC. Show the on-call engineer an incident view: a line chart of the error rate over the last hour (you have five readings at 15-minute intervals: 0.4, 0.5, 2.1, 4.8, 3.9 percent), a table of today's three deploys (payments-api deploy 4190 live at 14:02:11 UTC after 142 seconds, checkout-web canary at 14:10:40 UTC after 98 seconds, search-index failed at 13:55:03 UTC after 311 seconds), and ask them to approve rolling payments-api back to build 4189 — a comment must be required with the decision. Wire everything so the readings and deploy statuses can update live as you learn more."
+		"prompt": "Checkout error rate spiked right after deploy 4190 went out at 14:02 UTC. Show the on-call engineer an incident view: a line chart of the error rate over the last hour (you have five readings at 15-minute intervals: 0.4, 0.5, 2.1, 4.8, 3.9 percent), a table of today's three deploys (payments-api deploy 4190 live at 14:02:11 UTC after 142 seconds, checkout-web canary at 14:10:40 UTC after 98 seconds, search-index failed at 13:55:03 UTC after 311 seconds), and ask them to approve rolling payments-api back to build 4189 \u2014 a comment must be required with the decision. Wire everything so the readings and deploy statuses can update live as you learn more.",
+		"smoke": true
 	},
 	{
 		"id": "deploy-live-ops",
-		"prompt": "You are running a production deploy of payments-api build 4191, currently rolling out: 4 of 10 pods are ready. Show a live deploy view: overall rollout progress; a timeline of what has happened so far (build started at 14:20:05 UTC, canary reported healthy at 14:21:40 UTC which is good, rollout began at 14:22:10 UTC, and at 14:24:02 UTC pod 4's readiness probe started running slow, which is worth watching); the tail of the deploy log (three lines: pulling image, starting pod 4 of 10, waiting on readiness probe for pod 4); and a way to abort the rollout — it's destructive, must have a built-in confirmation step, and when clicked you need to receive the build id and service name. Everything should update live as the rollout progresses."
+		"prompt": "You are running a production deploy of payments-api build 4191, currently rolling out: 4 of 10 pods are ready. Show a live deploy view: overall rollout progress; a timeline of what has happened so far (build started at 14:20:05 UTC, canary reported healthy at 14:21:40 UTC which is good, rollout began at 14:22:10 UTC, and at 14:24:02 UTC pod 4's readiness probe started running slow, which is worth watching); the tail of the deploy log (three lines: pulling image, starting pod 4 of 10, waiting on readiness probe for pod 4); and a way to abort the rollout \u2014 it's destructive, must have a built-in confirmation step, and when clicked you need to receive the build id and service name. Everything should update live as the rollout progresses.",
+		"smoke": true
 	},
 	{
 		"id": "service-passport",
-		"prompt": "Render a compact overview of the checkout-web service: its key facts (region eu-west-1, runtime node 24, owned by team payments, last deployed 2026-08-17 at 09:12 UTC), an inline trend of p95 latency over the last twelve readings (178, 182, 175, 190, 260, 240, 210, 195, 188, 199, 205, 214 milliseconds — that spike is concerning), and its current deploy stage, which is Canary. The latency readings should be updatable later without re-sending components."
+		"prompt": "Render a compact overview of the checkout-web service: its key facts (region eu-west-1, runtime node 24, owned by team payments, last deployed 2026-08-17 at 09:12 UTC), an inline trend of p95 latency over the last twelve readings (178, 182, 175, 190, 260, 240, 210, 195, 188, 199, 205, 214 milliseconds \u2014 that spike is concerning), and its current deploy stage, which is Canary. The latency readings should be updatable later without re-sending components."
 	},
 	{
 		"id": "weekly-review",
-		"prompt": "Give me the weekly on-call review. Incidents per day this week: Monday 2, Tuesday 0, Wednesday 5, Thursday 1, Friday 3, Saturday 0, Sunday 1 — Wednesday was rough, call that out. Then a sortable table of the four noisiest alerts: HighLatencyP95 fired 41 times, last at 2026-08-15T22:14:00Z; DiskPressure fired 28 times, last at 2026-08-16T03:41:00Z; PodRestartLoop fired 17 times, last at 2026-08-14T11:05:00Z; CertExpirySoon fired 9 times, last at 2026-08-13T09:00:00Z. Finally ask me to approve muting HighLatencyP95 for seven days — no comment needed. Numbers should be updatable later."
+		"prompt": "Give me the weekly on-call review. Incidents per day this week: Monday 2, Tuesday 0, Wednesday 5, Thursday 1, Friday 3, Saturday 0, Sunday 1 \u2014 Wednesday was rough, call that out. Then a sortable table of the four noisiest alerts: HighLatencyP95 fired 41 times, last at 2026-08-15T22:14:00Z; DiskPressure fired 28 times, last at 2026-08-16T03:41:00Z; PodRestartLoop fired 17 times, last at 2026-08-14T11:05:00Z; CertExpirySoon fired 9 times, last at 2026-08-13T09:00:00Z. Finally ask me to approve muting HighLatencyP95 for seven days \u2014 no comment needed. Numbers should be updatable later."
 	},
 	{
 		"id": "sentiment-anomaly",
-		"prompt": "Sentiment dipped sharply on 14 August. Chart the daily average sentiment for 1-20 August (readings: 62, 64, 63, 61, 65, 64, 66, 63, 62, 60, 61, 59, 58, 41, 44, 47, 52, 55, 58, 60), mark the dip, and let me click any day to see what drove it — include the cluster id cl-report-accuracy in the click context so you can look it up when the event comes back."
+		"prompt": "Sentiment dipped sharply on 14 August. Chart the daily average sentiment for 1-20 August (readings: 62, 64, 63, 61, 65, 64, 66, 63, 62, 60, 61, 59, 58, 41, 44, 47, 52, 55, 58, 60), mark the dip, and let me click any day to see what drove it \u2014 include the cluster id cl-report-accuracy in the click context so you can look it up when the event comes back."
 	},
 	{
 		"id": "impact-ledger",
-		"prompt": "Show the accounts hit by the report-accuracy cluster — company, tier, and ARR (Acme Corp, Enterprise, 480000; Globex, Enterprise, 350000; Initech, Growth, 210000; Umbrella, Growth, 160000) — with the total ARR at risk computed in the table, and let me click through to any account."
+		"prompt": "Show the accounts hit by the report-accuracy cluster \u2014 company, tier, and ARR (Acme Corp, Enterprise, 480000; Globex, Enterprise, 350000; Initech, Growth, 210000; Umbrella, Growth, 160000) \u2014 with the total ARR at risk computed in the table, and let me click through to any account."
 	}
 ]

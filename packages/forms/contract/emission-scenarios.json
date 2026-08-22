@@ -5,22 +5,24 @@
 	},
 	{
 		"id": "postmortem-intake",
-		"prompt": "Collect an incident postmortem: a severity choice between Sev 1 (total outage), Sev 2 (degraded), and Sev 3 (cosmetic), defaulting to Sev 2; a summary of what happened that must be at least 50 characters; the date the incident started (it can't be in the future — today is 2026-08-19); and whether follow-up review is needed, defaulting to yes. Group the severity and date under a section titled 'Classification' and the rest under 'Details'. On submit you need all four answers."
+		"prompt": "Collect an incident postmortem: a severity choice between Sev 1 (total outage), Sev 2 (degraded), and Sev 3 (cosmetic), defaulting to Sev 2; a summary of what happened that must be at least 50 characters; the date the incident started (it can't be in the future \u2014 today is 2026-08-19); and whether follow-up review is needed, defaulting to yes. Group the severity and date under a section titled 'Classification' and the rest under 'Details'. On submit you need all four answers.",
+		"smoke": true
 	},
 	{
 		"id": "deploy-approval-form",
-		"prompt": "Before you roll payments-api back to build 4189, collect: a justification of at least 30 characters (required), and which environments to roll back — production, staging, or both (at least implied by checkboxes for Production and Staging, defaulting to production only). The submit button should say 'Roll back' and you need the justification and environments when it fires. While you process the rollback the form should show a busy state you can control from your side."
+		"prompt": "Before you roll payments-api back to build 4189, collect: a justification of at least 30 characters (required), and which environments to roll back \u2014 production, staging, or both (at least implied by checkboxes for Production and Staging, defaulting to production only). The submit button should say 'Roll back' and you need the justification and environments when it fires. While you process the rollback the form should show a busy state you can control from your side."
 	},
 	{
 		"id": "settings-server-validation",
-		"prompt": "Render a settings form for the checkout-web service: a replica count between 1 and 20 (currently 4), a region select with eu-west-1 (Europe) and us-east-1 (US East), currently eu-west-1, and a toggle for canary deploys, currently off. Validate bounds as the user types. When they save, you will verify the change server-side and may need to display a rejection message that arrives after submission — wire the form so your response can land in it."
+		"prompt": "Render a settings form for the checkout-web service: a replica count between 1 and 20 (currently 4), a region select with eu-west-1 (Europe) and us-east-1 (US East), currently eu-west-1, and a toggle for canary deploys, currently off. Validate bounds as the user types. When they save, you will verify the change server-side and may need to display a rejection message that arrives after submission \u2014 wire the form so your response can land in it."
 	},
 	{
 		"id": "survey-sections",
-		"prompt": "A two-part developer survey. Part 'About you': role (select: Engineer, SRE, Manager), years of experience (number, 0 to 50). Part 'Your tooling': which CI systems they use from GitHub Actions, Jenkins, CircleCI (any number), and one thing they'd change about their deploy process (free text, optional, up to 500 characters). Submit says 'Send survey'. You need every answer on submit."
+		"prompt": "A two-part developer survey. Part 'About you': role (select: Engineer, SRE, Manager), years of experience (number, 0 to 50). Part 'Your tooling': which CI systems they use from GitHub Actions, Jenkins, CircleCI (any number), and one thing they'd change about their deploy process (free text, optional, up to 500 characters). Submit says 'Send survey'. You need every answer on submit.",
+		"smoke": true
 	},
 	{
 		"id": "signup-checks",
-		"prompt": "A sign-up form: email (required, valid email), a handle that must be 3-15 characters of lowercase letters, digits or dashes only (required — explain the format to the user when it fails), and a start date no earlier than 2026-09-01. On submit, named 'Create account', you need the email and handle, and you'll confirm account creation asynchronously from your side."
+		"prompt": "A sign-up form: email (required, valid email), a handle that must be 3-15 characters of lowercase letters, digits or dashes only (required \u2014 explain the format to the user when it fails), and a start date no earlier than 2026-09-01. On submit, named 'Create account', you need the email and handle, and you'll confirm account creation asynchronously from your side."
 	}
 ]

@@ -1,0 +1,83 @@
+name: Emission evals
+
+# PLAN §2.4 pillar 2 — "emission evals as permanent CI" — made true.
+#
+# Two triggers, deliberately different in scope:
+#   nightly   → the smoke subset (two widest-coverage scenarios per catalog).
+#               This is the one that catches MODEL drift: a provider ships a new
+#               checkpoint, our vocabulary stops emitting cleanly, and we learn
+#               it from a red build instead of from a user.
+#   contract  → the full suite for every catalog whose contract changed. This
+#               catches OUR drift, and it is the gate the contract-first
+#               invariant has always described.
+#
+# Requires the OPENAI_API_KEY repository secret. Until it exists the job warns
+# and passes, so an unconfigured repo doesn't spam failures.
+
+on:
+  schedule:
+    # 06:00 UTC — after most providers ship changes, before the working day.
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'packages/*/contract/**'
+      - 'packages/ops/scripts/emission-*'
+      - 'packages/ops/scripts/validate-stream.js'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evals-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  emit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        catalog: [ops, forms, intel]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check for provider credentials
+        id: creds
+        env:
+          KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: echo "present=${KEY:+yes}" >> "$GITHUB_OUTPUT"
+
+      - name: Run emission evals
+        if: steps.creds.outputs.present == 'yes'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # Nightly runs the smoke subset; every other trigger runs everything.
+          SCOPE: ${{ github.event_name == 'schedule' && '--smoke' || '' }}
+        run: |
+          npm run eval -w @aurilabs/${{ matrix.catalog }} -- \
+            --models openai:gpt-5.6 \
+            --json eval-results-${{ matrix.catalog }}.json \
+            $SCOPE
+
+      - name: Upload transcripts
+        if: always() && steps.creds.outputs.present == 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results-${{ matrix.catalog }}-${{ github.run_id }}
+          path: packages/${{ matrix.catalog }}/eval-results-${{ matrix.catalog }}.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: No credentials configured
+        if: steps.creds.outputs.present != 'yes'
+        run: |
+          echo "::warning title=Evals skipped::OPENAI_API_KEY is not set on this repository, so the ${{ matrix.catalog }} emission evals did not run. Add it under Settings → Secrets and variables → Actions."

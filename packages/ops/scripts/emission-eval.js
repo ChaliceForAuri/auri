@@ -143,10 +143,17 @@ const { validateStream } = createValidator(
 // scenario suites through this same harness.
 const scenariosPath = flag('scenarios-file') ?? join(here, 'emission-scenarios.json');
 const allScenarios = JSON.parse(readFileSync(scenariosPath, 'utf8'));
+// --smoke runs only the scenarios flagged `"smoke": true` — the widest-coverage
+// pair per catalog. That is what the nightly CI job runs: model drift shows up
+// in the hardest scenarios first, and a nightly full sweep would burn credits
+// to re-prove the easy ones. Contract changes still run everything.
+const smokeOnly = process.argv.includes('--smoke');
 const wantedScenarios = flag('scenarios')?.split(',');
 const scenarios = wantedScenarios
 	? allScenarios.filter((scenario) => wantedScenarios.includes(scenario.id))
-	: allScenarios;
+	: smokeOnly
+		? allScenarios.filter((scenario) => scenario.smoke === true)
+		: allScenarios;
 
 const modelSpecs = (flag('models')?.split(',') ?? DEFAULT_MODELS).map((spec) => {
 	const [provider, ...rest] = spec.split(':');

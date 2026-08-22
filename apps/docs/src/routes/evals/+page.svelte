@@ -89,6 +89,21 @@
 		ajv validator our CI uses. A pass is zero schema errors across the full emission.
 	</p>
 
+	<h2>When these run</h2>
+	<p>
+		Two schedules, catching two different kinds of drift. <strong>Nightly</strong>, CI runs a smoke
+		subset — the two widest-coverage scenarios per catalog — against a live model. That one exists
+		to catch <em>model</em> drift: a provider ships a new checkpoint, a vocabulary that emitted
+		cleanly last week stops, and we learn it from a red build rather than from a user.
+		<strong>On every contract change</strong>, the full suite runs for each catalog whose contract
+		was touched — that catches <em>our</em> drift, and it is the contract-first invariant enforced by
+		machine instead of by discipline.
+	</p>
+	<p>
+		The matrices above are transcribed from full verified runs on the dates shown, not from the
+		nightly smoke job. When a nightly run fails, the fix is a contract fix — never a prompt patch.
+	</p>
+
 	<h2>Two protocols</h2>
 	<ul>
 		<li>
