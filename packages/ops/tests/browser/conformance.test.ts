@@ -3,6 +3,7 @@ import { render } from 'vitest-browser-svelte';
 import { A2uiClient, Surface, createCatalogRegistry, basicCatalog } from 'svelte-a2ui';
 import type { AgentToRenderer, RendererAction } from 'svelte-a2ui';
 import { subsetMismatch, loadSuite, surfaceIdOf, explainFailure } from '@aurilabs/core/conformance';
+import type { LocatorSpec } from '@aurilabs/core/conformance';
 import { opsCatalog } from '../../src/lib/index.js';
 import suite from '../../contract/conformance/ops.conformance.json';
 
@@ -17,11 +18,15 @@ import suite from '../../contract/conformance/ops.conformance.json';
 const catalog = createCatalogRegistry([opsCatalog, basicCatalog]);
 const cases = loadSuite(suite);
 
+type Screen = Awaited<ReturnType<typeof render>>;
+type RoleQuery = {
+	getByRole(role: string, options?: unknown): { click(): Promise<void>; element(): Element };
+};
+
 /** Address by role + accessible name — the scheme every platform shares. */
-function locate(screen: ReturnType<typeof render>, spec: { role: string; name?: string }) {
+function locate(screen: Screen, spec: LocatorSpec) {
 	const options = spec.name ? { name: new RegExp(spec.name, 'i') } : undefined;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	return (screen as any).getByRole(spec.role, options);
+	return (screen as unknown as RoleQuery).getByRole(spec.role, options);
 }
 
 test.each(cases.map((c) => [c.id, c] as const))('conformance: %s', async (_id, testCase) => {
@@ -31,7 +36,7 @@ test.each(cases.map((c) => [c.id, c] as const))('conformance: %s', async (_id, t
 	expect(surfaceId, `${testCase.id}: stream creates no surface`).toBeTruthy();
 
 	const screen = await render(Surface, { props: { client, catalog, surfaceId: surfaceId! } });
-	for (const message of testCase.messages) client.ingest(message as AgentToRenderer);
+	for (const message of testCase.messages) client.ingest(message as unknown as AgentToRenderer);
 	await new Promise((r) => setTimeout(r, 120));
 
 	for (const step of testCase.steps ?? []) {
@@ -56,7 +61,7 @@ test.each(cases.map((c) => [c.id, c] as const))('conformance: %s', async (_id, t
 					path: step.setData.path,
 					value: step.setData.value
 				}
-			} as AgentToRenderer);
+			} as unknown as AgentToRenderer);
 		}
 		await new Promise((r) => setTimeout(r, 80));
 	}
