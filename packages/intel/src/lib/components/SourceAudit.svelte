@@ -114,7 +114,11 @@
 	</header>
 
 	<!-- Never autoplays: a dashboard that starts talking is a bug (issue #22). -->
-	<div class="stage" data-kind={mediaKind === 'audio' ? 'audio' : 'video'}>
+	<div
+		class="stage"
+		class:failed={mediaFailed}
+		data-kind={mediaKind === 'audio' ? 'audio' : 'video'}
+	>
 		{#if mediaFailed}
 			<!-- A stated failure, never a dead black box; the transcript survives. -->
 			<p class="media-failed" role="status">
@@ -221,6 +225,16 @@
 	.stage[data-kind='video'] {
 		aspect-ratio: 16 / 9;
 		background: oklch(0.145 0 0);
+	}
+
+	/* Nothing is going to letterbox, so stop reserving a letterbox: a failed
+	   stage drops the black ground and reads on the card surface. Issue #22
+	   asked for a stated failure and NEVER a dead black box — the axe audit
+	   caught that we had shipped both (muted text on the dark stage). */
+	.stage.failed {
+		aspect-ratio: auto;
+		min-height: 4rem;
+		background: var(--auri-surface-container-high);
 	}
 	.stage[data-kind='audio'] {
 		padding: 0.5rem 1.1rem;
