@@ -22,6 +22,8 @@ jobs:
       - run: npm ci
 
       - run: npm run lint
+      # tokens.css is generated from tokens.json — fail if someone hand-edited it.
+      - run: npm run check:tokens -w @aurilabs/core
 
       - run: npm test
 

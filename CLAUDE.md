@@ -69,6 +69,7 @@ Releases (Hugo's standing authorization, 2026-08-18: Claude runs the whole relea
 
 ## Conventions
 
+- **`packages/core/src/tokens.css` is GENERATED** from `tokens.json` (W3C DTCG format) by `npm run build:tokens`; CI fails if it drifts. Never hand-edit the CSS. Mix recipes stay operations in the source (not flattened colors) so every platform target keeps the two-seed reseeding API — that is the whole reason the neutral format exists.
 - Tabs, single quotes, semicolons, ~100ch — `.prettierrc` / `.editorconfig` encode it; `npx prettier --write .`, never hand-format.
 - Comments explain _why_. Spec requirements and paid-for bugs get comments; mechanics don't.
 - Apache-2.0 everywhere, matching the A2UI ecosystem.

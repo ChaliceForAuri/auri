@@ -30,9 +30,12 @@
 			"types": "./src/compose.d.ts",
 			"default": "./src/compose.js"
 		},
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./tokens.json": "./src/tokens.json"
 	},
 	"scripts": {
+		"build:tokens": "node scripts/build-tokens.js",
+		"check:tokens": "node scripts/build-tokens.js --check",
 		"test": "node --test tests/*.test.js"
 	}
 }
