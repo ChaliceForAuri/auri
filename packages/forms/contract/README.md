@@ -83,3 +83,24 @@ periodically trains you to ignore it, so failures are now CLASSIFIED
 (`malformed-syntax` · `schema-violation` · `vocabulary-escape` · `root-missing`
 · `envelope`) and the summary says whether a red run is a model slip or a
 contract problem. Only the latter is ever fixed in the contract.
+
+### Addendum — the rate was measured, and the diagnosis changed
+
+The "low-rate model slip" reading above was too generous. Measured properly:
+
+| how it was run                    | result                                                         |
+| --------------------------------- | -------------------------------------------------------------- |
+| `--scenarios signup-checks` alone | 3/3 PASS                                                       |
+| as part of the full suite (local) | 2/2 FAIL                                                       |
+| as part of the full suite (CI)    | 2/2 FAIL                                                       |
+| `signup-checks,contact-form`      | **both FAIL** — including contact-form, which had never failed |
+| `contact-form,signup-checks`      | both PASS, minutes later, unchanged contract                   |
+
+Failures cluster by **run**, not by scenario or position, and `finish_reason`
+was `stop` every time, so nothing was truncated. That is provider-side
+variance, not a contract defect — which is why the contract is still unchanged,
+now for a measured reason rather than an assumed one.
+
+The harness changed instead: a failed scenario is re-run once cold, and only a
+failure that reproduces reddens the build (`FLAKY` vs `FAIL`). Scores stay
+first-attempt, so the published claim is untouched.
