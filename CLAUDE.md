@@ -69,6 +69,7 @@ Releases (Hugo's standing authorization, 2026-08-18: Claude runs the whole relea
 
 ## Conventions
 
+- **Catalog conformance is the port contract.** `packages/<catalog>/contract/conformance/*.json` is framework-neutral: a stream, steps addressed by role + accessible name, and expected outcomes. Every renderer claiming a catalog id must pass it; the Svelte suite in `tests/browser/conformance.test.ts` is the reference run. Behaviour that only lives in Svelte source is behaviour a React or Flutter port will get wrong — when you add a component behaviour, add its case.
 - **`packages/core/src/tokens.css` is GENERATED** from `tokens.json` (W3C DTCG format) by `npm run build:tokens`; CI fails if it drifts. Never hand-edit the CSS. Mix recipes stay operations in the source (not flattened colors) so every platform target keeps the two-seed reseeding API — that is the whole reason the neutral format exists.
 - Tabs, single quotes, semicolons, ~100ch — `.prettierrc` / `.editorconfig` encode it; `npx prettier --write .`, never hand-format.
 - Comments explain _why_. Spec requirements and paid-for bugs get comments; mechanics don't.

@@ -1,0 +1,485 @@
+{
+	"$description": "Behavioural conformance for the auri ops catalog. A contract says which props exist; these cases say what a renderer must DO with them. Any renderer claiming this catalog id must pass every case. Elements are addressed by role and accessible name, so a case is only executable if the rendered result is accessible.",
+	"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+	"version": "v1",
+	"cases": [
+		{
+			"id": "datatable-row-activation-merges-row-and-index",
+			"why": "rowAction is registered `raw` precisely so the renderer can merge the activated row and its index into the action context. A port that dispatches the bare wire action silently breaks every drill-down built on this catalog, and does it without erroring.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "t",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "DataTable",
+								"label": "Deploys",
+								"columns": [
+									{
+										"key": "service",
+										"label": "Service"
+									},
+									{
+										"key": "status",
+										"label": "Status"
+									}
+								],
+								"rows": {
+									"path": "/deploys"
+								},
+								"rowAction": {
+									"event": {
+										"name": "view_deploy",
+										"context": {
+											"env": "production"
+										}
+									}
+								}
+							}
+						],
+						"dataModel": {
+							"deploys": [
+								{
+									"service": "payments-api",
+									"status": "Live"
+								},
+								{
+									"service": "checkout-web",
+									"status": "Canary"
+								}
+							]
+						}
+					}
+				}
+			],
+			"steps": [
+				{
+					"activate": {
+						"role": "row",
+						"name": "checkout-web"
+					}
+				}
+			],
+			"expect": {
+				"action": {
+					"name": "view_deploy",
+					"context": {
+						"env": "production",
+						"rowIndex": 1,
+						"row": {
+							"service": "checkout-web",
+							"status": "Canary"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "datatable-footer-aggregates-from-resolved-rows",
+			"why": "The footer total must be computed from the rows the user can see, never carried on the wire. An agent-computed total can silently disagree with the rows beneath it, which is exactly what the raw-values rule exists to prevent.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "t",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "DataTable",
+								"label": "Impact",
+								"columns": [
+									{
+										"key": "company",
+										"label": "Company"
+									},
+									{
+										"key": "arr",
+										"label": "ARR",
+										"align": "end",
+										"format": "number"
+									}
+								],
+								"rows": {
+									"path": "/accounts"
+								},
+								"footer": [
+									{
+										"key": "arr",
+										"aggregate": "sum",
+										"label": "Total ARR at risk"
+									}
+								]
+							}
+						],
+						"dataModel": {
+							"accounts": [
+								{
+									"company": "Acme",
+									"arr": 480000
+								},
+								{
+									"company": "Globex",
+									"arr": 350000
+								}
+							]
+						}
+					}
+				}
+			],
+			"steps": [],
+			"expect": {
+				"text": "830,000"
+			}
+		},
+		{
+			"id": "datatable-footer-retotals-when-rows-change",
+			"why": "Aggregates recompute on every data update \u2014 filter the rows and the total follows. A port that computes once at mount produces a total that is quietly wrong after the first updateDataModel.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "t",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "DataTable",
+								"label": "Impact",
+								"columns": [
+									{
+										"key": "company",
+										"label": "Company"
+									},
+									{
+										"key": "arr",
+										"label": "ARR",
+										"align": "end",
+										"format": "number"
+									}
+								],
+								"rows": {
+									"path": "/accounts"
+								},
+								"footer": [
+									{
+										"key": "arr",
+										"aggregate": "sum",
+										"label": "Total ARR at risk"
+									}
+								]
+							}
+						],
+						"dataModel": {
+							"accounts": [
+								{
+									"company": "Acme",
+									"arr": 480000
+								},
+								{
+									"company": "Globex",
+									"arr": 350000
+								}
+							]
+						}
+					}
+				}
+			],
+			"steps": [
+				{
+					"setData": {
+						"path": "/accounts",
+						"value": [
+							{
+								"company": "Acme",
+								"arr": 480000
+							}
+						]
+					}
+				}
+			],
+			"expect": {
+				"text": "480,000",
+				"absent": "830,000"
+			}
+		},
+		{
+			"id": "datatable-footer-is-skeleton-not-zero-while-loading",
+			"why": "An impact ledger reading '0 at risk' while its rows are still loading is not a neutral placeholder \u2014 it is a confident false statement. Unresolved rows must render a skeleton, never an aggregate of nothing.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "t",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "DataTable",
+								"label": "Impact",
+								"columns": [
+									{
+										"key": "company",
+										"label": "Company"
+									},
+									{
+										"key": "arr",
+										"label": "ARR",
+										"align": "end",
+										"format": "number"
+									}
+								],
+								"rows": {
+									"path": "/notYet"
+								},
+								"footer": [
+									{
+										"key": "arr",
+										"aggregate": "sum",
+										"label": "Total ARR at risk"
+									}
+								]
+							}
+						],
+						"dataModel": {}
+					}
+				}
+			],
+			"steps": [],
+			"expect": {
+				"absent": "0"
+			}
+		},
+		{
+			"id": "chart-keyboard-traversal-and-point-context",
+			"why": "A chart with pointAction is one tab stop with arrow-key traversal, and activation merges seriesLabel, pointIndex, xLabel and value. xLabel is the RAW wire label, not the formatted one, so the agent gets back what it sent.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "t",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "Chart",
+								"kind": "line",
+								"label": "Checkout p95",
+								"unit": "ms",
+								"series": [
+									{
+										"label": "p95",
+										"values": [180, 220, 260]
+									}
+								],
+								"xLabels": ["Mon", "Tue", "Wed"],
+								"pointAction": {
+									"event": {
+										"name": "point_drilled",
+										"context": {
+											"svc": "checkout"
+										}
+									}
+								}
+							}
+						]
+					}
+				}
+			],
+			"steps": [
+				{
+					"focus": {
+						"role": "application"
+					}
+				},
+				{
+					"press": {
+						"key": "ArrowRight"
+					}
+				},
+				{
+					"press": {
+						"key": "Enter"
+					}
+				}
+			],
+			"expect": {
+				"action": {
+					"name": "point_drilled",
+					"context": {
+						"svc": "checkout",
+						"seriesLabel": "p95",
+						"pointIndex": 1,
+						"xLabel": "Tue",
+						"value": 220
+					}
+				}
+			}
+		},
+		{
+			"id": "chart-markers-join-the-text-alternative",
+			"why": "A marker that only exists visually is invisible to assistive tech. The generated text alternative must carry every marker's label, or the anomaly the chart exists to show is unreadable to a screen reader.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "t",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "Chart",
+								"kind": "line",
+								"label": "Error rate",
+								"unit": "%",
+								"series": [
+									{
+										"label": "5xx",
+										"values": [0.4, 4.8, 1.2]
+									}
+								],
+								"xLabels": ["13:00", "14:00", "15:00"],
+								"markers": [
+									{
+										"pointIndex": 1,
+										"intent": "bad",
+										"label": "Deploy 4190 went out"
+									}
+								]
+							}
+						]
+					}
+				}
+			],
+			"steps": [],
+			"expect": {
+				"accessibleName": {
+					"role": "figure",
+					"contains": "Deploy 4190 went out"
+				}
+			}
+		},
+		{
+			"id": "confirmbutton-first-press-arms-and-fires-nothing",
+			"why": "The confirmation is part of the component, not a modal and not a round trip. A port that fires on the first press turns every destructive action into a single misclick.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "t",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "ConfirmButton",
+								"label": "Abort rollout",
+								"confirmLabel": "Really abort?",
+								"intent": "bad",
+								"action": {
+									"event": {
+										"name": "rollout_aborted",
+										"context": {
+											"buildId": 4191
+										}
+									}
+								}
+							}
+						]
+					}
+				}
+			],
+			"steps": [
+				{
+					"activate": {
+						"role": "button",
+						"name": "Abort rollout"
+					}
+				}
+			],
+			"expect": {
+				"noAction": true,
+				"text": "Really abort?"
+			}
+		},
+		{
+			"id": "confirmbutton-second-press-fires-the-action",
+			"why": "The other half of the same contract: armed, the next press must dispatch the declared action with its declared context.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "t",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "ConfirmButton",
+								"label": "Abort rollout",
+								"confirmLabel": "Really abort?",
+								"intent": "bad",
+								"action": {
+									"event": {
+										"name": "rollout_aborted",
+										"context": {
+											"buildId": 4191
+										}
+									}
+								}
+							}
+						]
+					}
+				}
+			],
+			"steps": [
+				{
+					"activate": {
+						"role": "button",
+						"name": "Abort rollout"
+					}
+				},
+				{
+					"activate": {
+						"role": "button",
+						"name": "Really abort?"
+					}
+				}
+			],
+			"expect": {
+				"action": {
+					"name": "rollout_aborted",
+					"context": {
+						"buildId": 4191
+					}
+				}
+			}
+		},
+		{
+			"id": "stat-formats-raw-values-in-the-host-locale",
+			"why": "Numbers cross the wire raw and components format them. A port that prints the raw value shifts formatting back onto the agent, which is where locale bugs and fake precision come from.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "t",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "Stat",
+								"label": "Requests today",
+								"value": 128455
+							}
+						]
+					}
+				}
+			],
+			"steps": [],
+			"expect": {
+				"text": "128,455"
+			}
+		}
+	]
+}
