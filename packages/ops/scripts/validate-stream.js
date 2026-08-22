@@ -14,6 +14,8 @@ import AjvModule from 'ajv/dist/2020.js';
 const Ajv2020 = AjvModule.default ?? AjvModule;
 
 const contractDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'contract');
+const COMMON_TYPES_ID = 'https://a2ui.org/specification/v1_0/common_types.json';
+const SPEC_CATALOG_ID = 'https://a2ui.org/specification/v1_0/catalog.json';
 
 export const catalog = JSON.parse(readFileSync(join(contractDir, 'catalog.json'), 'utf8'));
 export const OPS_CATALOG_ID = catalog.catalogId;
@@ -28,10 +30,47 @@ export const OPS_CATALOG_ID = catalog.catalogId;
  * @param {object} contractJson - a catalog.json-shaped contract document
  */
 export function createValidator(contractJson) {
+	// v1.0 catalogs $ref the spec's own common_types.json for protocol
+	// primitives (DynamicString, Action, DataBinding…), so any validator must
+	// have it registered. Vendored rather than fetched: validation must be
+	// offline and deterministic, and the spec artifact is versioned by URL.
+	const commonTypes = JSON.parse(
+		readFileSync(
+			join(
+				dirname(fileURLToPath(import.meta.url)),
+				'..',
+				'..',
+				'core',
+				'src',
+				'a2ui-common-types.json'
+			),
+			'utf8'
+		)
+	);
 	// strict:false — the catalog carries spec-style non-keyword fields
 	// (catalogId, instructions, components) that ajv's strict mode would reject.
 	const ajv = new Ajv2020({ allErrors: true, strict: false });
+	if (!ajv.getSchema(COMMON_TYPES_ID)) ajv.addSchema(commonTypes, COMMON_TYPES_ID);
 	ajv.addSchema(contractJson);
+	/*
+	 * common_types.json back-references `catalog.json#/$defs/anyFunction`,
+	 * resolved RELATIVE to itself — i.e. the spec assumes the catalog under
+	 * validation sits beside it at .../v1_0/catalog.json. Ours is published at
+	 * its own versioned id, so a forwarding shim points the spec's expectation
+	 * at whichever catalog we are actually validating.
+	 */
+	if (contractJson.$id && !ajv.getSchema(SPEC_CATALOG_ID)) {
+		ajv.addSchema(
+			{
+				$id: SPEC_CATALOG_ID,
+				$defs: {
+					anyComponent: { $ref: `${contractJson.$id}#/$defs/anyComponent` },
+					anyFunction: { $ref: `${contractJson.$id}#/$defs/anyFunction` }
+				}
+			},
+			SPEC_CATALOG_ID
+		);
+	}
 	const catalogId = contractJson.catalogId;
 
 	const validators = Object.fromEntries(
