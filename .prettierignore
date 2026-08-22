@@ -1,0 +1,5 @@
+
+# Vendored upstream artifact — kept byte-identical to
+# https://a2ui.org/specification/v1_0/common_types.json so it can be diffed
+# against the spec. Reformatting it would make drift invisible.
+packages/core/src/a2ui-common-types.json
