@@ -183,10 +183,11 @@ for (const { provider, model, spec } of modelSpecs) {
 		try {
 			const output = await providerDef.call(model, system, scenario.prompt);
 			const { jsonl, proseLines } = extractJsonl(output);
-			const { errors, componentsSeen } = validateStream(jsonl);
+			const { errors, componentsSeen, classes } = validateStream(jsonl);
 			result = {
 				ok: errors.length === 0 && jsonl.length > 0,
 				errors: jsonl.length > 0 ? errors : ['no JSONL found in output'],
+				classes: jsonl.length > 0 ? [...classes] : ['no-output'],
 				components: [...componentsSeen],
 				proseLines,
 				// Kept for the results JSON (scoreboard transcripts, spot-checks); not printed.
@@ -197,13 +198,14 @@ for (const { provider, model, spec } of modelSpecs) {
 			result = {
 				ok: false,
 				errors: [`call failed: ${cause.message}`],
+				classes: ['call-failed'],
 				components: [],
 				proseLines: 0
 			};
 		}
 		const ms = Date.now() - started;
 		results.push({ model: spec, scenario: scenario.id, ms, ...result });
-		const mark = result.ok ? 'PASS' : 'FAIL';
+		const mark = result.ok ? 'PASS' : `FAIL[${(result.classes ?? []).join(',')}]`;
 		const extras = [
 			result.components.length ? result.components.join('+') : null,
 			result.proseLines ? `${result.proseLines} prose line(s)` : null
@@ -217,6 +219,31 @@ for (const { provider, model, spec } of modelSpecs) {
 
 const failed = results.filter((r) => !r.ok).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);
+
+/*
+ * Failure classes are the triage signal. `malformed-syntax` is a model slip on
+ * a deep structure and recurs at a low rate; the others mean our contract or
+ * pack is teaching something a model cannot reliably emit, which is a
+ * contract-first bug and never a prompt patch.
+ */
+if (failed > 0) {
+	const tally = {};
+	for (const r of results.filter((x) => !x.ok)) {
+		for (const c of r.classes ?? []) tally[c] = (tally[c] ?? 0) + 1;
+	}
+	const worrying = Object.keys(tally).filter((c) => c !== 'malformed-syntax');
+	console.log(
+		'failure classes: ' +
+			Object.entries(tally)
+				.map(([c, n]) => `${c}=${n}`)
+				.join(', ')
+	);
+	console.log(
+		worrying.length > 0
+			? '  -> contract/pack problem: fix the contract, never the prompt.'
+			: '  -> model slip only (malformed syntax). Re-run to see whether it is a rate or a regression.'
+	);
+}
 
 const jsonPath = flag('json');
 if (jsonPath) {

@@ -49,6 +49,16 @@ export function createValidator(contractJson) {
 	function validateStream(text) {
 		const errors = [];
 		const componentsSeen = new Set();
+		/*
+		 * Failure CLASS, not just pass/fail. A dropped brace and a wrong prop
+		 * shape are opposite problems: the first is a model slip that recurs at
+		 * some low rate on the deepest structures, the second means our contract
+		 * is teaching something models can't emit. Collapsing both to "fail"
+		 * makes a red nightly ambiguous, and an ambiguous alarm is one you learn
+		 * to ignore. (Taxonomy borrowed from thesysdev/openui's benchmark, which
+		 * classifies the same way.)
+		 */
+		const classes = new Set();
 		// Every component id declared anywhere in the stream. Ids accumulate
 		// across messages because updateComponents merges by id (the batching
 		// rule), so `root` may legitimately arrive in a later batch than the
@@ -65,6 +75,7 @@ export function createValidator(contractJson) {
 				message = JSON.parse(line);
 			} catch (cause) {
 				errors.push(`${at}: not valid JSON (${cause.message})`);
+				classes.add('malformed-syntax');
 				return;
 			}
 
@@ -72,6 +83,7 @@ export function createValidator(contractJson) {
 				errors.push(
 					`${at}: missing or wrong envelope version (got ${JSON.stringify(message.version)})`
 				);
+				classes.add('envelope');
 			}
 
 			const components =
@@ -87,6 +99,7 @@ export function createValidator(contractJson) {
 					errors.push(
 						`${at}: '${spec.component}' (id '${spec.id}') is not a component of this contract and carries no foreign catalogId`
 					);
+					classes.add('vocabulary-escape');
 					continue;
 				}
 				componentsSeen.add(spec.component);
@@ -94,6 +107,7 @@ export function createValidator(contractJson) {
 					errors.push(
 						`${at}: ${spec.component} '${spec.id}': ${ajv.errorsText(validate.errors, { separator: '; ' })}`
 					);
+					classes.add('schema-violation');
 				}
 			}
 		});
@@ -113,9 +127,10 @@ export function createValidator(contractJson) {
 			errors.push(
 				`no component with the id 'root' was declared — the surface renders blank (ids seen: ${[...declaredIds].slice(0, 8).join(', ')})`
 			);
+			classes.add('root-missing');
 		}
 
-		return { errors, componentsSeen };
+		return { errors, componentsSeen, classes };
 	}
 
 	return { validateStream };

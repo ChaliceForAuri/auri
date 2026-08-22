@@ -64,3 +64,22 @@ deploy-approval-form (5.2s), settings-server-validation (13.0s), survey-sections
 signup-checks (8.6s). Combined with Claude Fable 3/3 and Sonnet 3/3, the forms contract is
 emission-gate green cold across two model families with one contract fix (component batching)
 found by a model, not a reviewer.
+
+## Round 3 — 2026-08-22, a stochastic brace drop (no contract change)
+
+The first automated nightly failed `signup-checks` with
+`line 4: not valid JSON` — brace balance +1, a dropped closing brace on the
+SubmitBar line (submitAction with context, `wantResponse` and `responsePath`:
+the deepest structure in this vocabulary, and the same scenario whose 3/3
+failure produced the component-batching rule in round 1).
+
+**Re-ran it three times: 3/3 PASS.** The model had batched correctly (four
+lines, none long) and still slipped one brace. Combined with round 2's 3/3 and
+the final sweep's 6/6, this is a low-rate model slip on the deepest nesting,
+not drift and not a contract defect — so the contract is unchanged, on purpose.
+
+What it did change is the harness. A single-sample nightly that fails this way
+periodically trains you to ignore it, so failures are now CLASSIFIED
+(`malformed-syntax` · `schema-violation` · `vocabulary-escape` · `root-missing`
+· `envelope`) and the summary says whether a red run is a model slip or a
+contract problem. Only the latter is ever fixed in the contract.
