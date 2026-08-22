@@ -49,6 +49,11 @@ export function createValidator(contractJson) {
 	function validateStream(text) {
 		const errors = [];
 		const componentsSeen = new Set();
+		// Every component id declared anywhere in the stream. Ids accumulate
+		// across messages because updateComponents merges by id (the batching
+		// rule), so `root` may legitimately arrive in a later batch than the
+		// components it references.
+		const declaredIds = new Set();
 
 		const lines = text.split('\n');
 		lines.forEach((line, index) => {
@@ -72,6 +77,9 @@ export function createValidator(contractJson) {
 			const components =
 				message.updateComponents?.components ?? message.createSurface?.components ?? [];
 			for (const spec of components) {
+				// Recorded before the foreign-catalog skip: a surface whose root is a
+				// basic-catalog Column still has a root.
+				if (typeof spec?.id === 'string') declaredIds.add(spec.id);
 				const foreign = spec.catalogId !== undefined && spec.catalogId !== catalogId;
 				if (foreign) continue; // basic-catalog (or other) components are out of scope here
 				const validate = validators[spec.component];
@@ -89,6 +97,23 @@ export function createValidator(contractJson) {
 				}
 			}
 		});
+
+		/*
+		 * Nothing paints until a component with the id `root` exists. An emission
+		 * that is schema-perfect but rootless renders a blank surface, and until
+		 * this check existed the harness scored that a PASS.
+		 *
+		 * This is not hypothetical: on the only independent cross-format benchmark
+		 * of A2UI emission (thesysdev/openui, benchmarks/openui-bench), "renderer
+		 * surface has no root" is the second-largest failure class — 35 of ~1,100
+		 * runs, behind only malformed syntax. A gate that cannot see the dominant
+		 * real-world failure is not gating the thing that matters.
+		 */
+		if (declaredIds.size > 0 && !declaredIds.has('root')) {
+			errors.push(
+				`no component with the id 'root' was declared — the surface renders blank (ids seen: ${[...declaredIds].slice(0, 8).join(', ')})`
+			);
+		}
 
 		return { errors, componentsSeen };
 	}
