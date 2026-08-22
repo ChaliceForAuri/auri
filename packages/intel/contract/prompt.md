@@ -33,7 +33,9 @@ Three message kinds. A minimal complete stream:
 1. **Every drillable element names its subject**: `subjectKind`
    (`cluster | account | case | theme | rule`) + `subjectId`. The renderer merges them into drill
    and feedback action contexts automatically — never duplicate them into `context` yourself; put
-   only what the renderer can't know there.
+   only what the renderer can't know there. **`context` lives INSIDE `event`**, never beside it:
+   `{"event": {"name": "…", "context": {…}}}` — an action with `context` as a sibling of `event`
+   is invalid and will be rejected.
 2. **Raw values on the wire.** ISO 8601 windows, raw counts, raw revenue plus an ISO 4217
    `currency` code. `confidence` is a raw `0..1` number — the renderer shows a qualitative band
    (low / medium / high), never the number, so never emit a percentage.
@@ -49,6 +51,18 @@ Three message kinds. A minimal complete stream:
    binding) — feedback that visibly changes nothing teaches users their input is decorative.
 7. **Drill without re-sending.** A DrillStack's `activeIndex` is a binding: push and pop depths
    by writing the index with `updateDataModel`, never by re-sending components.
+
+**Everything an action carries lives INSIDE `event`.** `name`, `context`,
+`wantResponse` and `responsePath` are all keys of `event` — never siblings of it:
+
+```
+CORRECT  {"event":{"name":"saved","context":{...},"wantResponse":true,"responsePath":"/err"}}
+INVALID  {"event":{"name":"saved"},"context":{...},"wantResponse":true,"responsePath":"/err"}
+```
+
+Hoisting any of them out of `event` makes the action invalid and it will be
+rejected. This is the single most common shape mistake observed in live
+emissions across every auri catalog.
 
 ## Components
 
@@ -75,7 +89,7 @@ The feed card carrying a claim, its evidence, its impact, and feedback. `headlin
 | `detailComponentId` | ComponentId                     | extra content, rendered collapsed                                                         |
 
 ```
-{"id":"insight_ra","component":"InsightCard","headline":"Report-accuracy complaints are accelerating","subjectKind":"cluster","subjectId":"cl-report-accuracy","summary":"Export totals not matching on-screen figures. 312 cases since 1 August, three enterprise accounts affected.","signalType":"friction","intent":"warning","trend":"up","caseCount":{"path":"/ra/caseCount"},"windowStart":"2026-08-01T00:00:00Z","windowEnd":"2026-08-20T00:00:00Z","confidence":0.8,"revenueAtRisk":{"path":"/ra/arr"},"currency":"USD","themes":[{"label":"Export totals","count":204},{"label":"Rounding","count":68}],"drillAction":{"event":{"name":"insight_drilled"}},"feedbackAction":{"event":{"name":"insight_feedback"}}}
+{"id":"insight_ra","component":"InsightCard","headline":"Report-accuracy complaints are accelerating","subjectKind":"cluster","subjectId":"cl-report-accuracy","summary":"Export totals not matching on-screen figures. 312 cases since 1 August, three enterprise accounts affected.","signalType":"friction","intent":"warning","trend":"up","caseCount":{"path":"/ra/caseCount"},"windowStart":"2026-08-01T00:00:00Z","windowEnd":"2026-08-20T00:00:00Z","confidence":0.8,"revenueAtRisk":{"path":"/ra/arr"},"currency":"USD","themes":[{"label":"Export totals","count":204},{"label":"Rounding","count":68}],"drillAction":{"event":{"name":"insight_drilled","context":{"view":"impact"}}},"feedbackAction":{"event":{"name":"insight_feedback"}}}
 ```
 
 ### SourceAudit — the recording and its time-synced transcript
@@ -126,7 +140,7 @@ Point shape — `id`, `label`, `x`, `y`, `dx`, `dy` required; `weight` sizes (e.
 ```
 
 ```
-{"id":"velocity","component":"VelocityScatter","label":"Account health velocity","xLabel":"Support volume (30d)","yLabel":"Sentiment","points":{"path":"/accounts"},"pointAction":{"event":{"name":"account_drilled"}}}
+{"id":"velocity","component":"VelocityScatter","label":"Account health velocity","xLabel":"Support volume (30d)","yLabel":"Sentiment","points":{"path":"/accounts"},"pointAction":{"event":{"name":"account_drilled","context":{"board":"velocity"}}}}
 ```
 
 ### ClusterMap — accounts grouped by shared risk reason
@@ -147,7 +161,7 @@ Cluster shape — `id`, `label`, `size` (raw count), `reason` required:
 ```
 
 ```
-{"id":"riskmap","component":"ClusterMap","label":"Accounts at risk, by reason","clusters":{"path":"/clusters"},"clusterAction":{"event":{"name":"cluster_drilled"}}}
+{"id":"riskmap","component":"ClusterMap","label":"Accounts at risk, by reason","clusters":{"path":"/clusters"},"clusterAction":{"event":{"name":"cluster_drilled","context":{"view":"accounts"}}}}
 ```
 
 ### DrillStack — four depths on one page
@@ -190,7 +204,7 @@ drills — components in small batches, depth as data.
 {"version":"v1.0","createSurface":{"surfaceId":"intel","catalogId":"https://chaliceforauri.github.io/auri/catalogs/intel/v1.json"}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"intel","value":{"depth":0,"ra":{"caseCount":312,"arr":1200000}}}}
 {"version":"v1.0","updateComponents":{"surfaceId":"intel","components":[{"id":"root","component":"DrillStack","levels":[{"title":"Insights","componentId":"insight_ra"},{"title":"Affected accounts","componentId":"impact_table"}],"activeIndex":{"path":"/depth"}}]}}
-{"version":"v1.0","updateComponents":{"surfaceId":"intel","components":[{"id":"insight_ra","component":"InsightCard","headline":"Report-accuracy complaints are accelerating","subjectKind":"cluster","subjectId":"cl-report-accuracy","signalType":"friction","intent":"warning","trend":"up","caseCount":{"path":"/ra/caseCount"},"revenueAtRisk":{"path":"/ra/arr"},"currency":"USD","confidence":0.8,"drillAction":{"event":{"name":"insight_drilled"}},"feedbackAction":{"event":{"name":"insight_feedback"}}}]}}
+{"version":"v1.0","updateComponents":{"surfaceId":"intel","components":[{"id":"insight_ra","component":"InsightCard","headline":"Report-accuracy complaints are accelerating","subjectKind":"cluster","subjectId":"cl-report-accuracy","signalType":"friction","intent":"warning","trend":"up","caseCount":{"path":"/ra/caseCount"},"revenueAtRisk":{"path":"/ra/arr"},"currency":"USD","confidence":0.8,"drillAction":{"event":{"name":"insight_drilled","context":{"view":"impact"}}},"feedbackAction":{"event":{"name":"insight_feedback"}}}]}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"intel","path":"/impact","value":{"rows":[{"company":"Acme Corp","arr":480000},{"company":"Globex","arr":350000}]}}}
 {"version":"v1.0","updateComponents":{"surfaceId":"intel","components":[{"id":"impact_table","component":"DataTable","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json","columns":[{"key":"company","label":"Company"},{"key":"arr","label":"ARR","align":"end","format":"number"}],"rows":{"path":"/impact/rows"},"footer":[{"key":"arr","aggregate":"sum","label":"Total ARR at risk"}]}]}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"intel","path":"/depth","value":1}}

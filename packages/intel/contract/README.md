@@ -46,3 +46,28 @@ identity, verified by the browser test. Also kept from the issues: SourceAudit n
 and treats an empty transcript as "still processing"; VelocityScatter's text alternative
 summarises the shape (falling count, largest, fastest) and traverses weight-descending; the
 subject merge (#20) is one shared helper (`subject.ts`) used by every raw action.
+
+## Round 4 — 2026-08-22, the first automated catch
+
+The nightly harness went live and immediately failed `drill-path` on GPT-5.6:
+
+```
+InsightCard 'report_accuracy_insight': data/drillAction must NOT have
+additional properties; must match exactly one schema in oneOf
+```
+
+The model had emitted `{"event": {"name": "insight_drilled"}, "context": {...}}` —
+`context` as a **sibling** of `event` rather than nested inside it.
+
+**The pack was at fault, not the model.** Rule 1 instructs the agent to put
+things in `context` ("put only what the renderer can't know there"), but not one
+of this pack's six action examples ever showed an action _carrying_ a context —
+every one was `{"event":{"name":"…"}}`. The ops pack does show the nesting, and
+ops passed 8/8 in the same run. A pack that names a field it never demonstrates
+is an incomplete artifact, and the model made the reasonable guess.
+
+Fix: four examples now carry a nested `context`, and rule 1 states the shape
+explicitly with the invalid form called out. Verified 3/3 on re-run.
+
+Recorded because it is the first failure caught by automation rather than by a
+person running the harness by hand — which is exactly what pillar 2 exists for.

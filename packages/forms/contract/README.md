@@ -64,3 +64,68 @@ deploy-approval-form (5.2s), settings-server-validation (13.0s), survey-sections
 signup-checks (8.6s). Combined with Claude Fable 3/3 and Sonnet 3/3, the forms contract is
 emission-gate green cold across two model families with one contract fix (component batching)
 found by a model, not a reviewer.
+
+## Round 3 — 2026-08-22, a stochastic brace drop (no contract change)
+
+The first automated nightly failed `signup-checks` with
+`line 4: not valid JSON` — brace balance +1, a dropped closing brace on the
+SubmitBar line (submitAction with context, `wantResponse` and `responsePath`:
+the deepest structure in this vocabulary, and the same scenario whose 3/3
+failure produced the component-batching rule in round 1).
+
+**Re-ran it three times: 3/3 PASS.** The model had batched correctly (four
+lines, none long) and still slipped one brace. Combined with round 2's 3/3 and
+the final sweep's 6/6, this is a low-rate model slip on the deepest nesting,
+not drift and not a contract defect — so the contract is unchanged, on purpose.
+
+What it did change is the harness. A single-sample nightly that fails this way
+periodically trains you to ignore it, so failures are now CLASSIFIED
+(`malformed-syntax` · `schema-violation` · `vocabulary-escape` · `root-missing`
+· `envelope`) and the summary says whether a red run is a model slip or a
+contract problem. Only the latter is ever fixed in the contract.
+
+### Addendum — the rate was measured, and the diagnosis changed
+
+The "low-rate model slip" reading above was too generous. Measured properly:
+
+| how it was run                    | result                                                         |
+| --------------------------------- | -------------------------------------------------------------- |
+| `--scenarios signup-checks` alone | 3/3 PASS                                                       |
+| as part of the full suite (local) | 2/2 FAIL                                                       |
+| as part of the full suite (CI)    | 2/2 FAIL                                                       |
+| `signup-checks,contact-form`      | **both FAIL** — including contact-form, which had never failed |
+| `contact-form,signup-checks`      | both PASS, minutes later, unchanged contract                   |
+
+Failures cluster by **run**, not by scenario or position, and `finish_reason`
+was `stop` every time, so nothing was truncated. That is provider-side
+variance, not a contract defect — which is why the contract is still unchanged,
+now for a measured reason rather than an assumed one.
+
+The harness changed instead: a failed scenario is re-run once cold, and only a
+failure that reproduces reddens the build (`FLAKY` vs `FAIL`). Scores stay
+first-attempt, so the published claim is untouched.
+
+### Resolution — the action-shape rule (2026-08-22)
+
+The brace drops were a **symptom, not the disease**. A later automated run
+failed `settings-server-validation` with a schema violation, and the emission
+showed why:
+
+```json
+{"event":{"name":"…","context":{…}}, "wantResponse":true, "responsePath":"/serverError"}
+```
+
+`wantResponse` and `responsePath` hoisted OUT of `event`. Intel had failed the
+same way hours earlier with `context`. Models consistently pull the
+modifier-ish keys out of the `event` wrapper — auri's own principle 1 (no
+required nesting) violated by a protocol-mandated shape we cannot flatten.
+
+So the packs name the trap, exactly as the envelope-brace and batching rules
+do: every catalog now states that `name`, `context`, `wantResponse` and
+`responsePath` all live INSIDE `event`, with the invalid form shown beside the
+correct one.
+
+**Result: forms went 6/6 on the full suite, signup-checks included** — the
+scenario that had failed 4/4 in suite context. The dropped braces appear to
+have been downstream of nesting uncertainty: a model unsure where a structure
+ends is a model unsure where to close it. Fixing the shape fixed the syntax.

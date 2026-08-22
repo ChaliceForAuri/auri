@@ -54,6 +54,18 @@ Three message kinds. A minimal complete stream:
    After the initial send, always include a `path`: an `updateDataModel` without one **replaces
    the entire data model**, blanking every other binding on the surface.
 
+**Everything an action carries lives INSIDE `event`.** `name`, `context`,
+`wantResponse` and `responsePath` are all keys of `event` — never siblings of it:
+
+```
+CORRECT  {"event":{"name":"saved","context":{...},"wantResponse":true,"responsePath":"/err"}}
+INVALID  {"event":{"name":"saved"},"context":{...},"wantResponse":true,"responsePath":"/err"}
+```
+
+Hoisting any of them out of `event` makes the action invalid and it will be
+rejected. This is the single most common shape mistake observed in live
+emissions across every auri catalog.
+
 ## Components
 
 ### Stat — a KPI tile

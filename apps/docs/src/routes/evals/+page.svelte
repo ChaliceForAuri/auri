@@ -103,6 +103,15 @@
 		The matrices above are transcribed from full verified runs on the dates shown, not from the
 		nightly smoke job. When a nightly run fails, the fix is a contract fix — never a prompt patch.
 	</p>
+	<p>
+		<strong>Scores are first-attempt; alerts are confirmed.</strong> A pass is still a single cold
+		emission with no retries — that is what the matrices report and what the product claim means.
+		But a red build is only worth waking up for if it reproduces, so a failed scenario is re-run
+		once cold, and only a failure that happens twice turns the build red. We measured why on
+		2026-08-22: emission failures cluster by <em>run</em> rather than by scenario — reordering two scenarios
+		made a previously perfect one fail, and the reverse order passed both minutes later against an unchanged
+		contract. That is provider-side variance, and an alarm that fires on it is an alarm you stop reading.
+	</p>
 
 	<h2>Two protocols</h2>
 	<ul>

@@ -61,6 +61,13 @@ async function callOpenai(model, system, user) {
 	});
 	if (!response.ok) throw new Error(`openai ${response.status}: ${await response.text()}`);
 	const body = await response.json();
+	// A truncated response is NOT a model slip — it is our request configuration,
+	// and it presents as malformed JSON at the cut point. Distinguishing the two
+	// matters: one is a contract signal, the other is our bug.
+	const finish = body.choices?.[0]?.finish_reason;
+	if (finish && finish !== 'stop') {
+		throw new Error(`openai stopped early (finish_reason: ${finish}) — output truncated`);
+	}
 	return body.choices[0].message.content ?? '';
 }
 
@@ -183,10 +190,11 @@ for (const { provider, model, spec } of modelSpecs) {
 		try {
 			const output = await providerDef.call(model, system, scenario.prompt);
 			const { jsonl, proseLines } = extractJsonl(output);
-			const { errors, componentsSeen } = validateStream(jsonl);
+			const { errors, componentsSeen, classes } = validateStream(jsonl);
 			result = {
 				ok: errors.length === 0 && jsonl.length > 0,
 				errors: jsonl.length > 0 ? errors : ['no JSONL found in output'],
+				classes: jsonl.length > 0 ? [...classes] : ['no-output'],
 				components: [...componentsSeen],
 				proseLines,
 				// Kept for the results JSON (scoreboard transcripts, spot-checks); not printed.
@@ -197,13 +205,43 @@ for (const { provider, model, spec } of modelSpecs) {
 			result = {
 				ok: false,
 				errors: [`call failed: ${cause.message}`],
+				classes: ['call-failed'],
 				components: [],
 				proseLines: 0
 			};
 		}
 		const ms = Date.now() - started;
-		results.push({ model: spec, scenario: scenario.id, ms, ...result });
-		const mark = result.ok ? 'PASS' : 'FAIL';
+
+		/*
+		 * Confirm a failure with a second cold run before believing it.
+		 *
+		 * Measured 2026-08-22: emission failures cluster by RUN, not by scenario
+		 * or position. Batching signup-checks first made contact-form fail too —
+		 * a scenario that had never failed — while the reverse order passed both,
+		 * minutes apart, against an unchanged contract. That is provider-side
+		 * variance, and a single-sample nightly would go red on it periodically
+		 * until nobody read the alarm.
+		 *
+		 * The published claim is unaffected: `ok` remains the FIRST cold attempt,
+		 * which is what the scoreboard reports. `confirmed` — failed twice — is
+		 * the only thing that reddens a build.
+		 */
+		let transient = false;
+		if (!result.ok && providerDef.key) {
+			try {
+				const retryOutput = await providerDef.call(model, system, scenario.prompt);
+				const { jsonl: retryJsonl } = extractJsonl(retryOutput);
+				transient = validateStream(retryJsonl).errors.length === 0 && retryJsonl.length > 0;
+			} catch {
+				transient = false;
+			}
+		}
+		results.push({ model: spec, scenario: scenario.id, ms, transient, ...result });
+		const mark = result.ok
+			? 'PASS'
+			: transient
+				? `FLAKY[${(result.classes ?? []).join(',')}]`
+				: `FAIL[${(result.classes ?? []).join(',')}]`;
 		const extras = [
 			result.components.length ? result.components.join('+') : null,
 			result.proseLines ? `${result.proseLines} prose line(s)` : null
@@ -216,7 +254,39 @@ for (const { provider, model, spec } of modelSpecs) {
 }
 
 const failed = results.filter((r) => !r.ok).length;
-console.log(`\n${results.length - failed}/${results.length} passed`);
+const confirmed = results.filter((r) => !r.ok && !r.transient).length;
+console.log(
+	`\n${results.length - failed}/${results.length} passed on the first cold attempt` +
+		(failed > confirmed
+			? ` (${failed - confirmed} passed on confirmation — provider variance)`
+			: '')
+);
+
+/*
+ * Failure classes are the triage signal. `malformed-syntax` is a model slip on
+ * a deep structure and recurs at a low rate; the others mean our contract or
+ * pack is teaching something a model cannot reliably emit, which is a
+ * contract-first bug and never a prompt patch.
+ */
+if (failed > 0) {
+	const tally = {};
+	for (const r of results.filter((x) => !x.ok)) {
+		for (const c of r.classes ?? []) tally[c] = (tally[c] ?? 0) + 1;
+	}
+	const worrying = Object.keys(tally).filter((c) => c !== 'malformed-syntax');
+	if (confirmed === 0) console.log('  every failure passed on a second cold run.');
+	console.log(
+		'failure classes: ' +
+			Object.entries(tally)
+				.map(([c, n]) => `${c}=${n}`)
+				.join(', ')
+	);
+	console.log(
+		worrying.length > 0
+			? '  -> contract/pack problem: fix the contract, never the prompt.'
+			: '  -> model slip only (malformed syntax). Re-run to see whether it is a rate or a regression.'
+	);
+}
 
 const jsonPath = flag('json');
 if (jsonPath) {
@@ -224,4 +294,5 @@ if (jsonPath) {
 	console.log(`results written to ${jsonPath}`);
 }
 
-process.exit(failed > 0 || results.length === 0 ? 1 : 0);
+// Only a failure that reproduces on a second cold run reddens the build.
+process.exit(confirmed > 0 || results.length === 0 ? 1 : 0);
