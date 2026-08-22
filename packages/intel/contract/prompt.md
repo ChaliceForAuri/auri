@@ -52,6 +52,18 @@ Three message kinds. A minimal complete stream:
 7. **Drill without re-sending.** A DrillStack's `activeIndex` is a binding: push and pop depths
    by writing the index with `updateDataModel`, never by re-sending components.
 
+**Everything an action carries lives INSIDE `event`.** `name`, `context`,
+`wantResponse` and `responsePath` are all keys of `event` — never siblings of it:
+
+```
+CORRECT  {"event":{"name":"saved","context":{...},"wantResponse":true,"responsePath":"/err"}}
+INVALID  {"event":{"name":"saved"},"context":{...},"wantResponse":true,"responsePath":"/err"}
+```
+
+Hoisting any of them out of `event` makes the action invalid and it will be
+rejected. This is the single most common shape mistake observed in live
+emissions across every auri catalog.
+
 ## Components
 
 ### InsightCard — the surface card of the iceberg

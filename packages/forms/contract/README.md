@@ -104,3 +104,28 @@ now for a measured reason rather than an assumed one.
 The harness changed instead: a failed scenario is re-run once cold, and only a
 failure that reproduces reddens the build (`FLAKY` vs `FAIL`). Scores stay
 first-attempt, so the published claim is untouched.
+
+### Resolution — the action-shape rule (2026-08-22)
+
+The brace drops were a **symptom, not the disease**. A later automated run
+failed `settings-server-validation` with a schema violation, and the emission
+showed why:
+
+```json
+{"event":{"name":"…","context":{…}}, "wantResponse":true, "responsePath":"/serverError"}
+```
+
+`wantResponse` and `responsePath` hoisted OUT of `event`. Intel had failed the
+same way hours earlier with `context`. Models consistently pull the
+modifier-ish keys out of the `event` wrapper — auri's own principle 1 (no
+required nesting) violated by a protocol-mandated shape we cannot flatten.
+
+So the packs name the trap, exactly as the envelope-brace and batching rules
+do: every catalog now states that `name`, `context`, `wantResponse` and
+`responsePath` all live INSIDE `event`, with the invalid form shown beside the
+correct one.
+
+**Result: forms went 6/6 on the full suite, signup-checks included** — the
+scenario that had failed 4/4 in suite context. The dropped braces appear to
+have been downstream of nesting uncertainty: a model unsure where a structure
+ends is a model unsure where to close it. Fixing the shape fixed the syntax.

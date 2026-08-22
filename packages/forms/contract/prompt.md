@@ -52,6 +52,18 @@ Three message kinds. A minimal complete form:
    the next batch. Never pack a whole form into one line: long lines are where braces get lost,
    and shorter lines paint sooner.
 
+**Everything an action carries lives INSIDE `event`.** `name`, `context`,
+`wantResponse` and `responsePath` are all keys of `event` — never siblings of it:
+
+```
+CORRECT  {"event":{"name":"saved","context":{...},"wantResponse":true,"responsePath":"/err"}}
+INVALID  {"event":{"name":"saved"},"context":{...},"wantResponse":true,"responsePath":"/err"}
+```
+
+Hoisting any of them out of `event` makes the action invalid and it will be
+rejected. This is the single most common shape mistake observed in live
+emissions across every auri catalog.
+
 ## Components
 
 ### TextField — one line of text
