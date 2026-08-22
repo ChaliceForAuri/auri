@@ -20,6 +20,21 @@
 		omits them produces invalid wire, caught by the same validator that runs in CI.
 	</p>
 
+	<h2>And the rendered result is audited too</h2>
+	<p>
+		Required names guarantee the agent supplies the information; they cannot guarantee the component
+		spends it correctly. So every catalog's test suite replays each shipped fixture through a real
+		client and runs <a href="https://github.com/dequelabs/axe-core">axe-core</a> against the DOM a
+		screen reader would meet — WCAG 2.1 A and AA, minus the page-level rules (landmarks, a single
+		h1, <code>lang</code>) that belong to the host document rather than to a fragment. It runs in CI
+		on every change.
+	</p>
+	<p>
+		It earned its place immediately: the first run caught a failed media player rendering muted grey
+		text on its own near-black letterbox — a stated error message that was hard to read, in the one
+		state nobody screenshots.
+	</p>
+
 	<h2>Graphics describe themselves</h2>
 	<p>
 		Charts and sparklines generate a text alternative from their own data — "6 readings, latest 214,
