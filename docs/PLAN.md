@@ -15,14 +15,14 @@ A2UI splits agent-driven UI into two layers with very different economics:
 
 Today every team that adopts A2UI gets the 18-component basic catalog — spartan by design, since it must be lowest-common-denominator across React, Angular, Flutter, Lit — and then faces the same problem: _the interesting agent products all need richer vocabulary_. A dashboard. An approval flow. A data table. A diff. Right now, every team designs that vocabulary alone, from scratch, badly.
 
-**A library of ready-made catalogs is the shadcn move applied where it's still greenfield.** shadcn's innovation was never the components — Radix existed, Tailwind existed. It was packaging taste + a distribution model into the gap between primitives and products. The same gap is sitting open one level up the stack, and nobody is in it.
+**A library of ready-made catalogs is the shadcn move applied where it's still greenfield.** shadcn's innovation was never the components — Radix existed, Tailwind existed. It was packaging taste + a distribution model into the gap between primitives and products. The same gap sits one level up the stack. **Update 2026-08-21:** it is no longer empty — vercel-labs/json-render ships a Svelte target with ~16k stars — but its catalog is a shadcn primitive mirror (no Chart, Stat, Sparkline, Timeline or approval flow), and no library found in the survey ships a semantic intent scale at all. The gap is taste and semantics, not existence.
 
 ### 1.2 What a "catalog" actually is (three artifacts, not one)
 
 This is the key design insight, and it's what makes the project defensible rather than "another component library":
 
 1. **The contract** — a spec-style `catalog.json`: component names, properties, types, enums, slots, actions. This is _renderer-agnostic_ — it describes what an agent may say, not how Svelte draws it. A well-designed contract that LLMs emit reliably on the first try is the hardest artifact to make and the most valuable.
-2. **The prompt-pack** — the agent-facing documentation: a system-prompt snippet describing the vocabulary, plus few-shot JSONL examples per component. An agent can't use a catalog it doesn't know about; the prompt-pack is how the vocabulary gets into the model's context. Nobody ships this today, and it's half the product.
+2. **The prompt-pack** — the agent-facing documentation: a system-prompt snippet describing the vocabulary, plus few-shot JSONL examples per component. An agent can't use a catalog it doesn't know about; the prompt-pack is how the vocabulary gets into the model's context. It is half the product — but **schema-derived prompt generation is table stakes** (A2UI's own SDK does it). Ours is differentiated by provenance: every rule was earned from an observed model failure, not generated from the schema.
 3. **The implementation** — Svelte 5 components registered via svelte-a2ui's `Catalog` entry format (`slots` / `bindings` / `actions` / `raw` classification), themed with CSS custom properties, accessible.
 
 A team adopting a catalog gets all three: the agent knows what to say, the wire knows how to validate it, the browser knows how to draw it.
@@ -109,6 +109,32 @@ atoms across catalogs, generate a merged contract + prompt-pack, run the emissio
 composition, mint your own catalog id.
 
 ---
+
+## 2.6 Catalog taxonomy — how this scales past three
+
+Settled 2026-08-23. Catalogs are named for **the job the UI is doing for the user**, never for an
+industry and never for a component type:
+
+| catalog   | the job                                  | examples                                             |
+| --------- | ---------------------------------------- | ---------------------------------------------------- |
+| `ops`     | report, monitor, decide                  | Stat, Chart, DataTable, ApprovalCard                 |
+| `forms`   | collect an answer                        | TextField, SelectField, SubmitBar                    |
+| `insight` | explain a finding and reach its evidence | InsightCard, ClusterMap, MediaTranscript, DrillStack |
+
+Three rules keep that scalable:
+
+1. **Job-shaped, not industry-shaped.** "Revenue intelligence" is a customer segment; "explain a
+   finding and reach its evidence" is a job any product has. Industry catalogs fragment the library
+   into one-customer silos; job catalogs compose.
+2. **Domain vocabulary is data, never schema** (contract principle 9). This is what lets one
+   `insight` catalog serve customer success, security and finance without renaming anything.
+3. **Catalog size is not the consumer's problem — the composer is.** A team pulling four components
+   pays for four, and token cost is the loudest complaint in the A2UI ecosystem (issue #1898: a
+   16-item catalog exceeds 10k prompt tokens _per turn_). So catalogs are curated for **coherence**,
+   not partitioned to keep prompts small; composition handles size.
+
+Growth rule: additive props stay at the same catalog id (as with the Chart/DataTable extensions in
+0.5.0); anything breaking mints a new id, and the old document resolves forever.
 
 ## 3. Technical architecture
 
