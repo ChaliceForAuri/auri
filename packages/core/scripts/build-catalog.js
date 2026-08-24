@@ -25,8 +25,20 @@
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import prettier from 'prettier';
+import { buildCatalogDefs } from '../src/compose.js';
 
 const COMMON = 'https://a2ui.org/specification/v1_0/common_types.json#/$defs';
+
+/** The vendored spec artifact, byte-identical to the copy served at a2ui.org. */
+const SPEC_DEFS = JSON.parse(
+	readFileSync(
+		join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'a2ui-common-types.json'),
+		'utf8'
+	)
+).$defs;
 
 /** auri's local defs that ARE protocol primitives — these become external refs. */
 const PROTOCOL_TYPES = {
@@ -36,11 +48,59 @@ const PROTOCOL_TYPES = {
 	dynamicValue: 'DynamicValue',
 	dynamicStringList: 'DynamicStringList',
 	action: 'Action',
-	checkRule: 'CheckRule',
+	functionRef: 'FunctionCall',
 	pathRef: 'DataBinding',
+	/*
+	 * checkRule is deliberately ABSENT. Ours is the spec's CheckRule NARROWED to the
+	 * five renderer built-ins with `message` required — a legal refinement, but not
+	 * the same type, so it inlines as a catalog-local helper. Adding it here would
+	 * trip the shape guard, which is the point.
+	 */
 	componentId: 'ComponentId',
 	childList: 'ChildList'
 };
+
+/** Local def names that are just our spelling of a spec type, for comparison. */
+const REF_ALIASES = { ...PROTOCOL_TYPES, functionRef: 'FunctionCall' };
+
+/**
+ * Structural fingerprint of a schema, with our local `$ref` spellings rewritten
+ * to the spec's and descriptions dropped — so `{$ref:'#/$defs/pathRef'}` and
+ * `{$ref:'#/$defs/DataBinding'}` compare equal.
+ */
+function fingerprint(node) {
+	if (Array.isArray(node)) return node.map(fingerprint);
+	if (!node || typeof node !== 'object') return node;
+	const out = {};
+	for (const key of Object.keys(node).sort()) {
+		if (key === 'description') continue;
+		const value = node[key];
+		if (key === '$ref' && typeof value === 'string') {
+			const local = value.replace(/^#\/\$defs\//, '');
+			out.$ref = `#/$defs/${REF_ALIASES[local] ?? local}`;
+			continue;
+		}
+		out[key] = fingerprint(value);
+	}
+	return out;
+}
+
+/**
+ * Refuse to rewrite a local def into a spec `$ref` unless the two are the SAME
+ * SHAPE. Mapping by name alone is how this compiler first shipped, and it was
+ * wrong twice over: our `checkRule` is `{call, args, message}` while the spec's
+ * `CheckRule` is `{condition, message}` with `additionalProperties:false`, and
+ * our `action` carries `wantResponse`/`responsePath`, which the spec's `Action`
+ * forbids the same way. Both compiled to a green build and a contract that
+ * silently rejected our own fixtures. A name is not a type.
+ */
+function mappingIsSound(local, specName, def) {
+	const spec = SPEC_DEFS[specName];
+	if (!spec) return `spec has no $defs/${specName}`;
+	const a = JSON.stringify(fingerprint(def));
+	const b = JSON.stringify(fingerprint(spec));
+	return a === b ? null : `local '${local}' is not the same shape as spec '${specName}'`;
+}
 
 /** Legal root keys (rule 7). Anything else is stripped with a warning. */
 const ROOT_KEYS = new Set([
@@ -78,6 +138,16 @@ function resolve(node, seen = new Set()) {
 	if (typeof node.$ref === 'string' && node.$ref.startsWith('#/$defs/')) {
 		const name = node.$ref.slice('#/$defs/'.length);
 		const protocolType = PROTOCOL_TYPES[name];
+		if (protocolType && defs[name]) {
+			const unsound = mappingIsSound(name, protocolType, defs[name]);
+			if (unsound) {
+				throw new Error(
+					`${unsound}. Either align the authored def with the spec type, or drop ` +
+						`'${name}' from PROTOCOL_TYPES so it is inlined as a catalog-local helper. ` +
+						`Refusing to emit a $ref that would reject our own emissions.`
+				);
+			}
+		}
 		if (protocolType) {
 			// A description alongside a $ref is meaningful to the LLM reading the
 			// catalog, so it survives the rewrite.
@@ -145,7 +215,9 @@ const out = {};
 for (const key of Object.keys(source)) {
 	if (key === '$defs' || key === 'components') continue;
 	if (!ROOT_KEYS.has(key)) {
-		warnings.push(`illegal root key stripped (rule 7): ${key}`);
+		// $comment is how the source documents itself; it is source-only by design,
+		// so dropping it is the intended outcome and not worth warning about.
+		if (key !== '$comment') warnings.push(`illegal root key stripped (rule 7): ${key}`);
 		continue;
 	}
 	out[key] = source[key];
@@ -161,19 +233,18 @@ out.components = components;
  * discriminated union over everything the catalog declares, which is exactly
  * the sort of thing that should be generated rather than hand-listed.
  */
-const anyOf = (map, kind) => ({
-	oneOf: Object.keys(map).map((name) => ({ $ref: `#/${kind}/${name}` })),
-	discriminator: { propertyName: kind === 'components' ? 'component' : 'call' }
-});
-out.$defs = { anyComponent: anyOf(components, 'components') };
-if (out.functions && Object.keys(out.functions).length > 0) {
-	out.$defs.anyFunction = anyOf(out.functions, 'functions');
-} else {
-	// A catalog with no functions still must satisfy the back-reference.
-	out.$defs.anyFunction = { not: {} };
-}
+out.$defs = buildCatalogDefs(components, out.functions);
 
-const json = JSON.stringify(out, null, '\t') + '\n';
+/*
+ * Formatted with the repo's own prettier config. Without this the generated file
+ * is valid but differently formatted from everything else, so `npm run lint`
+ * rewrites it and `check:catalog` then reports drift — two green-able commands
+ * that disagree. Generating the formatted form makes them agree by construction.
+ */
+const json = await prettier.format(JSON.stringify(out), {
+	...(await prettier.resolveConfig(outPath)),
+	parser: 'json'
+});
 
 for (const w of warnings) console.warn(`  warn: ${w}`);
 

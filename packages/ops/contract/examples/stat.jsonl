@@ -1,4 +1,4 @@
-{"version":"v1.0","createSurface":{"surfaceId":"checkout_health","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json"}}
+{"version":"v1.0","createSurface":{"surfaceId":"checkout_health","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v2.json"}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"checkout_health","value":{"p95":342,"p95Delta":-38}}}
 {"version":"v1.0","updateComponents":{"surfaceId":"checkout_health","components":[{"id":"root","component":"Stat","label":"Checkout p95 latency","value":{"path":"/p95"},"unit":"ms","delta":{"path":"/p95Delta"},"trend":"down","intent":"good","caption":"vs previous hour"}]}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"checkout_health","path":"/p95","value":329}}

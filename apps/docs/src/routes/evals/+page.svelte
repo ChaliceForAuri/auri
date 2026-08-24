@@ -82,10 +82,10 @@
 		system prompt — no other context, no retries, no examples beyond what the pack itself teaches —
 		and one realistic scenario ("show the on-call engineer an incident view…"). Its entire output is
 		validated line-by-line against the contract (<a
-			href="https://chaliceforauri.github.io/auri/catalogs/ops/v1.json">ops</a
+			href="https://chaliceforauri.github.io/auri/catalogs/ops/v2.json">ops</a
 		>
 		·
-		<a href="https://chaliceforauri.github.io/auri/catalogs/forms/v1.json">forms</a>) with the same
+		<a href="https://chaliceforauri.github.io/auri/catalogs/forms/v2.json">forms</a>) with the same
 		ajv validator our CI uses. A pass is zero schema errors across the full emission.
 	</p>
 

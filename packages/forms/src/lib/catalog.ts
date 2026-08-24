@@ -11,7 +11,7 @@ import DateField from './components/DateField.svelte';
 import FormSection from './components/FormSection.svelte';
 import SubmitBar from './components/SubmitBar.svelte';
 
-export const FORMS_CATALOG_ID = 'https://chaliceforauri.github.io/auri/catalogs/forms/v1.json';
+export const FORMS_CATALOG_ID = 'https://chaliceforauri.github.io/auri/catalogs/forms/v2.json';
 
 const entry = (component: unknown, rest: Omit<CatalogEntry, 'component'> = {}): CatalogEntry =>
 	({ component, ...rest }) as CatalogEntry;

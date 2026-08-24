@@ -23,7 +23,7 @@ import CodeBlock from './components/CodeBlock.svelte';
 import ConfirmButton from './components/ConfirmButton.svelte';
 
 /** Versioned, served for real by the docs site; breaking changes are a new id. */
-export const OPS_CATALOG_ID = 'https://chaliceforauri.github.io/auri/catalogs/ops/v1.json';
+export const OPS_CATALOG_ID = 'https://chaliceforauri.github.io/auri/catalogs/ops/v2.json';
 
 const entry = (component: unknown, rest: Omit<CatalogEntry, 'component'> = {}): CatalogEntry =>
 	({ component, ...rest }) as CatalogEntry;

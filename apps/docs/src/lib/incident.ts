@@ -13,8 +13,8 @@
 import type { AgentToRenderer, RendererToAgent, Transport } from 'svelte-a2ui';
 import { createEmitter } from 'svelte-a2ui';
 
-const OPS = 'https://chaliceforauri.github.io/auri/catalogs/ops/v1.json';
-const FORMS = 'https://chaliceforauri.github.io/auri/catalogs/forms/v1.json';
+const OPS = 'https://chaliceforauri.github.io/auri/catalogs/ops/v2.json';
+const FORMS = 'https://chaliceforauri.github.io/auri/catalogs/forms/v2.json';
 const BASIC = 'https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json';
 export const SURFACE = 'console';
 

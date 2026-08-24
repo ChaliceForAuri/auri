@@ -29,16 +29,17 @@ test('contract subset keeps chosen components and prunes the rest', () => {
 	assert.equal(composed.catalogId, contract.catalogId);
 });
 
-test('defs are pruned transitively: kept when referenced, dropped when not', () => {
-	const composed = composeContract({ contract, components: ['CodeBlock'] });
-	const defs = Object.keys(composed.$defs);
-	// CodeBlock -> componentCommon + dynamicString -> pathRef/functionRef
-	for (const kept of ['componentCommon', 'dynamicString', 'pathRef', 'functionRef']) {
-		assert.ok(defs.includes(kept), `${kept} should survive`);
-	}
-	for (const dropped of ['series', 'column', 'timelineItem', 'kvItem']) {
-		assert.ok(!defs.includes(dropped), `${dropped} should be pruned`);
-	}
+test('composition regenerates the two required $defs over its own subset', () => {
+	const composed = composeContract({ contract, components: ['CodeBlock', 'Stat'] });
+	// Rule 2 leaves exactly two $defs, and rule 1 requires both.
+	assert.deepEqual(Object.keys(composed.$defs).sort(), ['anyComponent', 'anyFunction']);
+	// The union names the subset — never the source's full component list, which
+	// would leave $refs pointing at components the document no longer contains.
+	assert.deepEqual(
+		composed.$defs.anyComponent.oneOf.map((b) => b.$ref),
+		['#/components/CodeBlock', '#/components/Stat']
+	);
+	assert.equal(composed.$defs.anyComponent.discriminator.propertyName, 'component');
 });
 
 test('minted id names the document; catalogId stays the source', () => {
@@ -91,7 +92,8 @@ test('the full composition round-trips all 12 components', () => {
 	const all = Object.keys(contract.components);
 	const { contract: c, prompt: p } = composeCatalog({ contract, prompt, components: all });
 	assert.equal(Object.keys(c.components).length, 12);
-	assert.equal(Object.keys(c.$defs).length, Object.keys(contract.$defs).length);
+	assert.deepEqual(Object.keys(c.$defs).sort(), ['anyComponent', 'anyFunction']);
+	assert.equal(c.$defs.anyComponent.oneOf.length, 12);
 	for (const name of all) assert.match(p, new RegExp(`### ${name} — `));
 });
 

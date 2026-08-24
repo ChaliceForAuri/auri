@@ -1,3 +1,3 @@
-{"version":"v1.0","createSurface":{"surfaceId":"f","catalogId":"https://chaliceforauri.github.io/auri/catalogs/forms/v1.json"}}
-{"version":"v1.0","updateDataModel":{"surfaceId":"f","value":{"details":""}}}
-{"version":"v1.0","updateComponents":{"surfaceId":"f","components":[{"id":"root","component":"Column","catalogId":"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json","children":["details"]},{"id":"details","component":"TextArea","label":"What happened?","value":{"path":"/details"},"rows":5,"maxLength":2000,"checks":[{"call":"length","args":{"min":30},"message":"A sentence or two more helps us reproduce it."}]}]}}
+{"version": "v1.0", "createSurface": {"surfaceId": "f", "catalogId": "https://chaliceforauri.github.io/auri/catalogs/forms/v2.json"}}
+{"version": "v1.0", "updateDataModel": {"surfaceId": "f", "value": {"details": ""}}}
+{"version": "v1.0", "updateComponents": {"surfaceId": "f", "components": [{"id": "root", "component": "Column", "catalogId": "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json", "children": ["details"]}, {"id": "details", "component": "TextArea", "label": "What happened?", "value": {"path": "/details"}, "rows": 5, "maxLength": 2000, "checks": [{"condition": {"call": "length", "args": {"min": 30}}, "message": "A sentence or two more helps us reproduce it."}]}]}}

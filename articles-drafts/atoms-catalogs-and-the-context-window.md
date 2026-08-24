@@ -129,7 +129,7 @@ One more thing the catalog wrapper buys that a parts bin can't: **stability you 
 Every auri catalog lives at a versioned URL that really resolves — the id _is_ the document:
 
 ```
-https://chaliceforauri.github.io/auri/catalogs/ops/v1.json
+https://chaliceforauri.github.io/auri/catalogs/ops/v2.json
 ```
 
 Breaking changes are a new id, never a mutation. Agents and platforms can cache a vocabulary,

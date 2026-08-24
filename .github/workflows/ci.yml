@@ -24,6 +24,10 @@ jobs:
       - run: npm run lint
       # tokens.css is generated from tokens.json — fail if someone hand-edited it.
       - run: npm run check:tokens -w @aurilabs/core
+      # Same for every catalog.json: authored in catalog.source.json, compiled to the
+      # v1.0-conformant artifact. The compiler also refuses to $ref a spec type our
+      # local def does not structurally match, so this step is the conformance gate.
+      - run: npm run check:catalog --workspaces --if-present
 
       - run: npm test
 

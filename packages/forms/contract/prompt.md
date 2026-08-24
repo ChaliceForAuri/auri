@@ -9,16 +9,16 @@ You can render live forms for the user by emitting A2UI v1.0 messages as JSONL �
 object per line, no surrounding markdown or prose. You describe components from a fixed catalog;
 you never write markup or code.
 
-Catalog id: `https://chaliceforauri.github.io/auri/catalogs/forms/v1.json`
+Catalog id: `https://chaliceforauri.github.io/auri/catalogs/forms/v2.json`
 
 ## The wire in 30 seconds
 
 Three message kinds. A minimal complete form:
 
 ```
-{"version":"v1.0","createSurface":{"surfaceId":"f1","catalogId":"https://chaliceforauri.github.io/auri/catalogs/forms/v1.json"}}
+{"version":"v1.0","createSurface":{"surfaceId":"f1","catalogId":"https://chaliceforauri.github.io/auri/catalogs/forms/v2.json"}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"f1","value":{"email":""}}}
-{"version":"v1.0","updateComponents":{"surfaceId":"f1","components":[{"id":"root","component":"Column","catalogId":"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json","children":["email","submit"]},{"id":"email","component":"TextField","label":"Work email","kind":"email","value":{"path":"/email"},"checks":[{"call":"required","message":"Enter your email."},{"call":"email","message":"That doesn't look like an email address."}]},{"id":"submit","component":"SubmitBar","submitLabel":"Subscribe","submitAction":{"event":{"name":"subscribe","context":{"email":{"path":"/email"}}}}}]}}
+{"version":"v1.0","updateComponents":{"surfaceId":"f1","components":[{"id":"root","component":"Column","catalogId":"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json","children":["email","submit"]},{"id":"email","component":"TextField","label":"Work email","kind":"email","value":{"path":"/email"},"checks":[{"condition":{"call":"required"},"message":"Enter your email."},{"condition":{"call":"email"},"message":"That doesn't look like an email address."}]},{"id":"submit","component":"SubmitBar","submitLabel":"Subscribe","submitAction":{"event":{"name":"subscribe","context":{"email":{"path":"/email"}}}}}]}}
 ```
 
 - Every line has the shape `{"version":"v1.0","<messageKind>":{...}}` — it ends with **two**
@@ -38,7 +38,8 @@ Three message kinds. A minimal complete form:
    hand-pick the answers you need into the submit action's `context` as `{"path": ...}` bindings —
    the decision payload, not the world.
 3. **Validation is the `checks` array**, evaluated live by the renderer:
-   `{"call": "...", "args": {...}, "message": "human text"}`. Only five calls exist —
+   `{"condition": {"call": "...", "args": {...}}, "message": "human text"}`. The call and
+   its args go INSIDE `condition`; `message` sits beside it. Only five calls exist —
    `required` · `email` · `regex` (args `{"pattern"}`) · `length` (args `{"min"}`/`{"max"}`) ·
    `numeric` (args `{"min"}`/`{"max"}`). The renderer supplies the field's current value; you
    never pass it. `message` is what the user reads when it fails — always plain human text.
@@ -52,17 +53,21 @@ Three message kinds. A minimal complete form:
    the next batch. Never pack a whole form into one line: long lines are where braces get lost,
    and shorter lines paint sooner.
 
-**Everything an action carries lives INSIDE `event`.** `name`, `context`,
-`wantResponse` and `responsePath` are all keys of `event` — never siblings of it:
+**Everything an action carries lives INSIDE `event`.** `name`, `context` and
+`userMessage` are all keys of `event` — never siblings of it:
 
 ```
-CORRECT  {"event":{"name":"saved","context":{...},"wantResponse":true,"responsePath":"/err"}}
-INVALID  {"event":{"name":"saved"},"context":{...},"wantResponse":true,"responsePath":"/err"}
+CORRECT  {"event":{"name":"saved","context":{"id":"a1"},"userMessage":"Saved the draft"}}
+INVALID  {"event":{"name":"saved"},"context":{"id":"a1"}}
 ```
 
 Hoisting any of them out of `event` makes the action invalid and it will be
 rejected. This is the single most common shape mistake observed in live
 emissions across every auri catalog.
+
+`event` accepts **only** those three keys. To send a result back to the surface
+after handling an action, reply with `updateDataModel` on the path you want
+written — you authored the surface, so you already know the path.
 
 ## Components
 
@@ -78,7 +83,7 @@ emissions across every auri catalog.
 | `checks`      | check[]                                           | no       | see rule 3                                          |
 
 ```
-{"id":"email","component":"TextField","label":"Work email","kind":"email","value":{"path":"/contact/email"},"hint":"We only use this for receipts.","checks":[{"call":"required","message":"Enter your email."},{"call":"email","message":"That doesn't look like an email address."}]}
+{"id":"email","component":"TextField","label":"Work email","kind":"email","value":{"path":"/contact/email"},"hint":"We only use this for receipts.","checks":[{"condition":{"call":"required"},"message":"Enter your email."},{"condition":{"call":"email"},"message":"That doesn't look like an email address."}]}
 ```
 
 ### TextArea — multi-line text
@@ -94,7 +99,7 @@ emissions across every auri catalog.
 | `checks`      | check[]    | no       | `length` with `{"min"}` pairs well here |
 
 ```
-{"id":"details","component":"TextArea","label":"What happened?","value":{"path":"/report/details"},"rows":5,"maxLength":2000,"checks":[{"call":"length","args":{"min":30},"message":"A sentence or two more helps us reproduce it."}]}
+{"id":"details","component":"TextArea","label":"What happened?","value":{"path":"/report/details"},"rows":5,"maxLength":2000,"checks":[{"condition":{"call":"length","args":{"min":30}},"message":"A sentence or two more helps us reproduce it."}]}
 ```
 
 ### NumberField — a number with bounds and a unit
@@ -111,7 +116,7 @@ emissions across every auri catalog.
 | `checks` | check[]    | no       | `numeric` with `{"min"}`/`{"max"}` mirrors bounds |
 
 ```
-{"id":"replicas","component":"NumberField","label":"Replica count","value":{"path":"/svc/replicas"},"min":1,"max":20,"hint":"Production runs at least 2.","checks":[{"call":"numeric","args":{"min":1,"max":20},"message":"Choose between 1 and 20 replicas."}]}
+{"id":"replicas","component":"NumberField","label":"Replica count","value":{"path":"/svc/replicas"},"min":1,"max":20,"hint":"Production runs at least 2.","checks":[{"condition":{"call":"numeric","args":{"min":1,"max":20}},"message":"Choose between 1 and 20 replicas."}]}
 ```
 
 ### SelectField — one of many, compact
@@ -126,7 +131,7 @@ emissions across every auri catalog.
 | `checks`      | check[]    | no       | `required` makes the choice mandatory                       |
 
 ```
-{"id":"region","component":"SelectField","label":"Region","value":{"path":"/svc/region"},"placeholder":"Choose a region…","options":[{"value":"eu-west-1","label":"Europe (Ireland)"},{"value":"us-east-1","label":"US East (Virginia)"}],"checks":[{"call":"required","message":"Pick a region."}]}
+{"id":"region","component":"SelectField","label":"Region","value":{"path":"/svc/region"},"placeholder":"Choose a region…","options":[{"value":"eu-west-1","label":"Europe (Ireland)"},{"value":"us-east-1","label":"US East (Virginia)"}],"checks":[{"condition":{"call":"required"},"message":"Pick a region."}]}
 ```
 
 ### RadioGroup — one of a few, all visible
@@ -134,7 +139,7 @@ emissions across every auri catalog.
 Same shape as SelectField minus `placeholder`. Use for 2–6 options; SelectField beyond that.
 
 ```
-{"id":"severity","component":"RadioGroup","label":"Severity","value":{"path":"/report/severity"},"options":[{"value":"sev1","label":"Sev 1 — total outage"},{"value":"sev2","label":"Sev 2 — degraded"},{"value":"sev3","label":"Sev 3 — cosmetic"}],"checks":[{"call":"required","message":"Choose a severity."}]}
+{"id":"severity","component":"RadioGroup","label":"Severity","value":{"path":"/report/severity"},"options":[{"value":"sev1","label":"Sev 1 — total outage"},{"value":"sev2","label":"Sev 2 — degraded"},{"value":"sev3","label":"Sev 3 — cosmetic"}],"checks":[{"condition":{"call":"required"},"message":"Choose a severity."}]}
 ```
 
 ### CheckboxGroup — many of a few
@@ -177,7 +182,7 @@ The bound value is an **array of strings**. Seed it (usually `[]`) with `updateD
 | `checks` | check[]    | no       |                                    |
 
 ```
-{"id":"start","component":"DateField","label":"Start date","value":{"path":"/leave/start"},"min":"2026-08-20","checks":[{"call":"required","message":"Pick a start date."}]}
+{"id":"start","component":"DateField","label":"Start date","value":{"path":"/leave/start"},"min":"2026-08-20","checks":[{"condition":{"call":"required"},"message":"Pick a start date."}]}
 ```
 
 ### FormSection — a titled group of fields
@@ -197,8 +202,8 @@ The only component with children. Sections structure long forms; short forms don
 ### SubmitBar — submit (and cancel) with pending state
 
 Submission fires only when every check on the surface passes. Hand-pick the answers you need into
-`context`; set `wantResponse` + `responsePath` when you'll reply with a server-side verdict —
-your `actionResponse.value` is written to that path.
+`context`. To report a server-side verdict afterwards, reply with `updateDataModel` on the path you
+want written — bind a `Callout` or the field's own error to that path when you build the form.
 
 | prop           | type       | required | notes                                                          |
 | -------------- | ---------- | -------- | -------------------------------------------------------------- |
@@ -209,7 +214,7 @@ your `actionResponse.value` is written to that path.
 | `pending`      | `{"path"}` | no       | bind and set true while you process; the bar disables          |
 
 ```
-{"id":"submit","component":"SubmitBar","submitLabel":"File report","pending":{"path":"/report/pending"},"submitAction":{"event":{"name":"report_filed","context":{"severity":{"path":"/report/severity"},"details":{"path":"/report/details"}},"wantResponse":true,"responsePath":"/report/serverError"}}}
+{"id":"submit","component":"SubmitBar","submitLabel":"File report","pending":{"path":"/report/pending"},"submitAction":{"event":{"name":"report_filed","context":{"severity":{"path":"/report/severity"},"details":{"path":"/report/details"}}}}}
 ```
 
 ## Mixing with the basic catalog
@@ -231,9 +236,9 @@ An incident report: seeded defaults, live validation, components in two short ba
 a submit that carries exactly the answers needed, and a pending flag the agent flips while filing.
 
 ```
-{"version":"v1.0","createSurface":{"surfaceId":"report","catalogId":"https://chaliceforauri.github.io/auri/catalogs/forms/v1.json"}}
+{"version":"v1.0","createSurface":{"surfaceId":"report","catalogId":"https://chaliceforauri.github.io/auri/catalogs/forms/v2.json"}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"report","value":{"severity":"sev2","details":"","pending":false}}}
-{"version":"v1.0","updateComponents":{"surfaceId":"report","components":[{"id":"root","component":"Column","catalogId":"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json","children":["severity","details","submit"]},{"id":"severity","component":"RadioGroup","label":"Severity","value":{"path":"/severity"},"options":[{"value":"sev1","label":"Sev 1 — total outage"},{"value":"sev2","label":"Sev 2 — degraded"},{"value":"sev3","label":"Sev 3 — cosmetic"}],"checks":[{"call":"required","message":"Choose a severity."}]}]}}
-{"version":"v1.0","updateComponents":{"surfaceId":"report","components":[{"id":"details","component":"TextArea","label":"What happened?","value":{"path":"/details"},"rows":5,"checks":[{"call":"length","args":{"min":30},"message":"A sentence or two more helps us reproduce it."}]},{"id":"submit","component":"SubmitBar","submitLabel":"File report","pending":{"path":"/pending"},"submitAction":{"event":{"name":"report_filed","context":{"severity":{"path":"/severity"},"details":{"path":"/details"}}}}}]}}
+{"version":"v1.0","updateComponents":{"surfaceId":"report","components":[{"id":"root","component":"Column","catalogId":"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json","children":["severity","details","submit"]},{"id":"severity","component":"RadioGroup","label":"Severity","value":{"path":"/severity"},"options":[{"value":"sev1","label":"Sev 1 — total outage"},{"value":"sev2","label":"Sev 2 — degraded"},{"value":"sev3","label":"Sev 3 — cosmetic"}],"checks":[{"condition":{"call":"required"},"message":"Choose a severity."}]}]}}
+{"version":"v1.0","updateComponents":{"surfaceId":"report","components":[{"id":"details","component":"TextArea","label":"What happened?","value":{"path":"/details"},"rows":5,"checks":[{"condition":{"call":"length","args":{"min":30}},"message":"A sentence or two more helps us reproduce it."}]},{"id":"submit","component":"SubmitBar","submitLabel":"File report","pending":{"path":"/pending"},"submitAction":{"event":{"name":"report_filed","context":{"severity":{"path":"/severity"},"details":{"path":"/details"}}}}}]}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"report","path":"/pending","value":true}}
 ```

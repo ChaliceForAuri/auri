@@ -9,14 +9,14 @@ You can render live UI for the user by emitting A2UI v1.0 messages as JSONL — 
 object per line, no surrounding markdown or prose. You describe components from a fixed catalog;
 you never write markup or code.
 
-Catalog id: `https://chaliceforauri.github.io/auri/catalogs/ops/v1.json`
+Catalog id: `https://chaliceforauri.github.io/auri/catalogs/ops/v2.json`
 
 ## The wire in 30 seconds
 
 Three message kinds. A minimal complete stream:
 
 ```
-{"version":"v1.0","createSurface":{"surfaceId":"s1","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json"}}
+{"version":"v1.0","createSurface":{"surfaceId":"s1","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v2.json"}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"s1","value":{"p95":342}}}
 {"version":"v1.0","updateComponents":{"surfaceId":"s1","components":[{"id":"root","component":"Stat","label":"Checkout p95","value":{"path":"/p95"},"unit":"ms"}]}}
 ```
@@ -54,17 +54,21 @@ Three message kinds. A minimal complete stream:
    After the initial send, always include a `path`: an `updateDataModel` without one **replaces
    the entire data model**, blanking every other binding on the surface.
 
-**Everything an action carries lives INSIDE `event`.** `name`, `context`,
-`wantResponse` and `responsePath` are all keys of `event` — never siblings of it:
+**Everything an action carries lives INSIDE `event`.** `name`, `context` and
+`userMessage` are all keys of `event` — never siblings of it:
 
 ```
-CORRECT  {"event":{"name":"saved","context":{...},"wantResponse":true,"responsePath":"/err"}}
-INVALID  {"event":{"name":"saved"},"context":{...},"wantResponse":true,"responsePath":"/err"}
+CORRECT  {"event":{"name":"saved","context":{"id":"a1"},"userMessage":"Saved the draft"}}
+INVALID  {"event":{"name":"saved"},"context":{"id":"a1"}}
 ```
 
 Hoisting any of them out of `event` makes the action invalid and it will be
 rejected. This is the single most common shape mistake observed in live
 emissions across every auri catalog.
+
+`event` accepts **only** those three keys. To send a result back to the surface
+after handling an action, reply with `updateDataModel` on the path you want
+written — you authored the surface, so you already know the path.
 
 ## Components
 
@@ -311,7 +315,7 @@ An incident brief: status badge, the offending metric, and a mitigation note —
 recovering via a data update.
 
 ```
-{"version":"v1.0","createSurface":{"surfaceId":"incident","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json"}}
+{"version":"v1.0","createSurface":{"surfaceId":"incident","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v2.json"}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"incident","value":{"status":"Degraded","errorRate":4.2,"errorDelta":3.1}}}
 {"version":"v1.0","updateComponents":{"surfaceId":"incident","components":[{"id":"root","component":"Column","catalogId":"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json","children":["status_badge","error_stat","note"]},{"id":"status_badge","component":"Badge","text":{"path":"/status"},"intent":"warning"},{"id":"error_stat","component":"Stat","label":"Error rate","value":{"path":"/errorRate"},"unit":"%","delta":{"path":"/errorDelta"},"trend":"up","intent":"bad","caption":"last 15 min"},{"id":"note","component":"Callout","title":"Mitigation in progress","text":"Rolled back to build **4189**. Watching error rate before closing the incident.","intent":"warning"}]}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"incident","path":"/errorRate","value":1.1}}

@@ -1,6 +1,6 @@
 {
 	"$description": "Behavioural conformance for the auri ops catalog. A contract says which props exist; these cases say what a renderer must DO with them. Any renderer claiming this catalog id must pass every case. Elements are addressed by role and accessible name, so a case is only executable if the rendered result is accessible.",
-	"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+	"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 	"version": "v1",
 	"cases": [
 		{
@@ -11,7 +11,7 @@
 					"version": "v1.0",
 					"createSurface": {
 						"surfaceId": "t",
-						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 						"components": [
 							{
 								"id": "root",
@@ -85,7 +85,7 @@
 					"version": "v1.0",
 					"createSurface": {
 						"surfaceId": "t",
-						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 						"components": [
 							{
 								"id": "root",
@@ -143,7 +143,7 @@
 					"version": "v1.0",
 					"createSurface": {
 						"surfaceId": "t",
-						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 						"components": [
 							{
 								"id": "root",
@@ -214,7 +214,7 @@
 					"version": "v1.0",
 					"createSurface": {
 						"surfaceId": "t",
-						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 						"components": [
 							{
 								"id": "root",
@@ -261,7 +261,7 @@
 					"version": "v1.0",
 					"createSurface": {
 						"surfaceId": "t",
-						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 						"components": [
 							{
 								"id": "root",
@@ -327,7 +327,7 @@
 					"version": "v1.0",
 					"createSurface": {
 						"surfaceId": "t",
-						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 						"components": [
 							{
 								"id": "root",
@@ -370,7 +370,7 @@
 					"version": "v1.0",
 					"createSurface": {
 						"surfaceId": "t",
-						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 						"components": [
 							{
 								"id": "root",
@@ -412,7 +412,7 @@
 					"version": "v1.0",
 					"createSurface": {
 						"surfaceId": "t",
-						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 						"components": [
 							{
 								"id": "root",
@@ -464,7 +464,7 @@
 					"version": "v1.0",
 					"createSurface": {
 						"surfaceId": "t",
-						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 						"components": [
 							{
 								"id": "root",

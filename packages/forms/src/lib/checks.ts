@@ -23,10 +23,22 @@ export function validateField(
 	ctx: EvalContext
 ): ValidationResult {
 	if (!checks || checks.length === 0) return { valid: true, errors: [] };
-	const rules = checks.map((rule) =>
-		'call' in rule ? { ...rule, args: { ...rule.args, value } } : rule
-	);
-	return evaluateChecks(rules, ctx);
+	/*
+	 * Two shapes reach here. The contract emits the spec's `{condition:{call,args}}`;
+	 * catalogs published before v1.0 conformance emit the flat `{call,args}`, which
+	 * svelte-a2ui still accepts. Injecting into only one of them is a silent failure
+	 * — an uninjected rule evaluates against no value and reports VALID — so handle
+	 * both explicitly rather than letting one fall through untouched.
+	 */
+	const rules = checks.map((rule) => {
+		if ('condition' in rule && rule.condition && 'call' in rule.condition) {
+			const condition = rule.condition as { call: string; args?: Record<string, unknown> };
+			return { ...rule, condition: { ...condition, args: { ...condition.args, value } } };
+		}
+		if ('call' in rule) return { ...rule, args: { ...rule.args, value } };
+		return rule;
+	});
+	return evaluateChecks(rules as CheckRule[], ctx);
 }
 
 /** The evaluation context for a field on the current surface. Called inside a
