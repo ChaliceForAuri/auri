@@ -210,6 +210,8 @@ for (const { provider, model, spec } of modelSpecs) {
 				proseLines: 0
 			};
 		}
+		// A call that never reached a model says nothing about the contract.
+		if (result.classes?.includes('call-failed')) result.providerFailure = true;
 		const ms = Date.now() - started;
 
 		/*
@@ -263,6 +265,23 @@ console.log(
 );
 
 /*
+ * A provider that never answered — no credits, an outage, a revoked key — is not
+ * an emission failure, and reporting it as one is how a gate becomes an alarm
+ * people learn to ignore. When EVERY scenario died before reaching a model, the
+ * gate did not run: say so, and exit 78 (neutral) so the workflow can surface it
+ * as "could not run" rather than "the contract broke".
+ */
+const providerFailures = results.filter((r) => r.providerFailure).length;
+if (results.length > 0 && providerFailures === results.length) {
+	console.log(
+		'\nGATE DID NOT RUN: every call failed before reaching a model ' +
+			`(${results[0].errors[0]?.slice(0, 120) ?? 'no detail'}).\n` +
+			'This says nothing about the contract. Fix the provider account, then re-run.'
+	);
+	process.exit(78);
+}
+
+/*
  * Failure classes are the triage signal. `malformed-syntax` is a model slip on
  * a deep structure and recurs at a low rate; the others mean our contract or
  * pack is teaching something a model cannot reliably emit, which is a
@@ -273,7 +292,11 @@ if (failed > 0) {
 	for (const r of results.filter((x) => !x.ok)) {
 		for (const c of r.classes ?? []) tally[c] = (tally[c] ?? 0) + 1;
 	}
-	const worrying = Object.keys(tally).filter((c) => c !== 'malformed-syntax');
+	// malformed-syntax is a model slip; call-failed never reached a model at all.
+	// Neither implicates the contract, so neither may trigger the contract verdict.
+	const worrying = Object.keys(tally).filter(
+		(c) => c !== 'malformed-syntax' && c !== 'call-failed'
+	);
 	if (confirmed === 0) console.log('  every failure passed on a second cold run.');
 	console.log(
 		'failure classes: ' +
@@ -284,7 +307,9 @@ if (failed > 0) {
 	console.log(
 		worrying.length > 0
 			? '  -> contract/pack problem: fix the contract, never the prompt.'
-			: '  -> model slip only (malformed syntax). Re-run to see whether it is a rate or a regression.'
+			: tally['call-failed']
+				? '  -> provider-side only; the contract was not exercised by those runs.'
+				: '  -> model slip only (malformed syntax). Re-run to see whether it is a rate or a regression.'
 	);
 }
 
