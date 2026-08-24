@@ -12,7 +12,7 @@ ready-made catalogs — starting with `@aurilabs/ops` for agent dashboards, data
 human-in-the-loop decisions — each shipped as three artifacts:
 
 - **the contract** — a spec-style schema of what an agent may say
-  ([catalog.json](https://chaliceforauri.github.io/auri/catalogs/ops/v1.json), served at its own
+  ([catalog.json](https://chaliceforauri.github.io/auri/catalogs/ops/v2.json), served at its own
   catalog id),
 - **the prompt-pack** — the system-prompt text and examples that teach a model to say it
   ([prompt.md](https://chaliceforauri.github.io/auri/catalogs/ops/prompt.md) — paste it into your

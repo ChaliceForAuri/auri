@@ -47,7 +47,7 @@
 	<h2>The artifacts, at stable URLs</h2>
 	<ul>
 		<li>
-			<a href="https://chaliceforauri.github.io/auri/catalogs/ops/v1.json">catalog.json</a> — the contract;
+			<a href="https://chaliceforauri.github.io/auri/catalogs/ops/v2.json">catalog.json</a> — the contract;
 			this URL is the catalog id agents reference
 		</li>
 		<li>

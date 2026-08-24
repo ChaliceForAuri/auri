@@ -10,26 +10,28 @@
  * /composer page calls this live on every checkbox click).
  */
 
-const DEFS_PREFIX = '#/$defs/';
-
-/** Walk a schema node collecting local $defs references, transitively. */
-function collectRefs(node, defs, keep) {
-	if (Array.isArray(node)) {
-		for (const item of node) collectRefs(item, defs, keep);
-		return;
-	}
-	if (!node || typeof node !== 'object') return;
-	for (const [key, value] of Object.entries(node)) {
-		if (key === '$ref' && typeof value === 'string' && value.startsWith(DEFS_PREFIX)) {
-			const name = value.slice(DEFS_PREFIX.length);
-			if (!keep.has(name) && defs[name]) {
-				keep.add(name);
-				collectRefs(defs[name], defs, keep);
-			}
-		} else {
-			collectRefs(value, defs, keep);
-		}
-	}
+/**
+ * Rebuild the two `$defs` a v1.0 catalog MUST carry (catalog schema rule 1):
+ * `anyComponent` and `anyFunction`, each a discriminated union over what the
+ * document declares. Rule 2 prohibits every other `$def`, so a conformant
+ * contract has nothing else to carry across — the compiler has already inlined
+ * the helpers. That is why this replaces the transitive `$defs` pruner that
+ * lived here: with nothing left to prune, a composition that merely COPIED
+ * `$defs` would inherit a union naming components it no longer contains, and
+ * one that dropped them would leave the spec's own back-reference —
+ * `catalog.json#/$defs/anyFunction`, resolved relative to common_types —
+ * dangling, which no conformant validator can compile.
+ */
+export function buildCatalogDefs(components, functions) {
+	const union = (map, kind) => ({
+		oneOf: Object.keys(map).map((name) => ({ $ref: `#/${kind}/${name}` })),
+		discriminator: { propertyName: kind === 'components' ? 'component' : 'call' }
+	});
+	return {
+		anyComponent: union(components ?? {}, 'components'),
+		anyFunction:
+			functions && Object.keys(functions).length > 0 ? union(functions, 'functions') : { not: {} }
+	};
 }
 
 export function composeContract({ contract, components, title, id }) {
@@ -38,12 +40,7 @@ export function composeContract({ contract, components, title, id }) {
 		if (contract.components?.[name]) subset[name] = contract.components[name];
 	}
 
-	const keep = new Set();
-	collectRefs(subset, contract.$defs ?? {}, keep);
-	const defs = {};
-	for (const name of Object.keys(contract.$defs ?? {})) {
-		if (keep.has(name)) defs[name] = contract.$defs[name];
-	}
+	const defs = buildCatalogDefs(subset, contract.functions);
 
 	return {
 		...contract,

@@ -1,4 +1,4 @@
-{"version":"v1.0","createSurface":{"surfaceId":"deploy_log","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json"}}
+{"version":"v1.0","createSurface":{"surfaceId":"deploy_log","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v2.json"}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"deploy_log","value":{"logTail":"14:22:10 pulling image registry/payments-api:4191\n14:22:31 starting pod 4 of 10"}}}
 {"version":"v1.0","updateComponents":{"surfaceId":"deploy_log","components":[{"id":"root","component":"CodeBlock","label":"deploy log","language":"log","code":{"path":"/logTail"}}]}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"deploy_log","path":"/logTail","value":"14:22:10 pulling image registry/payments-api:4191\n14:22:31 starting pod 4 of 10\n14:22:44 waiting on readiness probe (pod 4)"}}

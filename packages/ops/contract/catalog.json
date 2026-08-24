@@ -1,864 +1,539 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$id": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+	"$id": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 	"protocolVersion": "v1.0",
 	"title": "auri ops",
 	"description": "The auri ops catalog for A2UI: agent dashboards, data display, and human-in-the-loop decisions. Component contract v1 — all 12 components: Stat, Badge, Callout, DataTable, ApprovalCard, Chart, Timeline, Sparkline, Progress, KeyValue, CodeBlock, ConfirmButton.",
-	"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v1.json",
+	"catalogId": "https://chaliceforauri.github.io/auri/catalogs/ops/v2.json",
 	"instructions": "Rules for emitting this catalog. 1) Emit raw values: 12400, never \"12,400\" or \"$12.4K\" — the renderer formats numbers, dates and units in the user's locale. 2) `intent` judges, `trend` describes: latency rising is trend \"up\" with intent \"bad\"; error rate falling is trend \"down\" with intent \"good\". 3) One shared intent scale: good (healthy) | bad (failing) | warning (needs attention) | info (informational) | neutral (no judgment). Omit intent when you are not making a claim. 4) No icons, colors, or sizes on the wire — intent implies iconography and the theme decides the look. 5) Bind values you expect to change with {\"path\": \"/json/pointer\"} and update them via updateDataModel instead of re-sending components. 6) Layout containers (Row, Column, Card, List) come from the basic catalog: give those components an explicit \"catalogId\": \"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\".",
 	"components": {
 		"Stat": {
 			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
+			"description": "A KPI tile: one metric with its label, current value, and optionally its change, direction and judgment.",
+			"properties": {
+				"component": { "const": "Stat" },
+				"label": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Short name of the metric, e.g. 'Error rate'. Required — it is also the tile's accessible name."
 				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "Stat"
-						},
-						"label": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Short name of the metric, e.g. 'Error rate'. Required — it is also the tile's accessible name."
-						},
-						"value": {
-							"$ref": "#/$defs/dynamicValue",
-							"description": "The current reading, raw and unformatted (a number like 12400, or a short string like 'Healthy'). Bind with {\"path\": ...} when it will update."
-						},
-						"unit": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Unit rendered beside the value: 'ms', '%', 'req/s', or an ISO 4217 currency code like 'USD' (currencies are formatted in the user's locale). Omit for unitless values."
-						},
-						"delta": {
-							"$ref": "#/$defs/dynamicNumber",
-							"description": "Signed change versus the comparison period, as a raw number (e.g. -38). The renderer formats the sign."
-						},
-						"caption": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "One small line of context under the value, e.g. 'vs previous hour'."
-						},
-						"trend": {
-							"$ref": "#/$defs/dynamicTrend",
-							"description": "Direction of movement: 'up', 'down' or 'flat'. Describes, never judges — pair with intent for the judgment."
-						},
-						"intent": {
-							"$ref": "#/$defs/dynamicIntent",
-							"description": "Judgment of the current reading on the shared scale. Default: 'neutral'.",
-							"default": "neutral"
-						}
-					},
-					"required": ["component", "label", "value"]
+				"value": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicValue",
+					"description": "The current reading, raw and unformatted (a number like 12400, or a short string like 'Healthy'). Bind with {\"path\": ...} when it will update."
+				},
+				"unit": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Unit rendered beside the value: 'ms', '%', 'req/s', or an ISO 4217 currency code like 'USD' (currencies are formatted in the user's locale). Omit for unitless values."
+				},
+				"delta": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicNumber",
+					"description": "Signed change versus the comparison period, as a raw number (e.g. -38). The renderer formats the sign."
+				},
+				"caption": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "One small line of context under the value, e.g. 'vs previous hour'."
+				},
+				"trend": {
+					"oneOf": [
+						{ "type": "string", "enum": ["up", "down", "flat"] },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/FunctionCall" }
+					],
+					"description": "Direction of movement: 'up', 'down' or 'flat'. Describes, never judges — pair with intent for the judgment."
+				},
+				"intent": {
+					"oneOf": [
+						{ "type": "string", "enum": ["good", "bad", "warning", "info", "neutral"] },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/FunctionCall" }
+					],
+					"description": "Judgment of the current reading on the shared scale. Default: 'neutral'.",
+					"default": "neutral"
 				}
-			],
-			"unevaluatedProperties": false,
-			"description": "A KPI tile: one metric with its label, current value, and optionally its change, direction and judgment."
+			},
+			"required": ["component", "label", "value"]
 		},
 		"Badge": {
 			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
+			"description": "A small status chip for a state or category, e.g. a deploy stage or a job status.",
+			"properties": {
+				"component": { "const": "Badge" },
+				"text": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "The chip's short text, e.g. 'Canary', 'Live', 'Degraded'. Required — it is the badge's accessible name. Keep it to a word or two."
 				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "Badge"
-						},
-						"text": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "The chip's short text, e.g. 'Canary', 'Live', 'Degraded'. Required — it is the badge's accessible name. Keep it to a word or two."
-						},
-						"intent": {
-							"$ref": "#/$defs/dynamicIntent",
-							"description": "Judgment of the status on the shared scale. Default: 'neutral'.",
-							"default": "neutral"
-						}
-					},
-					"required": ["component", "text"]
+				"intent": {
+					"oneOf": [
+						{ "type": "string", "enum": ["good", "bad", "warning", "info", "neutral"] },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/FunctionCall" }
+					],
+					"description": "Judgment of the status on the shared scale. Default: 'neutral'.",
+					"default": "neutral"
 				}
-			],
-			"unevaluatedProperties": false,
-			"description": "A small status chip for a state or category, e.g. a deploy stage or a job status."
+			},
+			"required": ["component", "text"]
 		},
 		"Callout": {
 			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
+			"description": "An alert/note block the agent uses to tell the user something in prose: a heads-up, a caveat, a status note.",
+			"properties": {
+				"component": { "const": "Callout" },
+				"title": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Optional short heading for the callout."
 				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "Callout"
-						},
-						"title": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Optional short heading for the callout."
-						},
-						"text": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "The callout body. Required. Supports inline markdown: **bold**, *italics*, `code`, [links](https://...)."
-						},
-						"intent": {
-							"$ref": "#/$defs/dynamicIntent",
-							"description": "The callout's register on the shared scale. Default: 'info' — a callout exists to call attention; informational is its resting state.",
-							"default": "info"
-						}
-					},
-					"required": ["component", "text"]
+				"text": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "The callout body. Required. Supports inline markdown: **bold**, *italics*, `code`, [links](https://...)."
+				},
+				"intent": {
+					"oneOf": [
+						{ "type": "string", "enum": ["good", "bad", "warning", "info", "neutral"] },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/FunctionCall" }
+					],
+					"description": "The callout's register on the shared scale. Default: 'info' — a callout exists to call attention; informational is its resting state.",
+					"default": "info"
 				}
-			],
-			"unevaluatedProperties": false,
-			"description": "An alert/note block the agent uses to tell the user something in prose: a heads-up, a caveat, a status note."
+			},
+			"required": ["component", "text"]
 		},
 		"DataTable": {
 			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
-				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "DataTable"
-						},
-						"columns": {
-							"type": "array",
-							"minItems": 1,
-							"items": {
-								"$ref": "#/$defs/column"
+			"description": "A data table bound to a collection in the data model. Columns are declared; rows live in data and update without re-sending the component.",
+			"properties": {
+				"component": { "const": "DataTable" },
+				"columns": {
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": "object",
+						"properties": {
+							"key": {
+								"type": "string",
+								"description": "Property name to read from each row object."
 							},
-							"description": "Flat column descriptors; each names a key present in the row objects."
-						},
-						"rows": {
-							"oneOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "object"
-									}
-								},
-								{
-									"$ref": "#/$defs/pathRef"
-								}
-							],
-							"description": "The row objects. Bind with {\"path\": ...} so rows and individual cells can update via updateDataModel."
-						},
-						"label": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Optional table caption, e.g. \"Today's deploys\"."
-						},
-						"emptyText": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Shown when rows resolves to an empty array. Keep it quiet and factual."
-						},
-						"rowAction": {
-							"$ref": "#/$defs/action",
-							"description": "Fired when the user activates a row. The renderer adds `row` (the row object) and `rowIndex` to the action context automatically."
-						},
-						"footer": {
-							"type": "array",
-							"items": {
-								"$ref": "#/$defs/footerCell"
+							"label": {
+								"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+								"description": "Column header. Required — it is the column's accessible name."
 							},
-							"description": "Aggregate footer row. Values are computed client-side from the resolved rows — never emit a precomputed total; it can silently disagree with the rows it sits under."
-						}
+							"align": {
+								"type": "string",
+								"enum": ["start", "center", "end"],
+								"default": "start",
+								"description": "Logical alignment (RTL-safe). Numbers usually read best with 'end'."
+							},
+							"format": {
+								"type": "string",
+								"enum": ["text", "number", "datetime"],
+								"default": "text",
+								"description": "How to interpret cell values: 'number' formats in the user's locale with tabular figures; 'datetime' expects an ISO 8601 string and renders it in the user's locale."
+							},
+							"sortable": {
+								"type": "boolean",
+								"default": false,
+								"description": "Enables client-side sorting on this column. No round trip."
+							}
+						},
+						"required": ["key", "label"],
+						"additionalProperties": false
 					},
-					"required": ["component", "columns", "rows"]
+					"description": "Flat column descriptors; each names a key present in the row objects."
+				},
+				"rows": {
+					"oneOf": [
+						{ "type": "array", "items": { "type": "object" } },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "The row objects. Bind with {\"path\": ...} so rows and individual cells can update via updateDataModel."
+				},
+				"label": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Optional table caption, e.g. \"Today's deploys\"."
+				},
+				"emptyText": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Shown when rows resolves to an empty array. Keep it quiet and factual."
+				},
+				"rowAction": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Fired when the user activates a row. The renderer adds `row` (the row object) and `rowIndex` to the action context automatically."
+				},
+				"footer": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"key": {
+								"type": "string",
+								"description": "Column key this aggregate is computed over and rendered under."
+							},
+							"aggregate": {
+								"enum": ["sum", "mean", "count"],
+								"description": "Computed client-side from the resolved rows and recomputed on every updateDataModel — filter the rows and the total follows."
+							},
+							"label": {
+								"type": "string",
+								"description": "Optional caption rendered with the value, e.g. 'Total ARR at risk'."
+							}
+						},
+						"required": ["key", "aggregate"],
+						"additionalProperties": false
+					},
+					"description": "Aggregate footer row. Values are computed client-side from the resolved rows — never emit a precomputed total; it can silently disagree with the rows it sits under."
 				}
-			],
-			"unevaluatedProperties": false,
-			"description": "A data table bound to a collection in the data model. Columns are declared; rows live in data and update without re-sending the component."
+			},
+			"required": ["component", "columns", "rows"]
 		},
 		"ApprovalCard": {
 			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
+			"description": "The agent asks a human to decide. Exactly two outcomes; both fire actions carrying hand-picked context. The card disables itself after a decision.",
+			"properties": {
+				"component": { "const": "ApprovalCard" },
+				"title": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "The decision being asked, as a short question, e.g. \"Roll back payments-api?\"."
 				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "ApprovalCard"
-						},
-						"title": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "The decision being asked, as a short question, e.g. \"Roll back payments-api?\"."
-						},
-						"summary": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "One or two sentences of context the human needs to decide. Inline markdown allowed."
-						},
-						"details": {
-							"type": "string",
-							"description": "Optional ComponentId of extra content rendered collapsed inside the card (any component, e.g. a DataTable of affected services)."
-						},
-						"approveAction": {
-							"$ref": "#/$defs/action",
-							"description": "Fired on approve. Put only what you need to act on in the context — the decision payload, not the world."
-						},
-						"rejectAction": {
-							"$ref": "#/$defs/action",
-							"description": "Fired on reject. Same context discipline as approveAction."
-						},
-						"requireComment": {
-							"type": "boolean",
-							"default": false,
-							"description": "When true, the card requires a comment before either decision; the renderer adds `comment` (string) to the fired action's context."
-						},
-						"approveLabel": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Custom label for the approve button. Default is a localized \"Approve\"."
-						},
-						"rejectLabel": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Custom label for the reject button. Default is a localized \"Reject\"."
-						}
-					},
-					"required": ["component", "title", "summary", "approveAction", "rejectAction"]
+				"summary": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "One or two sentences of context the human needs to decide. Inline markdown allowed."
+				},
+				"details": {
+					"type": "string",
+					"description": "Optional ComponentId of extra content rendered collapsed inside the card (any component, e.g. a DataTable of affected services)."
+				},
+				"approveAction": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Fired on approve. Put only what you need to act on in the context — the decision payload, not the world."
+				},
+				"rejectAction": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Fired on reject. Same context discipline as approveAction."
+				},
+				"requireComment": {
+					"type": "boolean",
+					"default": false,
+					"description": "When true, the card requires a comment before either decision; the renderer adds `comment` (string) to the fired action's context."
+				},
+				"approveLabel": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Custom label for the approve button. Default is a localized \"Approve\"."
+				},
+				"rejectLabel": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Custom label for the reject button. Default is a localized \"Reject\"."
 				}
-			],
-			"unevaluatedProperties": false,
-			"description": "The agent asks a human to decide. Exactly two outcomes; both fire actions carrying hand-picked context. The card disables itself after a decision."
+			},
+			"required": ["component", "title", "summary", "approveAction", "rejectAction"]
 		},
 		"Chart": {
 			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
-				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "Chart"
-						},
-						"kind": {
-							"type": "string",
-							"enum": ["line", "bar", "area"],
-							"description": "The mark. Line for trends over time, bar for comparisons, area for cumulative feel."
-						},
-						"label": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "The chart's title and accessible name, e.g. \"Error rate by class\". Required — a chart without a name is unreadable to assistive tech."
-						},
-						"series": {
-							"oneOf": [
-								{
-									"type": "array",
-									"minItems": 1,
-									"items": {
-										"$ref": "#/$defs/series"
-									}
-								},
-								{
-									"$ref": "#/$defs/pathRef"
-								}
-							],
-							"description": "The data series. Bind each series' values with {\"path\": ...} so the chart streams."
-						},
-						"xLabels": {
-							"oneOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "string"
-									}
-								},
-								{
-									"$ref": "#/$defs/pathRef"
-								}
-							],
-							"description": "Labels along the x axis, one per data point. With xFormat 'datetime', supply ISO 8601 strings and the renderer formats them in the user's locale."
-						},
-						"xFormat": {
-							"type": "string",
-							"enum": ["text", "datetime"],
-							"default": "text",
-							"description": "How to interpret xLabels — same idea as a DataTable column format. 'datetime' expects ISO 8601 strings."
-						},
-						"unit": {
-							"type": "string",
-							"description": "Unit for the value axis: 'ms', '%', 'req/s', or an ISO 4217 currency code."
-						},
-						"markers": {
-							"oneOf": [
-								{
-									"type": "array",
-									"items": {
-										"$ref": "#/$defs/marker"
-									}
-								},
-								{
-									"$ref": "#/$defs/pathRef"
-								}
-							],
-							"description": "Anomaly/event markers: each marks one x position with a labelled, intent-coloured glyph. Bind with {\"path\": ...} to add markers as you learn more."
-						},
-						"pointAction": {
-							"$ref": "#/$defs/action",
-							"description": "Fired when the user activates a data point (click, or arrow-key traversal + Enter). The renderer adds seriesLabel, pointIndex, xLabel, and value to the action context automatically — put your own drill context (e.g. a cluster id) in context."
-						}
-					},
-					"required": ["component", "kind", "label", "series"]
-				}
-			],
-			"unevaluatedProperties": false,
-			"description": "A line/bar/area chart with axes. The renderer derives a text alternative from the data automatically."
-		},
-		"Timeline": {
-			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
-				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "Timeline"
-						},
-						"label": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Optional heading for the feed, e.g. 'Incident timeline'."
-						},
-						"items": {
-							"oneOf": [
-								{
-									"type": "array",
-									"items": {
-										"$ref": "#/$defs/timelineItem"
-									}
-								},
-								{
-									"$ref": "#/$defs/pathRef"
-								}
-							],
-							"description": "The events, oldest first. Bind with {\"path\": ...} and append by rewriting the array — the feed grows without re-sending the component."
-						},
-						"emptyText": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Shown while the bound items array is empty. Quiet and factual."
-						}
-					},
-					"required": ["component", "items"]
-				}
-			],
-			"unevaluatedProperties": false,
-			"description": "An event feed. Events are data, not components — the same philosophy as DataTable rows."
-		},
-		"Sparkline": {
-			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
-				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "Sparkline"
-						},
-						"label": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "What the trend shows, e.g. 'p95 latency, last hour'. Required — it is the accessible name; the renderer also derives a text summary from the data."
-						},
-						"values": {
-							"oneOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "number"
-									}
-								},
-								{
-									"$ref": "#/$defs/pathRef"
-								}
-							],
-							"description": "The data points, raw numbers. Bind with {\"path\": ...} to stream new readings."
-						},
-						"intent": {
-							"$ref": "#/$defs/dynamicIntent",
-							"description": "Judgment of the trend on the shared scale. Default: 'neutral'.",
-							"default": "neutral"
-						}
-					},
-					"required": ["component", "label", "values"]
-				}
-			],
-			"unevaluatedProperties": false,
-			"description": "An inline trend line with no axes — a word-sized chart for embedding beside stats and in prose-dense layouts."
-		},
-		"Progress": {
-			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
-				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "Progress"
-						},
-						"label": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "What is progressing, e.g. 'Rolling out build 4191'. Required — it is the accessible name."
-						},
-						"value": {
-							"$ref": "#/$defs/dynamicNumber",
-							"description": "Current progress. OMIT this prop entirely for an indeterminate (unknown-duration) indicator. Bind with {\"path\": ...} so it advances via updateDataModel."
-						},
-						"max": {
-							"$ref": "#/$defs/dynamicNumber",
-							"default": 100,
-							"description": "The value that means complete. May bind with {\"path\": ...} when the total itself can change (e.g. pods in a rollout)."
-						},
-						"intent": {
-							"$ref": "#/$defs/dynamicIntent",
-							"description": "Judgment of the operation on the shared scale. Default: 'neutral'.",
-							"default": "neutral"
-						}
-					},
-					"required": ["component", "label"]
-				}
-			],
-			"unevaluatedProperties": false,
-			"description": "A determinate or indeterminate progress indicator. No value prop means indeterminate."
-		},
-		"KeyValue": {
-			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
-				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "KeyValue"
-						},
-						"label": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Optional heading for the list."
-						},
-						"items": {
-							"oneOf": [
-								{
-									"type": "array",
-									"items": {
-										"$ref": "#/$defs/kvItem"
-									}
-								},
-								{
-									"$ref": "#/$defs/pathRef"
-								}
-							],
-							"description": "The facts. Each value may bind with {\"path\": ...} so single facts update live."
-						}
-					},
-					"required": ["component", "items"]
-				}
-			],
-			"unevaluatedProperties": false,
-			"description": "A definition list of labeled facts: metadata, configuration, the who/where/when of a thing."
-		},
-		"CodeBlock": {
-			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
-				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "CodeBlock"
-						},
-						"code": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "The code or log text, verbatim. Bind with {\"path\": ...} to stream a growing log."
-						},
-						"language": {
-							"type": "string",
-							"description": "Syntax-highlighting hint, e.g. 'json', 'bash', 'log'. Free-form; the renderer highlights best-effort."
-						},
-						"wrap": {
-							"type": "boolean",
-							"default": false,
-							"description": "Soft-wrap long lines instead of horizontal scrolling."
-						},
-						"label": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Optional caption, e.g. a filename or 'deploy log'."
-						}
-					},
-					"required": ["component", "code"]
-				}
-			],
-			"unevaluatedProperties": false,
-			"description": "Read-only code or log output with a built-in copy button. Never renders markup — text is shown verbatim."
-		},
-		"ConfirmButton": {
-			"type": "object",
-			"allOf": [
-				{
-					"$ref": "#/$defs/componentCommon"
-				},
-				{
-					"type": "object",
-					"properties": {
-						"component": {
-							"const": "ConfirmButton"
-						},
-						"label": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "The button text, naming the action, e.g. 'Abort rollout'."
-						},
-						"confirmLabel": {
-							"$ref": "#/$defs/dynamicString",
-							"description": "Text of the built-in second step, e.g. 'Really abort?'. Default is a localized 'Confirm?'."
-						},
-						"action": {
-							"$ref": "#/$defs/action",
-							"description": "Fired only after the confirm step. Context carries the action payload — what you need to act, nothing more."
-						},
-						"intent": {
-							"$ref": "#/$defs/dynamicIntent",
-							"description": "Judgment of the action on the shared scale — use 'bad' for destructive operations. Default: 'neutral'.",
-							"default": "neutral"
-						}
-					},
-					"required": ["component", "label", "action"]
-				}
-			],
-			"unevaluatedProperties": false,
-			"description": "A button with a built-in confirm step for destructive or consequential actions. No modal, no round trip — the confirmation is part of the component."
-		}
-	},
-	"$comment": "$defs locally mirrors https://a2ui.org/specification/v1_0/common_types.json shapes so this file validates offline with ajv; the served copy may switch to absolute $refs.",
-	"$defs": {
-		"pathRef": {
-			"type": "object",
+			"description": "A line/bar/area chart with axes. The renderer derives a text alternative from the data automatically.",
 			"properties": {
-				"path": {
-					"type": "string"
-				}
-			},
-			"required": ["path"],
-			"additionalProperties": false
-		},
-		"functionRef": {
-			"type": "object",
-			"properties": {
-				"call": {
-					"type": "string"
-				},
-				"args": {
-					"type": "object"
-				}
-			},
-			"required": ["call"],
-			"additionalProperties": false
-		},
-		"dynamicString": {
-			"oneOf": [
-				{
-					"type": "string"
-				},
-				{
-					"$ref": "#/$defs/pathRef"
-				},
-				{
-					"$ref": "#/$defs/functionRef"
-				}
-			]
-		},
-		"dynamicNumber": {
-			"oneOf": [
-				{
-					"type": "number"
-				},
-				{
-					"$ref": "#/$defs/pathRef"
-				},
-				{
-					"$ref": "#/$defs/functionRef"
-				}
-			]
-		},
-		"dynamicBoolean": {
-			"oneOf": [
-				{
-					"type": "boolean"
-				},
-				{
-					"$ref": "#/$defs/pathRef"
-				},
-				{
-					"$ref": "#/$defs/functionRef"
-				}
-			]
-		},
-		"dynamicValue": {
-			"oneOf": [
-				{
-					"type": "string"
-				},
-				{
-					"type": "number"
-				},
-				{
-					"$ref": "#/$defs/pathRef"
-				},
-				{
-					"$ref": "#/$defs/functionRef"
-				}
-			]
-		},
-		"intent": {
-			"type": "string",
-			"enum": ["good", "bad", "warning", "info", "neutral"]
-		},
-		"dynamicIntent": {
-			"oneOf": [
-				{
-					"$ref": "#/$defs/intent"
-				},
-				{
-					"$ref": "#/$defs/pathRef"
-				},
-				{
-					"$ref": "#/$defs/functionRef"
-				}
-			]
-		},
-		"trend": {
-			"type": "string",
-			"enum": ["up", "down", "flat"]
-		},
-		"dynamicTrend": {
-			"oneOf": [
-				{
-					"$ref": "#/$defs/trend"
-				},
-				{
-					"$ref": "#/$defs/pathRef"
-				},
-				{
-					"$ref": "#/$defs/functionRef"
-				}
-			]
-		},
-		"action": {
-			"oneOf": [
-				{
-					"type": "object",
-					"properties": {
-						"event": {
-							"type": "object",
-							"properties": {
-								"name": {
-									"type": "string"
-								},
-								"context": {
-									"type": "object"
-								},
-								"wantResponse": {
-									"type": "boolean"
-								},
-								"responsePath": {
-									"type": "string"
-								}
-							},
-							"required": ["name"],
-							"additionalProperties": false
-						}
-					},
-					"required": ["event"],
-					"additionalProperties": false
-				},
-				{
-					"type": "object",
-					"properties": {
-						"functionCall": {
-							"$ref": "#/$defs/functionRef"
-						}
-					},
-					"required": ["functionCall"],
-					"additionalProperties": false
-				}
-			]
-		},
-		"column": {
-			"type": "object",
-			"properties": {
-				"key": {
+				"component": { "const": "Chart" },
+				"kind": {
 					"type": "string",
-					"description": "Property name to read from each row object."
+					"enum": ["line", "bar", "area"],
+					"description": "The mark. Line for trends over time, bar for comparisons, area for cumulative feel."
 				},
 				"label": {
-					"$ref": "#/$defs/dynamicString",
-					"description": "Column header. Required — it is the column's accessible name."
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "The chart's title and accessible name, e.g. \"Error rate by class\". Required — a chart without a name is unreadable to assistive tech."
 				},
-				"align": {
-					"type": "string",
-					"enum": ["start", "center", "end"],
-					"default": "start",
-					"description": "Logical alignment (RTL-safe). Numbers usually read best with 'end'."
+				"series": {
+					"oneOf": [
+						{
+							"type": "array",
+							"minItems": 1,
+							"items": {
+								"type": "object",
+								"properties": {
+									"label": {
+										"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+										"description": "Series name, shown in the legend and the generated text alternative."
+									},
+									"values": {
+										"oneOf": [
+											{ "type": "array", "items": { "type": "number" } },
+											{
+												"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding"
+											}
+										],
+										"description": "The data points, raw numbers. Bind with {\"path\": ...} to stream new points."
+									}
+								},
+								"required": ["label", "values"],
+								"additionalProperties": false
+							}
+						},
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "The data series. Bind each series' values with {\"path\": ...} so the chart streams."
 				},
-				"format": {
+				"xLabels": {
+					"oneOf": [
+						{ "type": "array", "items": { "type": "string" } },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "Labels along the x axis, one per data point. With xFormat 'datetime', supply ISO 8601 strings and the renderer formats them in the user's locale."
+				},
+				"xFormat": {
 					"type": "string",
-					"enum": ["text", "number", "datetime"],
+					"enum": ["text", "datetime"],
 					"default": "text",
-					"description": "How to interpret cell values: 'number' formats in the user's locale with tabular figures; 'datetime' expects an ISO 8601 string and renders it in the user's locale."
+					"description": "How to interpret xLabels — same idea as a DataTable column format. 'datetime' expects ISO 8601 strings."
 				},
-				"sortable": {
-					"type": "boolean",
-					"default": false,
-					"description": "Enables client-side sorting on this column. No round trip."
-				}
-			},
-			"required": ["key", "label"],
-			"additionalProperties": false
-		},
-		"series": {
-			"type": "object",
-			"properties": {
-				"label": {
-					"$ref": "#/$defs/dynamicString",
-					"description": "Series name, shown in the legend and the generated text alternative."
+				"unit": {
+					"type": "string",
+					"description": "Unit for the value axis: 'ms', '%', 'req/s', or an ISO 4217 currency code."
 				},
-				"values": {
+				"markers": {
 					"oneOf": [
 						{
 							"type": "array",
 							"items": {
-								"type": "number"
+								"type": "object",
+								"properties": {
+									"pointIndex": {
+										"type": "number",
+										"description": "Zero-based x position the marker sits on. Out-of-range markers are dropped with a console warning, never floated."
+									},
+									"intent": {
+										"type": "string",
+										"enum": ["good", "bad", "warning", "info", "neutral"],
+										"default": "warning",
+										"description": "Judgment of the marked event; default 'warning'. Intent implies the glyph — markers are never colour-only."
+									},
+									"label": {
+										"type": "string",
+										"description": "Human text for the marker, e.g. 'Sentiment fell 22%'. Required — it is the marker's accessible name and joins the chart's generated text alternative."
+									}
+								},
+								"required": ["pointIndex", "label"],
+								"additionalProperties": false
 							}
 						},
-						{
-							"$ref": "#/$defs/pathRef"
-						}
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
 					],
-					"description": "The data points, raw numbers. Bind with {\"path\": ...} to stream new points."
+					"description": "Anomaly/event markers: each marks one x position with a labelled, intent-coloured glyph. Bind with {\"path\": ...} to add markers as you learn more."
+				},
+				"pointAction": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Fired when the user activates a data point (click, or arrow-key traversal + Enter). The renderer adds seriesLabel, pointIndex, xLabel, and value to the action context automatically — put your own drill context (e.g. a cluster id) in context."
 				}
 			},
-			"required": ["label", "values"],
-			"additionalProperties": false
+			"required": ["component", "kind", "label", "series"]
 		},
-		"timelineItem": {
+		"Timeline": {
 			"type": "object",
+			"description": "An event feed. Events are data, not components — the same philosophy as DataTable rows.",
 			"properties": {
-				"title": {
-					"type": "string",
-					"description": "What happened, one line."
+				"component": { "const": "Timeline" },
+				"label": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Optional heading for the feed, e.g. 'Incident timeline'."
 				},
-				"time": {
-					"type": "string",
-					"description": "When, as ISO 8601. The renderer formats it (absolute or relative) in the user's locale."
+				"items": {
+					"oneOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"title": { "type": "string", "description": "What happened, one line." },
+									"time": {
+										"type": "string",
+										"description": "When, as ISO 8601. The renderer formats it (absolute or relative) in the user's locale."
+									},
+									"text": {
+										"type": "string",
+										"description": "Optional detail line. Inline markdown allowed."
+									},
+									"intent": {
+										"type": "string",
+										"enum": ["good", "bad", "warning", "info", "neutral"],
+										"description": "Judgment of this event on the shared scale. Default: 'neutral'."
+									}
+								},
+								"required": ["title"],
+								"additionalProperties": false
+							}
+						},
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "The events, oldest first. Bind with {\"path\": ...} and append by rewriting the array — the feed grows without re-sending the component."
 				},
-				"text": {
-					"type": "string",
-					"description": "Optional detail line. Inline markdown allowed."
+				"emptyText": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Shown while the bound items array is empty. Quiet and factual."
+				}
+			},
+			"required": ["component", "items"]
+		},
+		"Sparkline": {
+			"type": "object",
+			"description": "An inline trend line with no axes — a word-sized chart for embedding beside stats and in prose-dense layouts.",
+			"properties": {
+				"component": { "const": "Sparkline" },
+				"label": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "What the trend shows, e.g. 'p95 latency, last hour'. Required — it is the accessible name; the renderer also derives a text summary from the data."
+				},
+				"values": {
+					"oneOf": [
+						{ "type": "array", "items": { "type": "number" } },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "The data points, raw numbers. Bind with {\"path\": ...} to stream new readings."
 				},
 				"intent": {
-					"$ref": "#/$defs/intent",
-					"description": "Judgment of this event on the shared scale. Default: 'neutral'."
+					"oneOf": [
+						{ "type": "string", "enum": ["good", "bad", "warning", "info", "neutral"] },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/FunctionCall" }
+					],
+					"description": "Judgment of the trend on the shared scale. Default: 'neutral'.",
+					"default": "neutral"
 				}
 			},
-			"required": ["title"],
-			"additionalProperties": false
+			"required": ["component", "label", "values"]
 		},
-		"kvItem": {
+		"Progress": {
 			"type": "object",
+			"description": "A determinate or indeterminate progress indicator. No value prop means indeterminate.",
 			"properties": {
-				"key": {
-					"type": "string",
-					"description": "The fact's name, e.g. 'Region'."
+				"component": { "const": "Progress" },
+				"label": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "What is progressing, e.g. 'Rolling out build 4191'. Required — it is the accessible name."
 				},
 				"value": {
-					"$ref": "#/$defs/dynamicValue",
-					"description": "The fact, raw (string or number, or a {\"path\"} binding). Numbers and ISO dates are formatted in the user's locale."
-				}
-			},
-			"required": ["key", "value"],
-			"additionalProperties": false
-		},
-		"componentCommon": {
-			"type": "object",
-			"properties": {
-				"id": {
-					"type": "string"
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicNumber",
+					"description": "Current progress. OMIT this prop entirely for an indeterminate (unknown-duration) indicator. Bind with {\"path\": ...} so it advances via updateDataModel."
 				},
-				"component": {
-					"type": "string"
-				},
-				"catalogId": {
-					"type": "string"
-				},
-				"weight": {
-					"type": "number"
-				},
-				"visible": {
-					"$ref": "#/$defs/dynamicBoolean"
-				},
-				"disabled": {
-					"$ref": "#/$defs/dynamicBoolean"
-				},
-				"semanticId": {
-					"type": "string"
-				},
-				"ariaLabel": {
-					"$ref": "#/$defs/dynamicString"
-				}
-			},
-			"required": ["id", "component"]
-		},
-		"marker": {
-			"type": "object",
-			"properties": {
-				"pointIndex": {
-					"type": "number",
-					"description": "Zero-based x position the marker sits on. Out-of-range markers are dropped with a console warning, never floated."
+				"max": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicNumber",
+					"default": 100,
+					"description": "The value that means complete. May bind with {\"path\": ...} when the total itself can change (e.g. pods in a rollout)."
 				},
 				"intent": {
-					"$ref": "#/$defs/intent",
-					"default": "warning",
-					"description": "Judgment of the marked event; default 'warning'. Intent implies the glyph — markers are never colour-only."
-				},
-				"label": {
-					"type": "string",
-					"description": "Human text for the marker, e.g. 'Sentiment fell 22%'. Required — it is the marker's accessible name and joins the chart's generated text alternative."
+					"oneOf": [
+						{ "type": "string", "enum": ["good", "bad", "warning", "info", "neutral"] },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/FunctionCall" }
+					],
+					"description": "Judgment of the operation on the shared scale. Default: 'neutral'.",
+					"default": "neutral"
 				}
 			},
-			"required": ["pointIndex", "label"],
-			"additionalProperties": false
+			"required": ["component", "label"]
 		},
-		"footerCell": {
+		"KeyValue": {
 			"type": "object",
+			"description": "A definition list of labeled facts: metadata, configuration, the who/where/when of a thing.",
 			"properties": {
-				"key": {
-					"type": "string",
-					"description": "Column key this aggregate is computed over and rendered under."
-				},
-				"aggregate": {
-					"enum": ["sum", "mean", "count"],
-					"description": "Computed client-side from the resolved rows and recomputed on every updateDataModel — filter the rows and the total follows."
-				},
+				"component": { "const": "KeyValue" },
 				"label": {
-					"type": "string",
-					"description": "Optional caption rendered with the value, e.g. 'Total ARR at risk'."
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Optional heading for the list."
+				},
+				"items": {
+					"oneOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"key": { "type": "string", "description": "The fact's name, e.g. 'Region'." },
+									"value": {
+										"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicValue",
+										"description": "The fact, raw (string or number, or a {\"path\"} binding). Numbers and ISO dates are formatted in the user's locale."
+									}
+								},
+								"required": ["key", "value"],
+								"additionalProperties": false
+							}
+						},
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "The facts. Each value may bind with {\"path\": ...} so single facts update live."
 				}
 			},
-			"required": ["key", "aggregate"],
-			"additionalProperties": false
+			"required": ["component", "items"]
+		},
+		"CodeBlock": {
+			"type": "object",
+			"description": "Read-only code or log output with a built-in copy button. Never renders markup — text is shown verbatim.",
+			"properties": {
+				"component": { "const": "CodeBlock" },
+				"code": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "The code or log text, verbatim. Bind with {\"path\": ...} to stream a growing log."
+				},
+				"language": {
+					"type": "string",
+					"description": "Syntax-highlighting hint, e.g. 'json', 'bash', 'log'. Free-form; the renderer highlights best-effort."
+				},
+				"wrap": {
+					"type": "boolean",
+					"default": false,
+					"description": "Soft-wrap long lines instead of horizontal scrolling."
+				},
+				"label": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Optional caption, e.g. a filename or 'deploy log'."
+				}
+			},
+			"required": ["component", "code"]
+		},
+		"ConfirmButton": {
+			"type": "object",
+			"description": "A button with a built-in confirm step for destructive or consequential actions. No modal, no round trip — the confirmation is part of the component.",
+			"properties": {
+				"component": { "const": "ConfirmButton" },
+				"label": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "The button text, naming the action, e.g. 'Abort rollout'."
+				},
+				"confirmLabel": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Text of the built-in second step, e.g. 'Really abort?'. Default is a localized 'Confirm?'."
+				},
+				"action": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Fired only after the confirm step. Context carries the action payload — what you need to act, nothing more."
+				},
+				"intent": {
+					"oneOf": [
+						{ "type": "string", "enum": ["good", "bad", "warning", "info", "neutral"] },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/FunctionCall" }
+					],
+					"description": "Judgment of the action on the shared scale — use 'bad' for destructive operations. Default: 'neutral'.",
+					"default": "neutral"
+				}
+			},
+			"required": ["component", "label", "action"]
 		}
+	},
+	"$defs": {
+		"anyComponent": {
+			"oneOf": [
+				{ "$ref": "#/components/Stat" },
+				{ "$ref": "#/components/Badge" },
+				{ "$ref": "#/components/Callout" },
+				{ "$ref": "#/components/DataTable" },
+				{ "$ref": "#/components/ApprovalCard" },
+				{ "$ref": "#/components/Chart" },
+				{ "$ref": "#/components/Timeline" },
+				{ "$ref": "#/components/Sparkline" },
+				{ "$ref": "#/components/Progress" },
+				{ "$ref": "#/components/KeyValue" },
+				{ "$ref": "#/components/CodeBlock" },
+				{ "$ref": "#/components/ConfirmButton" }
+			],
+			"discriminator": { "propertyName": "component" }
+		},
+		"anyFunction": { "not": {} }
 	}
 }

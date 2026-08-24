@@ -12,7 +12,11 @@ name: Emission evals
 #               invariant has always described.
 #
 # Requires the OPENAI_API_KEY repository secret. Until it exists the job warns
-# and passes, so an unconfigured repo doesn't spam failures.
+# and passes, so an unconfigured repo doesn't spam failures. A key that exists
+# but cannot be used (no credits, outage, revoked) is treated the same way: the
+# harness exits 78 and this job reports "could not run" instead of a red gate,
+# because a provider billing problem is not a contract regression and must not
+# look like one.
 
 on:
   schedule:
@@ -63,10 +67,19 @@ jobs:
           # Nightly runs the smoke subset; every other trigger runs everything.
           SCOPE: ${{ github.event_name == 'schedule' && '--smoke' || '' }}
         run: |
+          set +e
           npm run eval -w @aurilabs/${{ matrix.catalog }} -- \
             --models openai:gpt-5.6 \
             --json eval-results-${{ matrix.catalog }}.json \
             $SCOPE
+          code=$?
+          # 78 = the harness never reached a model (no credits, outage, bad key).
+          # Surface it loudly, but do not fail the contract gate on it.
+          if [ "$code" -eq 78 ]; then
+            echo "::warning title=Emission gate did not run::${{ matrix.catalog }}: the provider refused every call, so the contract was never exercised. Check the API account."
+            exit 0
+          fi
+          exit $code
 
       - name: Upload transcripts
         if: always() && steps.creds.outputs.present == 'yes'

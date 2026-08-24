@@ -37,7 +37,7 @@ Full plan: `docs/PLAN.md`. Read it before designing anything. The quality pillar
 - Product/brand: **auri**. npm scope: **`@aurilabs`** (org exists and is owned by Hugo — Hugo Pretorius, ohheyhugo@gmail.com, GitHub ChaliceForAuri).
 - GitHub home is **ChaliceForAuri/auri** — the GitHub names `aurilabs` and `auri-labs` are owned by unrelated third parties; do not reference them as ours.
 - Byline discipline: "built by Hugo Pretorius" belongs in every README, docs footer, npm author field, and announcement. The product name spreads; the byline attributes.
-- Catalog ids are versioned URLs Hugo controls, e.g. `https://chaliceforauri.github.io/auri/catalogs/ops/v1.json` — served for real by the docs site. Breaking contract changes are a **new id**, never a mutation.
+- Catalog ids are versioned URLs Hugo controls, e.g. `https://chaliceforauri.github.io/auri/catalogs/ops/v2.json` — served for real by the docs site. Breaking contract changes are a **new id**, never a mutation.
 
 ## Infra provenance
 

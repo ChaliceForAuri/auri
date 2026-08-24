@@ -1,0 +1,599 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$comment": "AUTHORED SOURCE — compiled to catalog.json by @aurilabs/core's build-catalog. Helpers live in $defs for readability; the compiler inlines them (v1.0 catalog rule 2) and rewrites protocol primitives to common_types.json refs (rule 3), but only after checking each local def is structurally identical to the spec type it claims to be. Edit this file, never catalog.json.",
+	"$id": "https://chaliceforauri.github.io/auri/catalogs/forms/v2.json",
+	"protocolVersion": "v1.0",
+	"title": "auri forms",
+	"description": "The auri forms catalog for A2UI: agent-composed forms that collect answers from humans. Component contract v1 — 10 components: TextField, TextArea, NumberField, SelectField, RadioGroup, CheckboxGroup, Toggle, DateField, FormSection, SubmitBar.",
+	"catalogId": "https://chaliceforauri.github.io/auri/catalogs/forms/v2.json",
+	"instructions": "Rules for emitting this catalog. 1) Every field's `value` is a data binding {\"path\": \"/json/pointer\"} — that pointer is where the user's answer lives. Never emit a literal value; seed defaults by writing the data model with updateDataModel. 2) Give each field its own path; two fields sharing a path is a bug. 3) Validation is the `checks` array: {\"call\", \"args\", \"message\"} using only the built-ins required | email | regex | length | numeric. The renderer supplies the field's current value; args carry the rest (e.g. {\"min\": 8}). `message` is always human text. 4) Raw values on the wire: dates are ISO 8601 (\"2026-08-19\"), numbers unformatted — the renderer localizes. 5) Read answers from the data model, or hand-pick them into submitAction context as {\"path\": ...} bindings. 6) Labels are required — a field without an accessible name cannot be emitted. 7) Send components in small batches — updateComponents merges by id, so emit two or three components per message rather than a whole form in one line.",
+	"components": {
+		"TextField": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "TextField"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "Visible field label, e.g. 'Work email'. Required — it is the field's accessible name."
+						},
+						"value": {
+							"$ref": "#/$defs/pathRef",
+							"description": "Data binding for the answer, always {\"path\": ...}. Seed a default by writing that path with updateDataModel; the user's input is written back to it."
+						},
+						"kind": {
+							"enum": ["text", "email", "url", "tel", "secret"],
+							"description": "Input treatment and mobile keyboard. 'secret' masks input. Default 'text'."
+						},
+						"placeholder": {
+							"type": "string",
+							"description": "Example content shown while empty. Never a substitute for label."
+						},
+						"hint": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "One line of help under the field, e.g. 'We only use this for receipts.'"
+						},
+						"checks": {
+							"$ref": "#/$defs/checks"
+						}
+					},
+					"required": ["label", "value"]
+				}
+			]
+		},
+		"TextArea": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "TextArea"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "Visible field label. Required — the accessible name."
+						},
+						"value": {
+							"$ref": "#/$defs/pathRef",
+							"description": "Data binding for the answer, always {\"path\": ...}."
+						},
+						"rows": {
+							"type": "number",
+							"description": "Visible line count. Default 3."
+						},
+						"maxLength": {
+							"type": "number",
+							"description": "Maximum characters; the field shows a live counter when set."
+						},
+						"placeholder": {
+							"type": "string"
+						},
+						"hint": {
+							"$ref": "#/$defs/dynamicString"
+						},
+						"checks": {
+							"$ref": "#/$defs/checks"
+						}
+					},
+					"required": ["label", "value"]
+				}
+			]
+		},
+		"NumberField": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "NumberField"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "Visible field label. Required — the accessible name."
+						},
+						"value": {
+							"$ref": "#/$defs/pathRef",
+							"description": "Data binding for the answer (a raw number), always {\"path\": ...}."
+						},
+						"min": {
+							"type": "number"
+						},
+						"max": {
+							"type": "number"
+						},
+						"step": {
+							"type": "number",
+							"description": "Increment granularity, e.g. 0.5. Default 1."
+						},
+						"unit": {
+							"type": "string",
+							"description": "Unit rendered beside the input: 'ms', '%', 'GB', or an ISO 4217 currency code."
+						},
+						"hint": {
+							"$ref": "#/$defs/dynamicString"
+						},
+						"checks": {
+							"$ref": "#/$defs/checks"
+						}
+					},
+					"required": ["label", "value"]
+				}
+			]
+		},
+		"SelectField": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "SelectField"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "Visible field label. Required — the accessible name."
+						},
+						"value": {
+							"$ref": "#/$defs/pathRef",
+							"description": "Data binding for the chosen option's value, always {\"path\": ...}."
+						},
+						"options": {
+							"type": "array",
+							"items": {
+								"$ref": "#/$defs/option"
+							},
+							"description": "Flat list of choices. {\"value\", \"label\"} objects, or bare strings when value and label are the same."
+						},
+						"placeholder": {
+							"type": "string",
+							"description": "Prompt shown before a choice is made, e.g. 'Choose a region…'."
+						},
+						"hint": {
+							"$ref": "#/$defs/dynamicString"
+						},
+						"checks": {
+							"$ref": "#/$defs/checks"
+						}
+					},
+					"required": ["label", "value", "options"]
+				}
+			]
+		},
+		"RadioGroup": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "RadioGroup"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "Group label. Required — the accessible name of the whole group."
+						},
+						"value": {
+							"$ref": "#/$defs/pathRef",
+							"description": "Data binding for the chosen option's value, always {\"path\": ...}."
+						},
+						"options": {
+							"type": "array",
+							"items": {
+								"$ref": "#/$defs/option"
+							},
+							"description": "All options are visible — use RadioGroup for 2–6 choices, SelectField beyond that."
+						},
+						"hint": {
+							"$ref": "#/$defs/dynamicString"
+						},
+						"checks": {
+							"$ref": "#/$defs/checks"
+						}
+					},
+					"required": ["label", "value", "options"]
+				}
+			]
+		},
+		"CheckboxGroup": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "CheckboxGroup"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "Group label. Required — the accessible name of the whole group."
+						},
+						"value": {
+							"$ref": "#/$defs/pathRef",
+							"description": "Data binding for the chosen values as an array of strings, always {\"path\": ...}. Seed [] (or a preselection) with updateDataModel."
+						},
+						"options": {
+							"type": "array",
+							"items": {
+								"$ref": "#/$defs/option"
+							}
+						},
+						"hint": {
+							"$ref": "#/$defs/dynamicString"
+						},
+						"checks": {
+							"$ref": "#/$defs/checks"
+						}
+					},
+					"required": ["label", "value", "options"]
+				}
+			]
+		},
+		"Toggle": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "Toggle"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "What the toggle controls, stated positively: 'Email me a copy'. Required."
+						},
+						"value": {
+							"$ref": "#/$defs/pathRef",
+							"description": "Data binding for the boolean answer, always {\"path\": ...}. Seed the default with updateDataModel."
+						},
+						"hint": {
+							"$ref": "#/$defs/dynamicString"
+						}
+					},
+					"required": ["label", "value"]
+				}
+			]
+		},
+		"DateField": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "DateField"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "Visible field label. Required — the accessible name."
+						},
+						"value": {
+							"$ref": "#/$defs/pathRef",
+							"description": "Data binding for the answer as an ISO 8601 date string ('2026-08-19'), always {\"path\": ...}."
+						},
+						"min": {
+							"type": "string",
+							"description": "Earliest selectable date, ISO 8601."
+						},
+						"max": {
+							"type": "string",
+							"description": "Latest selectable date, ISO 8601."
+						},
+						"hint": {
+							"$ref": "#/$defs/dynamicString"
+						},
+						"checks": {
+							"$ref": "#/$defs/checks"
+						}
+					},
+					"required": ["label", "value"]
+				}
+			]
+		},
+		"FormSection": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "FormSection"
+						},
+						"title": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "Section heading, e.g. 'Contact details'. Required."
+						},
+						"description": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "One or two sentences under the heading."
+						},
+						"children": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							},
+							"description": "ComponentIds of the fields in this section, in order."
+						}
+					},
+					"required": ["title", "children"]
+				}
+			]
+		},
+		"SubmitBar": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "SubmitBar"
+						},
+						"submitAction": {
+							"$ref": "#/$defs/action",
+							"description": "Fired on submit, only when every check on the surface passes. Hand-pick the answers you need into context as {\"path\": ...} bindings."
+						},
+						"submitLabel": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "Names the act of submitting, e.g. 'Create account'. Default: localized 'Submit'."
+						},
+						"cancelAction": {
+							"$ref": "#/$defs/action",
+							"description": "Optional secondary action; renders a quiet cancel button."
+						},
+						"cancelLabel": {
+							"$ref": "#/$defs/dynamicString"
+						},
+						"pending": {
+							"$ref": "#/$defs/dynamicBoolean",
+							"description": "Bind to a path and set true while processing the submission — the bar disables and shows progress. Set false (or write a server error) when done."
+						}
+					},
+					"required": ["submitAction"]
+				}
+			]
+		}
+	},
+	"$defs": {
+		"pathRef": {
+			"type": "object",
+			"properties": {
+				"path": {
+					"type": "string"
+				}
+			},
+			"required": ["path"],
+			"additionalProperties": false
+		},
+		"functionRef": {
+			"type": "object",
+			"description": "Invokes a named function.",
+			"properties": {
+				"call": {
+					"type": "string",
+					"description": "The name of the function to call."
+				},
+				"catalogId": {
+					"type": "string",
+					"description": "The catalog ID for this function, overriding any surface-level default catalogId."
+				},
+				"args": {
+					"type": "object",
+					"description": "Arguments passed to the function.",
+					"additionalProperties": {
+						"anyOf": [
+							{
+								"$ref": "#/$defs/dynamicValue"
+							},
+							{
+								"type": "object",
+								"description": "A literal object argument (e.g. configuration)."
+							}
+						]
+					}
+				}
+			},
+			"required": ["call"],
+			"oneOf": [
+				{
+					"$ref": "catalog.json#/$defs/anyFunction"
+				},
+				{
+					"$ref": "#/$defs/IndexSystemFunction"
+				}
+			],
+			"unevaluatedProperties": false
+		},
+		"dynamicString": {
+			"oneOf": [
+				{
+					"type": "string"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				},
+				{
+					"$ref": "#/$defs/functionRef"
+				}
+			]
+		},
+		"dynamicBoolean": {
+			"oneOf": [
+				{
+					"type": "boolean"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				},
+				{
+					"$ref": "#/$defs/functionRef"
+				}
+			]
+		},
+		"option": {
+			"oneOf": [
+				{
+					"type": "string"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"value": {
+							"type": "string"
+						},
+						"label": {
+							"type": "string"
+						}
+					},
+					"required": ["value", "label"],
+					"additionalProperties": false
+				}
+			]
+		},
+		"checkRule": {
+			"type": "object",
+			"description": "A validation check. Spec-shaped — `condition` is a FunctionCall — but narrowed to the renderer's built-ins, and `message` is required because a check with no human text fails silently.",
+			"properties": {
+				"condition": {
+					"type": "object",
+					"properties": {
+						"call": {
+							"enum": ["required", "email", "regex", "length", "numeric"],
+							"description": "One of the protocol's built-in validation functions. The renderer supplies the field's current value automatically."
+						},
+						"args": {
+							"type": "object",
+							"description": "Arguments beyond the value: regex takes {\"pattern\"}, length and numeric take {\"min\"} and/or {\"max\"}. required and email take none."
+						}
+					},
+					"required": ["call"],
+					"additionalProperties": false
+				},
+				"message": {
+					"type": "string",
+					"description": "Human text shown when the check fails. Always required."
+				}
+			},
+			"required": ["condition", "message"],
+			"additionalProperties": false
+		},
+		"checks": {
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/checkRule"
+			},
+			"description": "Validation rules, evaluated by the renderer as the user types. Submission is blocked while any check fails."
+		},
+		"action": {
+			"description": "Defines an interaction handler that can either trigger an agent-side event or execute a local renderer-side function.",
+			"oneOf": [
+				{
+					"type": "object",
+					"description": "Triggers an agent-side event.",
+					"properties": {
+						"event": {
+							"type": "object",
+							"description": "The event to dispatch to the agent.",
+							"properties": {
+								"name": {
+									"type": "string",
+									"description": "The name of the action to be dispatched to the agent."
+								},
+								"userMessage": {
+									"$ref": "#/$defs/dynamicString",
+									"description": "An optional human-readable message describing the action performed by the user, to present in conversation history or user feedback."
+								},
+								"context": {
+									"type": "object",
+									"description": "A JSON object containing the key-value pairs for the action context. Values can be literals or paths. Use literal values unless the value must be dynamically bound to the data model. Do NOT use paths for static IDs.",
+									"additionalProperties": {
+										"$ref": "#/$defs/dynamicValue"
+									}
+								}
+							},
+							"required": ["name"],
+							"additionalProperties": false
+						}
+					},
+					"required": ["event"],
+					"additionalProperties": false
+				},
+				{
+					"type": "object",
+					"description": "Executes a renderer or agent-side function.",
+					"properties": {
+						"functionCall": {
+							"$ref": "#/$defs/functionRef"
+						}
+					},
+					"required": ["functionCall"],
+					"additionalProperties": false
+				}
+			]
+		},
+		"componentCommon": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"component": {
+					"type": "string"
+				},
+				"catalogId": {
+					"type": "string"
+				},
+				"weight": {
+					"type": "number"
+				},
+				"visible": {
+					"$ref": "#/$defs/dynamicBoolean"
+				},
+				"disabled": {
+					"$ref": "#/$defs/dynamicBoolean"
+				},
+				"semanticId": {
+					"type": "string"
+				},
+				"ariaLabel": {
+					"$ref": "#/$defs/dynamicString"
+				}
+			},
+			"required": ["id", "component"]
+		}
+	}
+}
