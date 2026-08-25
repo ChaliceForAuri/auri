@@ -4,11 +4,11 @@
 	import type { AgentToRenderer } from 'svelte-a2ui';
 	import { opsCatalog } from '@aurilabs/ops';
 	import { formsCatalog } from '@aurilabs/forms';
-	import { intelCatalog } from '@aurilabs/intel';
+	import { insightCatalog } from '@aurilabs/insight';
 	import Copy from '$lib/Copy.svelte';
 	import data from '$lib/playground-data.json';
 
-	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, intelCatalog, basicCatalog]);
+	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, insightCatalog, basicCatalog]);
 
 	const scenarios = data.scenarios.map((s) => ({
 		...s,

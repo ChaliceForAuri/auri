@@ -1,3 +1,3 @@
-{"version":"v1.0","createSurface":{"surfaceId":"i","catalogId":"https://chaliceforauri.github.io/auri/catalogs/intel/v1.json"}}
+{"version":"v1.0","createSurface":{"surfaceId":"i","catalogId":"https://chaliceforauri.github.io/auri/catalogs/insight/v1.json"}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"i","value":{"clusters":[{"id":"cl-report-accuracy","label":"Report accuracy","size":12,"intent":"warning","reason":"Export totals don't match on-screen figures"},{"id":"cl-sso-friction","label":"SSO friction","size":7,"intent":"bad","reason":"Session drops force daily re-login"}]}}}
 {"version":"v1.0","updateComponents":{"surfaceId":"i","components":[{"id":"root","component":"ClusterMap","label":"Accounts at risk, by reason","clusters":{"path":"/clusters"},"clusterAction":{"event":{"name":"cluster_drilled"}}}]}}

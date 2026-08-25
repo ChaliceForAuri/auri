@@ -6,7 +6,7 @@ import VelocityScatter from './components/VelocityScatter.svelte';
 import ClusterMap from './components/ClusterMap.svelte';
 import DrillStack from './components/DrillStack.svelte';
 
-export const INTEL_CATALOG_ID = 'https://chaliceforauri.github.io/auri/catalogs/intel/v1.json';
+export const INSIGHT_CATALOG_ID = 'https://chaliceforauri.github.io/auri/catalogs/insight/v1.json';
 
 const entry = (component: unknown, rest: Omit<CatalogEntry, 'component'> = {}): CatalogEntry =>
 	({ component, ...rest }) as CatalogEntry;
@@ -16,7 +16,7 @@ const entry = (component: unknown, rest: Omit<CatalogEntry, 'component'> = {}): 
  * subject is declared `raw`, so the component merges subjectKind/subjectId
  * (and verdict / startSeconds / reason) before dispatch — see subject.ts.
  */
-export const INTEL_COMPONENTS: Record<string, CatalogEntry> = {
+export const INSIGHT_COMPONENTS: Record<string, CatalogEntry> = {
 	InsightCard: entry(InsightCard, {
 		raw: ['drillAction', 'feedbackAction'],
 		slots: { detailComponentId: 'child' }
@@ -27,7 +27,7 @@ export const INTEL_COMPONENTS: Record<string, CatalogEntry> = {
 	DrillStack: entry(DrillStack, { bindings: ['activeIndex'], actions: ['dismissAction'] })
 };
 
-export const intelCatalog: Catalog = {
-	id: INTEL_CATALOG_ID,
-	components: INTEL_COMPONENTS
+export const insightCatalog: Catalog = {
+	id: INSIGHT_CATALOG_ID,
+	components: INSIGHT_COMPONENTS
 };

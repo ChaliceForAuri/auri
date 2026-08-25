@@ -1,0 +1,344 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
+	"protocolVersion": "v1.0",
+	"title": "auri insight",
+	"description": "The auri insight catalog for A2UI: presenting a finding and reaching its evidence — insight cards, drill paths from aggregate to source, cluster and velocity pictures, and source audit with transcript. Domain-neutral: what a finding is ABOUT travels as data, never as a schema enum. Component contracts are renderer-agnostic; see prompt.md for the agent-facing pack.",
+	"catalogId": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
+	"instructions": "Rules for emitting this catalog. 1) Every drillable element carries `subjectKind` + `subjectId` — the renderer merges them into drill and feedback action contexts automatically; never duplicate them into context yourself. `subjectKind` and `signalType` are FREE STRINGS in your own domain's words, not a fixed list. 2) `confidence` is a raw number 0..1; the renderer shows a qualitative band — never emit a percentage or a string. 3) Raw values on the wire: ISO 8601 windows, raw counts, raw amounts. Supporting figures go in `metrics` as {label, value, unit?, intent?} — `unit` takes an ISO 4217 code for money. Never pre-format a number or a date. 4) Feedback must visibly change something: bind a path the feedback action writes, so accepting or dismissing a finding is observable. Feedback that changes nothing teaches users their input is decorative.",
+	"components": {
+		"InsightCard": {
+			"type": "object",
+			"properties": {
+				"component": { "const": "InsightCard" },
+				"headline": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "The claim, in one sentence. Required — it is the card's accessible name. The card reserves two lines for it, so write for two lines at most."
+				},
+				"subjectKind": {
+					"type": "string",
+					"description": "What kind of thing this insight is about. Required — it is merged into drill and feedback contexts."
+				},
+				"subjectId": {
+					"type": "string",
+					"description": "Stable id of the subject, e.g. 'cl-report-accuracy'. Required."
+				},
+				"summary": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "One or two sentences of supporting evidence, written for humans."
+				},
+				"signalType": {
+					"type": "string",
+					"description": "What kind of signal this is, in YOUR domain's words — \"churn_risk\", \"outage\", \"policy_drift\", \"fraud_pattern\". Free text on purpose; a closed list would be one product's taxonomy. Keep the strings stable across a surface so they group and filter."
+				},
+				"intent": {
+					"oneOf": [
+						{ "enum": ["good", "bad", "warning", "info", "neutral"] },
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "Judgment of the insight; default 'neutral'. An alert is an insight whose intent earns 'bad'."
+				},
+				"trend": {
+					"enum": ["up", "down", "flat"],
+					"description": "Direction of the underlying signal — describes, never judges."
+				},
+				"metrics": {
+					"oneOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "object",
+								"description": "One figure supporting the finding. Raw values only — the renderer formats in the host locale.",
+								"properties": {
+									"label": {
+										"type": "string",
+										"description": "What the figure is, e.g. \"Cases\" or \"Revenue at risk\"."
+									},
+									"value": {
+										"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicNumber",
+										"description": "The raw number. Bind with {\"path\": ...} if it changes."
+									},
+									"unit": {
+										"type": "string",
+										"description": "ISO 4217 code for money (\"USD\"), or a short unit (\"ms\", \"%\"). Same convention as ops Stat."
+									},
+									"intent": {
+										"enum": ["good", "bad", "warning", "info", "neutral"],
+										"description": "Optional per-figure intent — this is why one array beats fixed props: each figure carries its own reading."
+									}
+								},
+								"required": ["label", "value"],
+								"additionalProperties": false
+							}
+						},
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "The figures behind the claim, as {label, value, unit?, intent?}. As many as the finding needs — an empty array collapses the row. Raw numbers only; the renderer formats them."
+				},
+				"windowStart": {
+					"type": "string",
+					"description": "ISO 8601 start of the observation window."
+				},
+				"windowEnd": { "type": "string", "description": "ISO 8601 end of the observation window." },
+				"confidence": {
+					"type": "number",
+					"minimum": 0,
+					"maximum": 1,
+					"description": "Raw 0..1. Rendered as a qualitative band (low / medium / high) — a model emitting 0.87 claims precision it doesn't have, so the renderer never shows the number."
+				},
+				"tags": {
+					"oneOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "object",
+								"description": "A short labelled facet of the finding, rendered as a chip.",
+								"properties": {
+									"label": {
+										"type": "string",
+										"description": "Chip text, e.g. \"Invoice errors\"."
+									},
+									"count": {
+										"type": "number",
+										"description": "Optional raw count; the renderer formats it."
+									}
+								},
+								"required": ["label"],
+								"additionalProperties": false
+							}
+						},
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "Facets of the finding as {label, count?} chips. Empty collapses the chip row."
+				},
+				"drillAction": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Fired when the user drills into the insight. subjectKind + subjectId are merged into its context automatically."
+				},
+				"feedbackAction": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Fired by the thumbs pair. subjectKind, subjectId, and verdict ('up' | 'down') are merged automatically. The card shows an acknowledged state itself; respond to a 'down' by de-emphasizing via the data model."
+				},
+				"detailComponentId": {
+					"type": "string",
+					"description": "ComponentId of extra content, rendered collapsed under the card."
+				}
+			},
+			"required": ["headline", "subjectKind", "subjectId"]
+		},
+		"SourceAudit": {
+			"type": "object",
+			"properties": {
+				"component": { "const": "SourceAudit" },
+				"label": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "What this recording is, e.g. 'Support call — Acme Corp, 14 Aug'. Required — the accessible name."
+				},
+				"mediaUrl": {
+					"type": "string",
+					"description": "URL of the recording (host-signed, short-lived is fine). Required. Never autoplays."
+				},
+				"mediaKind": {
+					"enum": ["video", "audio"],
+					"description": "Which player to render. Required."
+				},
+				"posterUrl": {
+					"type": "string",
+					"description": "Poster image for video, shown before load."
+				},
+				"durationSeconds": {
+					"type": "number",
+					"description": "Raw duration. Supplying it lets the player reserve its scrubber layout before media metadata arrives — zero CLS."
+				},
+				"captionsUrl": {
+					"type": "string",
+					"description": "WebVTT captions URL. Captions are the requirement; the transcript is an enhancement."
+				},
+				"transcript": {
+					"oneOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"startSeconds": { "type": "number", "description": "Raw offset into the media." },
+									"speaker": {
+										"type": "string",
+										"description": "Who is talking, e.g. 'Customer'."
+									},
+									"text": { "type": "string" }
+								},
+								"required": ["startSeconds", "text"],
+								"additionalProperties": false
+							}
+						},
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "Time-synced lines. Bind with {\"path\": ...} — transcription runs async, so an empty transcript is a common, designed state ('transcript still processing'), not an error."
+				},
+				"seekAction": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Optional: fired when the user seeks via a transcript line; startSeconds is merged into its context automatically."
+				}
+			},
+			"required": ["label", "mediaUrl", "mediaKind"]
+		},
+		"VelocityScatter": {
+			"type": "object",
+			"properties": {
+				"component": { "const": "VelocityScatter" },
+				"label": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "The chart's title and accessible name. Required."
+				},
+				"xLabel": {
+					"type": "string",
+					"description": "X axis meaning, e.g. 'Support volume'. Required — an unlabelled axis is unreadable."
+				},
+				"yLabel": {
+					"type": "string",
+					"description": "Y axis meaning, e.g. 'Sentiment'. Required."
+				},
+				"subjectKind": {
+					"type": "string",
+					"description": "What the points are. Default 'account'; merged into pointAction context with the point's id.",
+					"default": "account"
+				},
+				"points": {
+					"oneOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": { "type": "string", "description": "The subject id this point drills to." },
+									"label": {
+										"type": "string",
+										"description": "Human name, e.g. 'Acme Corp'. Required — points are read aloud, not just plotted."
+									},
+									"x": { "type": "number" },
+									"y": { "type": "number" },
+									"dx": {
+										"type": "number",
+										"description": "Momentum along x since the previous window. Raw signed number."
+									},
+									"dy": {
+										"type": "number",
+										"description": "Momentum along y since the previous window. Raw signed number."
+									},
+									"intent": { "enum": ["good", "bad", "warning", "info", "neutral"] },
+									"weight": {
+										"type": "number",
+										"description": "Sizes the point, e.g. by revenue. Raw number."
+									}
+								},
+								"required": ["id", "label", "x", "y", "dx", "dy"],
+								"additionalProperties": false
+							}
+						},
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "The accounts as points with momentum vectors. Bind with {\"path\": ...} to stream."
+				},
+				"pointAction": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Fired on point activation. subjectKind, subjectId (the point's id), pointLabel, x, and y are merged into its context automatically."
+				}
+			},
+			"required": ["label", "xLabel", "yLabel", "points"]
+		},
+		"ClusterMap": {
+			"type": "object",
+			"properties": {
+				"component": { "const": "ClusterMap" },
+				"label": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Title and accessible name, e.g. 'Accounts at risk, by reason'. Required."
+				},
+				"clusters": {
+					"oneOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": { "type": "string" },
+									"label": {
+										"type": "string",
+										"description": "Short name, e.g. 'Report accuracy'."
+									},
+									"size": {
+										"type": "number",
+										"description": "How many accounts share the reason. Raw count."
+									},
+									"intent": { "enum": ["good", "bad", "warning", "info", "neutral"] },
+									"reason": {
+										"type": "string",
+										"description": "The shared risk reason, written for humans — the thing that makes the group actionable. Required."
+									}
+								},
+								"required": ["id", "label", "size", "reason"],
+								"additionalProperties": false
+							}
+						},
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "Groups of accounts that share a risk reason. The reason is the point — it is what makes the group actionable."
+				},
+				"clusterAction": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Fired on cluster activation. subjectKind 'cluster', subjectId (the cluster's id), and reason are merged into its context automatically."
+				}
+			},
+			"required": ["label", "clusters"]
+		},
+		"DrillStack": {
+			"type": "object",
+			"properties": {
+				"component": { "const": "DrillStack" },
+				"levels": {
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": "object",
+						"properties": {
+							"title": {
+								"type": "string",
+								"description": "Breadcrumb text and the level's accessible name."
+							},
+							"componentId": {
+								"type": "string",
+								"description": "ComponentId of the level's content, already on the surface."
+							}
+						},
+						"required": ["title", "componentId"],
+						"additionalProperties": false
+					},
+					"description": "The drill path, surface first. Each level names a component already on the surface."
+				},
+				"activeIndex": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding",
+					"description": "Data binding for the visible depth, always {\"path\": ...}. Push a level by writing the index with updateDataModel — never by re-sending the stack. Required."
+				},
+				"dismissAction": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Optional: fired when the user dismisses the whole stack."
+				}
+			},
+			"required": ["levels", "activeIndex"]
+		}
+	},
+	"$defs": {
+		"anyComponent": {
+			"oneOf": [
+				{ "$ref": "#/components/InsightCard" },
+				{ "$ref": "#/components/SourceAudit" },
+				{ "$ref": "#/components/VelocityScatter" },
+				{ "$ref": "#/components/ClusterMap" },
+				{ "$ref": "#/components/DrillStack" }
+			],
+			"discriminator": { "propertyName": "component" }
+		},
+		"anyFunction": { "not": {} }
+	}
+}

@@ -1,6 +1,11 @@
-# intel contract — the emission gate log
+# insight contract — the emission gate log
 
-The M1 record for the intel catalog — auri's third vocabulary and the first designed _with_ a
+> Renamed from `intel` in 0.7.0, when the catalog was de-domained (contract principle 9) and
+> brought into A2UI v1.0 conformance. The gate record below is the ORIGINAL intel run and is kept
+> verbatim — it is what actually happened. The 0.7.0 re-gate against the new pack is recorded
+> beneath it once run.
+
+The M1 record for the intel catalog (now `insight`) — auri's third vocabulary and the first designed _with_ a
 consumer: every component originates in Hyphen RIE's requests (issues #20–#25), and the gate ran
 their scenarios verbatim. Foundations (#20): `subjectKind` + `subjectId` on every drillable
 element, merged into drill/feedback contexts by the renderer; `feedbackAction` with the standing

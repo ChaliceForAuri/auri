@@ -1,12 +1,14 @@
 {
-	"name": "@aurilabs/intel",
+	"name": "@aurilabs/insight",
 	"version": "0.6.0",
 	"type": "module",
-	"description": "The auri intel catalog for A2UI — revenue-intelligence surfaces: insight feeds, drill paths from aggregate to source, account risk pictures. Svelte 5, plugs into svelte-a2ui.",
+	"description": "auri insight catalog for A2UI \u2014 present a finding and reach its evidence. Domain-neutral vocabulary: what a finding is about travels as data.",
 	"license": "Apache-2.0",
 	"author": "Hugo Pretorius <ohheyhugo@gmail.com>",
 	"scripts": {
 		"test": "node --test tests/*.test.js",
+		"build:catalog": "node ../core/scripts/build-catalog.js contract/catalog.source.json contract/catalog.json",
+		"check:catalog": "node ../core/scripts/build-catalog.js contract/catalog.source.json contract/catalog.json --check",
 		"eval": "node ../ops/scripts/emission-eval.js --pack contract/prompt.md --contract contract/catalog.json --scenarios-file contract/emission-scenarios.json",
 		"test:browser": "vitest run",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
@@ -74,6 +76,6 @@
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/ChaliceForAuri/auri.git",
-		"directory": "packages/intel"
+		"directory": "packages/insight"
 	}
 }
