@@ -2,7 +2,7 @@
 	import { A2uiClient, Surface, createCatalogRegistry, basicCatalog } from 'svelte-a2ui';
 	import { opsCatalog, OPS_CATALOG_ID } from '@aurilabs/ops';
 	import { formsCatalog, FORMS_CATALOG_ID } from '@aurilabs/forms';
-	import { intelCatalog, INTEL_CATALOG_ID } from '@aurilabs/intel';
+	import { insightCatalog, INSIGHT_CATALOG_ID } from '@aurilabs/insight';
 
 	/**
 	 * The visual sheet: every component of both catalogs in every intent, plus
@@ -13,9 +13,9 @@
 	 */
 
 	const BASIC = 'https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json';
-	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, intelCatalog, basicCatalog]);
+	const catalog = createCatalogRegistry([opsCatalog, formsCatalog, insightCatalog, basicCatalog]);
 	const form = (spec: Record<string, unknown>) => ({ catalogId: FORMS_CATALOG_ID, ...spec });
-	const intel = (spec: Record<string, unknown>) => ({ catalogId: INTEL_CATALOG_ID, ...spec });
+	const intel = (spec: Record<string, unknown>) => ({ catalogId: INSIGHT_CATALOG_ID, ...spec });
 	const client = new A2uiClient();
 
 	const col = (id: string, children: string[]) => ({

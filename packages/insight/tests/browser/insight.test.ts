@@ -5,10 +5,10 @@ import { render } from 'vitest-browser-svelte';
 import { A2uiClient, Surface, createCatalogRegistry, basicCatalog } from 'svelte-a2ui';
 import type { AgentToRenderer, ComponentSpec, RendererAction } from 'svelte-a2ui';
 import { opsCatalog } from '../../../ops/src/lib/index.js';
-import { intelCatalog, confidenceBand, describeVector } from '../../src/lib/index.js';
+import { insightCatalog, confidenceBand, describeVector } from '../../src/lib/index.js';
 
 const SURFACE = 'test';
-const catalog = createCatalogRegistry([intelCatalog, opsCatalog, basicCatalog]);
+const catalog = createCatalogRegistry([insightCatalog, opsCatalog, basicCatalog]);
 
 function makeClient(onAction?: (action: RendererAction) => void): A2uiClient {
 	return new A2uiClient(onAction ? { onAction } : {});
@@ -21,7 +21,7 @@ function boot(
 ): void {
 	client.ingest({
 		version: 'v1.0',
-		createSurface: { surfaceId: SURFACE, catalogId: intelCatalog.id, components, dataModel }
+		createSurface: { surfaceId: SURFACE, catalogId: insightCatalog.id, components, dataModel }
 	});
 }
 
@@ -87,8 +87,11 @@ const INSIGHT = {
 	signalType: 'friction',
 	intent: 'warning',
 	confidence: 0.8,
-	revenueAtRisk: 1200000,
-	currency: 'USD',
+	metrics: [
+		{ label: 'Cases', value: 312 },
+		{ label: 'Revenue at risk', value: 1200000, unit: 'USD', intent: 'bad' }
+	],
+	tags: [{ label: 'Export totals', count: 204 }, { label: 'Rounding' }],
 	drillAction: { event: { name: 'insight_drilled', context: { source: 'feed' } } },
 	feedbackAction: { event: { name: 'insight_feedback' } }
 };
@@ -100,7 +103,12 @@ test('InsightCard renders band + money, and merges subject into drill', async ()
 	boot(client, [INSIGHT as never]);
 
 	await expect.element(screen.getByText('high confidence')).toBeInTheDocument();
+	// unit 'USD' is an ISO 4217 code, so it formats as money in the host locale
 	await expect.element(screen.getByText('$1,200,000')).toBeInTheDocument();
+	await expect.element(screen.getByText('Revenue at risk')).toBeInTheDocument();
+	await expect.element(screen.getByText('312')).toBeInTheDocument();
+	// a tag without a count still renders — count is optional now
+	await expect.element(screen.getByText('Rounding', { exact: false })).toBeInTheDocument();
 
 	(screen.container.querySelector('.headline.as-button') as HTMLButtonElement).click();
 	expect(actions).toHaveLength(1);
@@ -108,6 +116,30 @@ test('InsightCard renders band + money, and merges subject into drill', async ()
 	expect(actions[0]!.context.subjectKind).toBe('cluster');
 	expect(actions[0]!.context.subjectId).toBe('cl-report-accuracy');
 	expect(actions[0]!.context.source).toBe('feed');
+});
+
+test('a domain word the catalog has never seen still renders', async () => {
+	/*
+	 * signalType used to be a closed enum backed by a seven-entry label map, and an
+	 * unlisted value returned null -- the component silently rendered NOTHING. Both
+	 * are free strings now (principle 9), so a value from someone else's domain has
+	 * to survive all the way to the screen.
+	 */
+	const client = makeClient();
+	const screen = await render(Surface, { props: { client, catalog, surfaceId: SURFACE } });
+	boot(client, [
+		{
+			...INSIGHT,
+			subjectKind: 'vendor',
+			signalType: 'policy_drift',
+			metrics: [{ label: 'Findings', value: 7, intent: 'warning' }]
+		} as never
+	]);
+
+	await expect.element(screen.getByText('policy drift')).toBeInTheDocument();
+	await expect.element(screen.getByText('Findings')).toBeInTheDocument();
+	const metric = screen.container.querySelector('dd.metric[data-intent="warning"]');
+	expect(metric?.textContent?.trim()).toBe('7');
 });
 
 test('InsightCard feedback merges the verdict and acknowledges visibly', async () => {

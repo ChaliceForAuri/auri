@@ -5,15 +5,22 @@
 	import {
 		confidenceBand,
 		formatCount,
-		formatMoney,
+		formatMetricValue,
 		formatWindow,
-		normalizeIntent,
-		signalLabel
+		humanizeKind,
+		normalizeIntent
 	} from '../format.js';
 
-	interface Theme {
+	interface Tag {
 		label: string;
-		count: number;
+		count?: number;
+	}
+
+	interface Metric {
+		label: string;
+		value: number;
+		unit?: string;
+		intent?: string;
 	}
 
 	interface Props {
@@ -24,13 +31,11 @@
 		signalType?: unknown;
 		intent?: unknown;
 		trend?: unknown;
-		caseCount?: unknown;
+		metrics?: unknown;
 		windowStart?: unknown;
 		windowEnd?: unknown;
 		confidence?: unknown;
-		revenueAtRisk?: unknown;
-		currency?: unknown;
-		themes?: unknown;
+		tags?: unknown;
 		/** Registered `raw`: subject (and verdict) are merged before dispatch. */
 		drillAction?: unknown;
 		feedbackAction?: unknown;
@@ -48,13 +53,11 @@
 		signalType,
 		intent,
 		trend,
-		caseCount,
+		metrics,
 		windowStart,
 		windowEnd,
 		confidence,
-		revenueAtRisk,
-		currency,
-		themes,
+		tags,
 		drillAction,
 		feedbackAction,
 		slots,
@@ -66,13 +69,25 @@
 	const rc = getRenderContext();
 
 	const tone = $derived(normalizeIntent(intent));
-	const signal = $derived(signalLabel(signalType));
+	const signal = $derived(humanizeKind(signalType));
 	const band = $derived(confidenceBand(confidence));
 	const window_ = $derived(formatWindow(windowStart, windowEnd));
-	const themeList: Theme[] = $derived(
-		Array.isArray(themes)
-			? themes.filter(
-					(t): t is Theme => Boolean(t) && typeof t === 'object' && typeof t.label === 'string'
+	const tagList: Tag[] = $derived(
+		Array.isArray(tags)
+			? tags.filter(
+					(t): t is Tag => Boolean(t) && typeof t === 'object' && typeof t.label === 'string'
+				)
+			: []
+	);
+
+	const metricList: Metric[] = $derived(
+		Array.isArray(metrics)
+			? metrics.filter(
+					(m): m is Metric =>
+						Boolean(m) &&
+						typeof m === 'object' &&
+						typeof m.label === 'string' &&
+						typeof m.value === 'number'
 				)
 			: []
 	);
@@ -130,30 +145,28 @@
 	{#if summary}<p class="summary">{summary}</p>{/if}
 
 	<dl class="facts">
-		{#if caseCount !== undefined}
+		{#each metricList as m (m.label)}
 			<div>
-				<dt>cases</dt>
-				<dd>{formatCount(caseCount)}</dd>
+				<dt>{m.label}</dt>
+				<dd class="metric" data-intent={normalizeIntent(m.intent)}>
+					{formatMetricValue(m.value, m.unit)}
+				</dd>
 			</div>
-		{/if}
+		{/each}
 		{#if window_}
 			<div>
 				<dt>window</dt>
 				<dd>{window_}</dd>
 			</div>
 		{/if}
-		{#if revenueAtRisk !== undefined}
-			<div>
-				<dt>at risk</dt>
-				<dd class="risk">{formatMoney(revenueAtRisk, currency)}</dd>
-			</div>
-		{/if}
 	</dl>
 
-	{#if themeList.length > 0}
-		<ul class="themes">
-			{#each themeList as t (t.label)}
-				<li>{t.label} <span class="count">{formatCount(t.count)}</span></li>
+	{#if tagList.length > 0}
+		<ul class="tags">
+			{#each tagList as t (t.label)}
+				<li>
+					{t.label}{#if t.count !== undefined}<span class="count">{formatCount(t.count)}</span>{/if}
+				</li>
 			{/each}
 		</ul>
 	{/if}
@@ -304,11 +317,35 @@
 		font-variant-numeric: tabular-nums;
 		color: var(--auri-on-surface);
 	}
-	.facts dd.risk {
+	/*
+	 * A metric carrying an intent gets the filled tonal container that DESIGN.md
+	 * makes the signal — the same treatment ops Stat gives its chip, so one figure
+	 * reads identically across catalogs. Neutral stays plain text: if every metric
+	 * were a chip the row would be a wall of colour and none of it would signal.
+	 */
+	.facts dd.metric[data-intent]:not([data-intent='neutral']) {
+		display: inline-block;
+		padding: 0.05rem 0.45rem;
+		border-radius: var(--auri-shape-sm);
+	}
+	.facts dd.metric[data-intent='good'] {
+		background: var(--auri-intent-good-container);
+		color: var(--auri-on-intent-good-container);
+	}
+	.facts dd.metric[data-intent='bad'] {
+		background: var(--auri-intent-bad-container);
+		color: var(--auri-on-intent-bad-container);
+	}
+	.facts dd.metric[data-intent='warning'] {
+		background: var(--auri-intent-warning-container);
 		color: var(--auri-on-intent-warning-container);
 	}
+	.facts dd.metric[data-intent='info'] {
+		background: var(--auri-intent-info-container);
+		color: var(--auri-on-intent-info-container);
+	}
 
-	.themes {
+	.tags {
 		list-style: none;
 		display: flex;
 		flex-wrap: wrap;
@@ -316,14 +353,14 @@
 		margin: 0;
 		padding: 0;
 	}
-	.themes li {
+	.tags li {
 		font-size: var(--auri-type-caption-size);
 		padding: 0.1rem 0.55rem;
 		border: 1px solid var(--auri-outline-variant);
 		border-radius: var(--auri-shape-pill);
 		color: var(--auri-on-surface-variant);
 	}
-	.themes .count {
+	.tags .count {
 		font-variant-numeric: tabular-nums;
 		font-weight: 600;
 	}

@@ -1,0 +1,612 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
+	"protocolVersion": "v1.0",
+	"title": "auri insight",
+	"description": "The auri insight catalog for A2UI: presenting a finding and reaching its evidence — insight cards, drill paths from aggregate to source, cluster and velocity pictures, and source audit with transcript. Domain-neutral: what a finding is ABOUT travels as data, never as a schema enum. Component contracts are renderer-agnostic; see prompt.md for the agent-facing pack.",
+	"catalogId": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
+	"instructions": "Rules for emitting this catalog. 1) Every drillable element carries `subjectKind` + `subjectId` — the renderer merges them into drill and feedback action contexts automatically; never duplicate them into context yourself. `subjectKind` and `signalType` are FREE STRINGS in your own domain's words, not a fixed list. 2) `confidence` is a raw number 0..1; the renderer shows a qualitative band — never emit a percentage or a string. 3) Raw values on the wire: ISO 8601 windows, raw counts, raw amounts. Supporting figures go in `metrics` as {label, value, unit?, intent?} — `unit` takes an ISO 4217 code for money. Never pre-format a number or a date. 4) Feedback must visibly change something: bind a path the feedback action writes, so accepting or dismissing a finding is observable. Feedback that changes nothing teaches users their input is decorative.",
+	"components": {
+		"InsightCard": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "InsightCard"
+						},
+						"headline": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "The claim, in one sentence. Required — it is the card's accessible name. The card reserves two lines for it, so write for two lines at most."
+						},
+						"subjectKind": {
+							"$ref": "#/$defs/subjectKind",
+							"description": "What kind of thing this insight is about. Required — it is merged into drill and feedback contexts."
+						},
+						"subjectId": {
+							"type": "string",
+							"description": "Stable id of the subject, e.g. 'cl-report-accuracy'. Required."
+						},
+						"summary": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "One or two sentences of supporting evidence, written for humans."
+						},
+						"signalType": {
+							"type": "string",
+							"description": "What kind of signal this is, in YOUR domain's words — \"churn_risk\", \"outage\", \"policy_drift\", \"fraud_pattern\". Free text on purpose; a closed list would be one product's taxonomy. Keep the strings stable across a surface so they group and filter."
+						},
+						"intent": {
+							"$ref": "#/$defs/dynamicIntent",
+							"description": "Judgment of the insight; default 'neutral'. An alert is an insight whose intent earns 'bad'."
+						},
+						"trend": {
+							"enum": ["up", "down", "flat"],
+							"description": "Direction of the underlying signal — describes, never judges."
+						},
+						"metrics": {
+							"oneOf": [
+								{
+									"type": "array",
+									"items": {
+										"$ref": "#/$defs/metric"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
+							],
+							"description": "The figures behind the claim, as {label, value, unit?, intent?}. As many as the finding needs — an empty array collapses the row. Raw numbers only; the renderer formats them."
+						},
+						"windowStart": {
+							"type": "string",
+							"description": "ISO 8601 start of the observation window."
+						},
+						"windowEnd": {
+							"type": "string",
+							"description": "ISO 8601 end of the observation window."
+						},
+						"confidence": {
+							"type": "number",
+							"minimum": 0,
+							"maximum": 1,
+							"description": "Raw 0..1. Rendered as a qualitative band (low / medium / high) — a model emitting 0.87 claims precision it doesn't have, so the renderer never shows the number."
+						},
+						"tags": {
+							"oneOf": [
+								{
+									"type": "array",
+									"items": {
+										"$ref": "#/$defs/tag"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
+							],
+							"description": "Facets of the finding as {label, count?} chips. Empty collapses the chip row."
+						},
+						"drillAction": {
+							"$ref": "#/$defs/action",
+							"description": "Fired when the user drills into the insight. subjectKind + subjectId are merged into its context automatically."
+						},
+						"feedbackAction": {
+							"$ref": "#/$defs/action",
+							"description": "Fired by the thumbs pair. subjectKind, subjectId, and verdict ('up' | 'down') are merged automatically. The card shows an acknowledged state itself; respond to a 'down' by de-emphasizing via the data model."
+						},
+						"detailComponentId": {
+							"type": "string",
+							"description": "ComponentId of extra content, rendered collapsed under the card."
+						}
+					},
+					"required": ["headline", "subjectKind", "subjectId"]
+				}
+			]
+		},
+		"SourceAudit": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "SourceAudit"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "What this recording is, e.g. 'Support call — Acme Corp, 14 Aug'. Required — the accessible name."
+						},
+						"mediaUrl": {
+							"type": "string",
+							"description": "URL of the recording (host-signed, short-lived is fine). Required. Never autoplays."
+						},
+						"mediaKind": {
+							"enum": ["video", "audio"],
+							"description": "Which player to render. Required."
+						},
+						"posterUrl": {
+							"type": "string",
+							"description": "Poster image for video, shown before load."
+						},
+						"durationSeconds": {
+							"type": "number",
+							"description": "Raw duration. Supplying it lets the player reserve its scrubber layout before media metadata arrives — zero CLS."
+						},
+						"captionsUrl": {
+							"type": "string",
+							"description": "WebVTT captions URL. Captions are the requirement; the transcript is an enhancement."
+						},
+						"transcript": {
+							"oneOf": [
+								{
+									"type": "array",
+									"items": {
+										"$ref": "#/$defs/transcriptLine"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
+							],
+							"description": "Time-synced lines. Bind with {\"path\": ...} — transcription runs async, so an empty transcript is a common, designed state ('transcript still processing'), not an error."
+						},
+						"seekAction": {
+							"$ref": "#/$defs/action",
+							"description": "Optional: fired when the user seeks via a transcript line; startSeconds is merged into its context automatically."
+						}
+					},
+					"required": ["label", "mediaUrl", "mediaKind"]
+				}
+			]
+		},
+		"VelocityScatter": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "VelocityScatter"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "The chart's title and accessible name. Required."
+						},
+						"xLabel": {
+							"type": "string",
+							"description": "X axis meaning, e.g. 'Support volume'. Required — an unlabelled axis is unreadable."
+						},
+						"yLabel": {
+							"type": "string",
+							"description": "Y axis meaning, e.g. 'Sentiment'. Required."
+						},
+						"subjectKind": {
+							"$ref": "#/$defs/subjectKind",
+							"default": "account",
+							"description": "What the points are. Default 'account'; merged into pointAction context with the point's id."
+						},
+						"points": {
+							"oneOf": [
+								{
+									"type": "array",
+									"items": {
+										"$ref": "#/$defs/scatterPoint"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
+							],
+							"description": "The accounts as points with momentum vectors. Bind with {\"path\": ...} to stream."
+						},
+						"pointAction": {
+							"$ref": "#/$defs/action",
+							"description": "Fired on point activation. subjectKind, subjectId (the point's id), pointLabel, x, and y are merged into its context automatically."
+						}
+					},
+					"required": ["label", "xLabel", "yLabel", "points"]
+				}
+			]
+		},
+		"ClusterMap": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "ClusterMap"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "Title and accessible name, e.g. 'Accounts at risk, by reason'. Required."
+						},
+						"clusters": {
+							"oneOf": [
+								{
+									"type": "array",
+									"items": {
+										"$ref": "#/$defs/cluster"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
+							],
+							"description": "Groups of accounts that share a risk reason. The reason is the point — it is what makes the group actionable."
+						},
+						"clusterAction": {
+							"$ref": "#/$defs/action",
+							"description": "Fired on cluster activation. subjectKind 'cluster', subjectId (the cluster's id), and reason are merged into its context automatically."
+						}
+					},
+					"required": ["label", "clusters"]
+				}
+			]
+		},
+		"DrillStack": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "DrillStack"
+						},
+						"levels": {
+							"type": "array",
+							"minItems": 1,
+							"items": {
+								"$ref": "#/$defs/drillLevel"
+							},
+							"description": "The drill path, surface first. Each level names a component already on the surface."
+						},
+						"activeIndex": {
+							"$ref": "#/$defs/pathRef",
+							"description": "Data binding for the visible depth, always {\"path\": ...}. Push a level by writing the index with updateDataModel — never by re-sending the stack. Required."
+						},
+						"dismissAction": {
+							"$ref": "#/$defs/action",
+							"description": "Optional: fired when the user dismisses the whole stack."
+						}
+					},
+					"required": ["levels", "activeIndex"]
+				}
+			]
+		}
+	},
+	"$defs": {
+		"pathRef": {
+			"type": "object",
+			"properties": {
+				"path": {
+					"type": "string"
+				}
+			},
+			"required": ["path"],
+			"additionalProperties": false
+		},
+		"functionRef": {
+			"type": "object",
+			"description": "Invokes a named function.",
+			"properties": {
+				"call": {
+					"type": "string",
+					"description": "The name of the function to call."
+				},
+				"catalogId": {
+					"type": "string",
+					"description": "The catalog ID for this function, overriding any surface-level default catalogId."
+				},
+				"args": {
+					"type": "object",
+					"description": "Arguments passed to the function.",
+					"additionalProperties": {
+						"anyOf": [
+							{
+								"$ref": "#/$defs/dynamicValue"
+							},
+							{
+								"type": "object",
+								"description": "A literal object argument (e.g. configuration)."
+							}
+						]
+					}
+				}
+			},
+			"required": ["call"],
+			"oneOf": [
+				{
+					"$ref": "catalog.json#/$defs/anyFunction"
+				},
+				{
+					"$ref": "#/$defs/IndexSystemFunction"
+				}
+			],
+			"unevaluatedProperties": false
+		},
+		"dynamicString": {
+			"oneOf": [
+				{
+					"type": "string"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				},
+				{
+					"$ref": "#/$defs/functionRef"
+				}
+			]
+		},
+		"dynamicNumber": {
+			"oneOf": [
+				{
+					"type": "number"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				},
+				{
+					"$ref": "#/$defs/functionRef"
+				}
+			]
+		},
+		"dynamicBoolean": {
+			"oneOf": [
+				{
+					"type": "boolean"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				},
+				{
+					"$ref": "#/$defs/functionRef"
+				}
+			]
+		},
+		"intent": {
+			"enum": ["good", "bad", "warning", "info", "neutral"]
+		},
+		"dynamicIntent": {
+			"oneOf": [
+				{
+					"$ref": "#/$defs/intent"
+				},
+				{
+					"$ref": "#/$defs/pathRef"
+				}
+			]
+		},
+		"subjectKind": {
+			"type": "string",
+			"description": "What kind of thing this is about, in YOUR domain's words — \"account\", \"cluster\", \"vendor\", \"policy\", \"cohort\". Free text on purpose: a closed list here would be one product's entity model imposed on everyone else. Reuse the same string for the same kind across a surface, since it is merged into drill and feedback contexts."
+		},
+		"transcriptLine": {
+			"type": "object",
+			"properties": {
+				"startSeconds": {
+					"type": "number",
+					"description": "Raw offset into the media."
+				},
+				"speaker": {
+					"type": "string",
+					"description": "Who is talking, e.g. 'Customer'."
+				},
+				"text": {
+					"type": "string"
+				}
+			},
+			"required": ["startSeconds", "text"],
+			"additionalProperties": false
+		},
+		"scatterPoint": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "The subject id this point drills to."
+				},
+				"label": {
+					"type": "string",
+					"description": "Human name, e.g. 'Acme Corp'. Required — points are read aloud, not just plotted."
+				},
+				"x": {
+					"type": "number"
+				},
+				"y": {
+					"type": "number"
+				},
+				"dx": {
+					"type": "number",
+					"description": "Momentum along x since the previous window. Raw signed number."
+				},
+				"dy": {
+					"type": "number",
+					"description": "Momentum along y since the previous window. Raw signed number."
+				},
+				"intent": {
+					"$ref": "#/$defs/intent"
+				},
+				"weight": {
+					"type": "number",
+					"description": "Sizes the point, e.g. by revenue. Raw number."
+				}
+			},
+			"required": ["id", "label", "x", "y", "dx", "dy"],
+			"additionalProperties": false
+		},
+		"cluster": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"label": {
+					"type": "string",
+					"description": "Short name, e.g. 'Report accuracy'."
+				},
+				"size": {
+					"type": "number",
+					"description": "How many accounts share the reason. Raw count."
+				},
+				"intent": {
+					"$ref": "#/$defs/intent"
+				},
+				"reason": {
+					"type": "string",
+					"description": "The shared risk reason, written for humans — the thing that makes the group actionable. Required."
+				}
+			},
+			"required": ["id", "label", "size", "reason"],
+			"additionalProperties": false
+		},
+		"drillLevel": {
+			"type": "object",
+			"properties": {
+				"title": {
+					"type": "string",
+					"description": "Breadcrumb text and the level's accessible name."
+				},
+				"componentId": {
+					"type": "string",
+					"description": "ComponentId of the level's content, already on the surface."
+				}
+			},
+			"required": ["title", "componentId"],
+			"additionalProperties": false
+		},
+		"action": {
+			"description": "Defines an interaction handler that can either trigger an agent-side event or execute a local renderer-side function.",
+			"oneOf": [
+				{
+					"type": "object",
+					"description": "Triggers an agent-side event.",
+					"properties": {
+						"event": {
+							"type": "object",
+							"description": "The event to dispatch to the agent.",
+							"properties": {
+								"name": {
+									"type": "string",
+									"description": "The name of the action to be dispatched to the agent."
+								},
+								"userMessage": {
+									"$ref": "#/$defs/dynamicString",
+									"description": "An optional human-readable message describing the action performed by the user, to present in conversation history or user feedback."
+								},
+								"context": {
+									"type": "object",
+									"description": "A JSON object containing the key-value pairs for the action context. Values can be literals or paths. Use literal values unless the value must be dynamically bound to the data model. Do NOT use paths for static IDs.",
+									"additionalProperties": {
+										"$ref": "#/$defs/dynamicValue"
+									}
+								}
+							},
+							"required": ["name"],
+							"additionalProperties": false
+						}
+					},
+					"required": ["event"],
+					"additionalProperties": false
+				},
+				{
+					"type": "object",
+					"description": "Executes a renderer or agent-side function.",
+					"properties": {
+						"functionCall": {
+							"$ref": "#/$defs/functionRef"
+						}
+					},
+					"required": ["functionCall"],
+					"additionalProperties": false
+				}
+			]
+		},
+		"componentCommon": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"component": {
+					"type": "string"
+				},
+				"catalogId": {
+					"type": "string"
+				},
+				"weight": {
+					"type": "number"
+				},
+				"visible": {
+					"$ref": "#/$defs/dynamicBoolean"
+				},
+				"disabled": {
+					"$ref": "#/$defs/dynamicBoolean"
+				},
+				"semanticId": {
+					"type": "string"
+				},
+				"ariaLabel": {
+					"$ref": "#/$defs/dynamicString"
+				}
+			},
+			"required": ["id", "component"]
+		},
+		"tag": {
+			"type": "object",
+			"description": "A short labelled facet of the finding, rendered as a chip.",
+			"properties": {
+				"label": {
+					"type": "string",
+					"description": "Chip text, e.g. \"Invoice errors\"."
+				},
+				"count": {
+					"type": "number",
+					"description": "Optional raw count; the renderer formats it."
+				}
+			},
+			"required": ["label"],
+			"additionalProperties": false
+		},
+		"metric": {
+			"type": "object",
+			"description": "One figure supporting the finding. Raw values only — the renderer formats in the host locale.",
+			"properties": {
+				"label": {
+					"type": "string",
+					"description": "What the figure is, e.g. \"Cases\" or \"Revenue at risk\"."
+				},
+				"value": {
+					"$ref": "#/$defs/dynamicNumber",
+					"description": "The raw number. Bind with {\"path\": ...} if it changes."
+				},
+				"unit": {
+					"type": "string",
+					"description": "ISO 4217 code for money (\"USD\"), or a short unit (\"ms\", \"%\"). Same convention as ops Stat."
+				},
+				"intent": {
+					"$ref": "#/$defs/intent",
+					"description": "Optional per-figure intent — this is why one array beats fixed props: each figure carries its own reading."
+				}
+			},
+			"required": ["label", "value"],
+			"additionalProperties": false
+		}
+	},
+	"$comment": "AUTHORED SOURCE — compiled to catalog.json by @aurilabs/core's build-catalog. Helpers live in $defs for readability; the compiler inlines them (v1.0 catalog rule 2) and rewrites protocol primitives to common_types.json refs (rule 3), but only after checking each local def is structurally identical to the spec type it claims to be. Edit this file, never catalog.json."
+}

@@ -1,9 +1,15 @@
 name: Release
 
-# Publishes @aurilabs/core, @aurilabs/ops, and @aurilabs/forms to npm when a
+# Publishes @aurilabs/core, @aurilabs/ops, @aurilabs/forms and @aurilabs/insight to npm when a
 # v* tag is pushed, via npm Trusted Publishing (OIDC). No token lives in this
 # repo: npmjs.com is configured to trust this exact workflow, and npm generates
 # provenance attestations automatically. All packages version in lockstep with
+# NOTE: @aurilabs/insight is a NEW package name (it supersedes @aurilabs/intel).
+# npm requires a package to exist before a trusted publisher can be configured,
+# so its FIRST publish must be done manually by the maintainer; this job can only
+# take over from the second release onward. @aurilabs/intel stays on npm at 0.6.0
+# and keeps working — it is superseded, not unpublished.
+#
 # the tag. (forms 0.3.0 was published manually — npm requires the package to
 # exist before a trusted publisher can be configured; tagged releases carry it
 # from v0.4.0.)
@@ -42,11 +48,11 @@ jobs:
         timeout-minutes: 5
       - run: npm run test:browser -w @aurilabs/ops
       - run: npm run test:browser -w @aurilabs/forms
-      - run: npm run test:browser -w @aurilabs/intel
+      - run: npm run test:browser -w @aurilabs/insight
 
       # core first — the catalogs depend on it.
       - run: npm publish -w @aurilabs/core
       # prepublishOnly runs svelte-package + publint.
       - run: npm publish -w @aurilabs/ops
       - run: npm publish -w @aurilabs/forms
-      - run: npm publish -w @aurilabs/intel
+      - run: npm publish -w @aurilabs/insight

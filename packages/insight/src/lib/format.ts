@@ -1,23 +1,35 @@
-/** Pure formatting helpers for intel components — Intl in the host locale. */
+/** Pure formatting helpers for insight components — Intl in the host locale. */
 
 export function formatCount(value: unknown): string {
 	return typeof value === 'number' ? new Intl.NumberFormat().format(value) : '—';
 }
 
-export function formatMoney(value: unknown, currency: unknown): string {
+/** ISO 4217 codes are exactly three letters; anything else is a plain unit. */
+const CURRENCY_CODE = /^[A-Z]{3}$/;
+
+/**
+ * Format one metric's value. `unit` is an ISO 4217 code for money ("USD") or a
+ * short unit ("ms", "%"), matching what ops `Stat` accepts — the two catalogs
+ * must read the same or the same figure looks different on one surface.
+ */
+export function formatMetricValue(value: unknown, unit: unknown): string {
 	if (typeof value !== 'number') return '—';
-	if (typeof currency === 'string' && currency) {
+	const u = typeof unit === 'string' ? unit.trim() : '';
+	if (CURRENCY_CODE.test(u)) {
 		try {
 			return new Intl.NumberFormat(undefined, {
 				style: 'currency',
-				currency,
+				currency: u,
 				maximumFractionDigits: 0
 			}).format(value);
 		} catch {
-			return `${currency} ${new Intl.NumberFormat().format(value)}`;
+			// A well-formed code Intl doesn't know still reads better than a bare number.
+			return `${u} ${new Intl.NumberFormat().format(value)}`;
 		}
 	}
-	return new Intl.NumberFormat().format(value);
+	const n = new Intl.NumberFormat().format(value);
+	if (!u) return n;
+	return u === '%' ? `${n}%` : `${n} ${u}`;
 }
 
 export function formatWindow(start: unknown, end: unknown): string {
@@ -52,18 +64,19 @@ export function normalizeIntent(value: unknown): string {
 		: 'neutral';
 }
 
-const SIGNAL_LABELS: Record<string, string> = {
-	churn_risk: 'churn risk',
-	expansion: 'expansion',
-	friction: 'friction',
-	kb_gap: 'knowledge gap',
-	automation_drift: 'automation drift',
-	outage: 'outage',
-	advocacy: 'advocacy'
-};
-
-export function signalLabel(value: unknown): string | null {
-	return typeof value === 'string' ? (SIGNAL_LABELS[value] ?? null) : null;
+/**
+ * Turn a free-form domain string into display text: `churn_risk` -> "churn risk".
+ *
+ * This replaced a seven-entry lookup table of one customer's signal names. The
+ * table was worse than the closed enum in the schema, because an unlisted value
+ * returned null and the component rendered NOTHING — an agent emitting a
+ * perfectly valid `policy_drift` silently lost it. Contract principle 9 applies
+ * to the implementation too: domain vocabulary is data, so display it as data.
+ */
+export function humanizeKind(value: unknown): string | null {
+	if (typeof value !== 'string') return null;
+	const text = value.trim().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
+	return text.length > 0 ? text : null;
 }
 
 /** Direction words for a momentum vector — how a screen reader hears an arrow. */

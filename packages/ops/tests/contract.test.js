@@ -44,7 +44,7 @@ test('workspace lockstep: every catalog version and range agrees with core', () 
 	// catalog, which silently shadows the workspace tokens at build (v0.2.0 bug).
 	const here = dirname(fileURLToPath(import.meta.url));
 	const core = JSON.parse(readFileSync(join(here, '..', '..', 'core', 'package.json'), 'utf8'));
-	for (const key of ['ops', 'forms', 'intel']) {
+	for (const key of ['ops', 'forms', 'insight']) {
 		const pkg = JSON.parse(readFileSync(join(here, '..', '..', key, 'package.json'), 'utf8'));
 		assert.equal(core.version, pkg.version, `core and ${key} must version in lockstep`);
 		assert.equal(

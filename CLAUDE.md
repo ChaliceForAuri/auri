@@ -48,6 +48,8 @@ Tooling patterns are inherited from `ChaliceForAuri/a2ui-svelte` — read its CL
 ```
 packages/core/   @aurilabs/core — tokens, intent system, prompt-pack tooling
 packages/ops/    @aurilabs/ops — the first catalog (contract/ + src/)
+packages/forms/  @aurilabs/forms — collect an answer
+packages/insight/ @aurilabs/insight — present a finding, reach its evidence (was `intel`)
 apps/docs/       docs + demo site (GitHub Pages; components stream in via mock transport)
 docs/PLAN.md     the founding plan: component inventory, architecture, milestones
 ```

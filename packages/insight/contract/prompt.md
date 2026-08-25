@@ -1,24 +1,24 @@
-# auri intel — prompt-pack (v1: all 5 components)
+# auri insight — prompt-pack (v1: all 5 components)
 
-> System-prompt snippet teaching an agent the `auri intel` vocabulary. Everything below the rule is
+> System-prompt snippet teaching an agent the `auri insight` vocabulary. Everything below the rule is
 > the pack.
 
 ---
 
-You can render revenue-intelligence surfaces for the user by emitting A2UI v1.0 messages as
+You can show the user a finding and let them reach its evidence by emitting A2UI v1.0 messages as
 JSONL — one complete JSON object per line, no surrounding markdown or prose. You describe
 components from a fixed catalog; you never write markup or code.
 
-Catalog id: `https://chaliceforauri.github.io/auri/catalogs/intel/v1.json`
+Catalog id: `https://chaliceforauri.github.io/auri/catalogs/insight/v1.json`
 
 ## The wire in 30 seconds
 
 Three message kinds. A minimal complete stream:
 
 ```
-{"version":"v1.0","createSurface":{"surfaceId":"i1","catalogId":"https://chaliceforauri.github.io/auri/catalogs/intel/v1.json"}}
+{"version":"v1.0","createSurface":{"surfaceId":"i1","catalogId":"https://chaliceforauri.github.io/auri/catalogs/insight/v1.json"}}
 {"version":"v1.0","updateDataModel":{"surfaceId":"i1","value":{"caseCount":312}}}
-{"version":"v1.0","updateComponents":{"surfaceId":"i1","components":[{"id":"root","component":"InsightCard","headline":"Report-accuracy complaints are accelerating","subjectKind":"cluster","subjectId":"cl-report-accuracy","caseCount":{"path":"/caseCount"},"intent":"warning","drillAction":{"event":{"name":"insight_drilled"}}}]}}
+{"version":"v1.0","updateComponents":{"surfaceId":"i1","components":[{"id":"root","component":"InsightCard","headline":"Report-accuracy complaints are accelerating","subjectKind":"cluster","subjectId":"cl-report-accuracy","metrics":[{"label":"Cases","value":{"path":"/caseCount"}}],"intent":"warning","drillAction":{"event":{"name":"insight_drilled"}}}]}}
 ```
 
 - Every line has the shape `{"version":"v1.0","<messageKind>":{...}}` — it ends with **two**
@@ -30,26 +30,33 @@ Three message kinds. A minimal complete stream:
 
 ## Rules
 
-1. **Every drillable element names its subject**: `subjectKind`
-   (`cluster | account | case | theme | rule`) + `subjectId`. The renderer merges them into drill
+1. **Every drillable element names its subject**: `subjectKind` + `subjectId`. `subjectKind` is a
+   **free string in your own domain's words** — `"account"`, `"cluster"`, `"vendor"`, `"policy"`,
+   `"cohort"` — not a fixed list. Use the same string for the same kind across a surface, since it
+   groups and filters. The renderer merges them into drill
    and feedback action contexts automatically — never duplicate them into `context` yourself; put
    only what the renderer can't know there. **`context` lives INSIDE `event`**, never beside it:
    `{"event": {"name": "…", "context": {…}}}` — an action with `context` as a sibling of `event`
    is invalid and will be rejected.
-2. **Raw values on the wire.** ISO 8601 windows, raw counts, raw revenue plus an ISO 4217
-   `currency` code. `confidence` is a raw `0..1` number — the renderer shows a qualitative band
-   (low / medium / high), never the number, so never emit a percentage.
+2. **Raw values on the wire.** ISO 8601 windows and raw numbers — never a pre-formatted
+   `"1,234"` or `"3 days ago"`. Supporting figures go in `metrics` as
+   `{"label", "value", "unit"?, "intent"?}`; `unit` takes an ISO 4217 code for money (`"USD"`) or a
+   short unit (`"ms"`, `"%"`). `confidence` is a raw `0..1` number — the renderer shows a
+   qualitative band (low / medium / high), never the number, so never emit a percentage.
 3. **`intent` judges, `trend` describes** — same scale as everywhere in auri:
    `good | bad | warning | info | neutral`. An alert is just an insight whose intent earns `bad`.
-4. **Send components in small batches.** `updateComponents` merges by `id` — emit two or three
+4. **Domain words are DATA, not vocabulary.** `subjectKind` and `signalType` are free strings;
+   what a finding is about is yours to name. Nothing in this catalog encodes an industry, so the
+   same five components serve support, security, finance or operations without translation.
+5. **Send components in small batches.** `updateComponents` merges by `id` — emit two or three
    components per line, never a whole surface in one line.
-5. **Send data in small slices.** After the initial send, always include a `path`: an
+6. **Send data in small slices.** After the initial send, always include a `path`: an
    `updateDataModel` without one **replaces the entire data model**, blanking every binding on the
    surface.
-6. **Respond visibly to feedback.** When a `feedbackAction` event arrives with
+7. **Respond visibly to feedback.** When a `feedbackAction` event arrives with
    `verdict: "down"`, de-emphasize or remove the element through the data model (its `visible`
    binding) — feedback that visibly changes nothing teaches users their input is decorative.
-7. **Drill without re-sending.** A DrillStack's `activeIndex` is a binding: push and pop depths
+8. **Drill without re-sending.** A DrillStack's `activeIndex` is a binding: push and pop depths
    by writing the index with `updateDataModel`, never by re-sending components.
 
 **Everything an action carries lives INSIDE `event`.** `name`, `context`,
@@ -74,22 +81,21 @@ The feed card carrying a claim, its evidence, its impact, and feedback. `headlin
 | prop                | type                            | notes                                                                                     |
 | ------------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
 | `headline`          | string, required                | the claim in one sentence; the card reserves two lines                                    |
-| `subjectKind`       | subject kind, required          | what the insight is about                                                                 |
+| `subjectKind`       | free string, required           | what the finding is about, in your words                                                  |
 | `subjectId`         | string, required                | e.g. `"cl-report-accuracy"`                                                               |
 | `summary`           | string                          | 1–2 sentences of evidence, for humans                                                     |
-| `signalType`        | closed enum                     | `churn_risk \| expansion \| friction \| kb_gap \| automation_drift \| outage \| advocacy` |
+| `signalType`        | free string                     | your own word for the kind of signal, e.g. `"churn_risk"`, `"outage"`, `"policy_drift"`   |
 | `intent` / `trend`  | intent scale / `up\|down\|flat` | judgment and direction, independent axes                                                  |
-| `caseCount`         | number \| `{"path"}`            | raw count behind the claim; bind if it grows                                              |
+| `metrics`           | metric[] \| `{"path"}`          | the figures behind the claim; as many as it needs, each with optional `unit` and `intent` |
 | `windowStart`/`End` | ISO 8601 strings                | the observation window                                                                    |
 | `confidence`        | number 0..1                     | rendered as a band, never a number                                                        |
-| `revenueAtRisk`     | number \| `{"path"}`            | raw; formatted with `currency` (ISO 4217)                                                 |
-| `themes`            | {label,count}[] \| `{"path"}`   | sub-theme chips; empty collapses                                                          |
+| `tags`              | {label,count?}[] \| `{"path"}`  | facet chips; empty collapses                                                              |
 | `drillAction`       | action                          | subject merged automatically                                                              |
 | `feedbackAction`    | action                          | subject + `verdict: "up"\|"down"` merged automatically                                    |
 | `detailComponentId` | ComponentId                     | extra content, rendered collapsed                                                         |
 
 ```
-{"id":"insight_ra","component":"InsightCard","headline":"Report-accuracy complaints are accelerating","subjectKind":"cluster","subjectId":"cl-report-accuracy","summary":"Export totals not matching on-screen figures. 312 cases since 1 August, three enterprise accounts affected.","signalType":"friction","intent":"warning","trend":"up","caseCount":{"path":"/ra/caseCount"},"windowStart":"2026-08-01T00:00:00Z","windowEnd":"2026-08-20T00:00:00Z","confidence":0.8,"revenueAtRisk":{"path":"/ra/arr"},"currency":"USD","themes":[{"label":"Export totals","count":204},{"label":"Rounding","count":68}],"drillAction":{"event":{"name":"insight_drilled","context":{"view":"impact"}}},"feedbackAction":{"event":{"name":"insight_feedback"}}}
+{"id":"insight_ra","component":"InsightCard","headline":"Report-accuracy complaints are accelerating","subjectKind":"cluster","subjectId":"cl-report-accuracy","summary":"Export totals not matching on-screen figures. 312 cases since 1 August, three enterprise accounts affected.","signalType":"friction","intent":"warning","trend":"up","metrics":[{"label":"Cases","value":{"path":"/ra/caseCount"}},{"label":"Revenue at risk","value":{"path":"/ra/arr"},"unit":"USD","intent":"bad"}],"windowStart":"2026-08-01T00:00:00Z","windowEnd":"2026-08-20T00:00:00Z","confidence":0.8,"tags":[{"label":"Export totals","count":204},{"label":"Rounding","count":68}],"drillAction":{"event":{"name":"insight_drilled","context":{"view":"impact"}}},"feedbackAction":{"event":{"name":"insight_feedback"}}}
 ```
 
 ### SourceAudit — the recording and its time-synced transcript
@@ -128,7 +134,7 @@ is unreadable.
 | `label`       | string, required      | title and accessible name                             |
 | `xLabel`      | string, required      | e.g. `"Support volume"`                               |
 | `yLabel`      | string, required      | e.g. `"Sentiment"`                                    |
-| `subjectKind` | subject kind          | default `"account"`                                   |
+| `subjectKind` | free string           | what the points are, in your words; default `"item"`  |
 | `points`      | point[] \| `{"path"}` | shape below; bind to stream                           |
 | `pointAction` | action                | subject + `pointLabel`, `x`, `y` merged automatically |
 
@@ -189,10 +195,10 @@ To push the second level:
 
 Layout containers (`Row`, `Column`, `Card`) come from the A2UI basic catalog, and the deeper
 levels of a drill are usually **ops** components — an impact table is an ops `DataTable` with a
-`footer`, a trend is an ops `Chart`. Give any non-intel component an explicit `catalogId`:
+`footer`, a trend is an ops `Chart`. Give any non-insight component an explicit `catalogId`:
 
 ```
-{"id":"impact_table","component":"DataTable","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json","columns":[{"key":"company","label":"Company"},{"key":"arr","label":"ARR","align":"end","format":"number"}],"rows":{"path":"/impact/rows"},"footer":[{"key":"arr","aggregate":"sum","label":"Total ARR at risk"}]}
+{"id":"impact_table","component":"DataTable","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v2.json","columns":[{"key":"company","label":"Company"},{"key":"arr","label":"ARR","align":"end","format":"number"}],"rows":{"path":"/impact/rows"},"footer":[{"key":"arr","aggregate":"sum","label":"Total ARR at risk"}]}
 ```
 
 ## A complete example
@@ -201,11 +207,11 @@ An insight surfaces, carries its drill path, and the agent pushes the impact lev
 drills — components in small batches, depth as data.
 
 ```
-{"version":"v1.0","createSurface":{"surfaceId":"intel","catalogId":"https://chaliceforauri.github.io/auri/catalogs/intel/v1.json"}}
-{"version":"v1.0","updateDataModel":{"surfaceId":"intel","value":{"depth":0,"ra":{"caseCount":312,"arr":1200000}}}}
-{"version":"v1.0","updateComponents":{"surfaceId":"intel","components":[{"id":"root","component":"DrillStack","levels":[{"title":"Insights","componentId":"insight_ra"},{"title":"Affected accounts","componentId":"impact_table"}],"activeIndex":{"path":"/depth"}}]}}
-{"version":"v1.0","updateComponents":{"surfaceId":"intel","components":[{"id":"insight_ra","component":"InsightCard","headline":"Report-accuracy complaints are accelerating","subjectKind":"cluster","subjectId":"cl-report-accuracy","signalType":"friction","intent":"warning","trend":"up","caseCount":{"path":"/ra/caseCount"},"revenueAtRisk":{"path":"/ra/arr"},"currency":"USD","confidence":0.8,"drillAction":{"event":{"name":"insight_drilled","context":{"view":"impact"}}},"feedbackAction":{"event":{"name":"insight_feedback"}}}]}}
-{"version":"v1.0","updateDataModel":{"surfaceId":"intel","path":"/impact","value":{"rows":[{"company":"Acme Corp","arr":480000},{"company":"Globex","arr":350000}]}}}
-{"version":"v1.0","updateComponents":{"surfaceId":"intel","components":[{"id":"impact_table","component":"DataTable","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v1.json","columns":[{"key":"company","label":"Company"},{"key":"arr","label":"ARR","align":"end","format":"number"}],"rows":{"path":"/impact/rows"},"footer":[{"key":"arr","aggregate":"sum","label":"Total ARR at risk"}]}]}}
-{"version":"v1.0","updateDataModel":{"surfaceId":"intel","path":"/depth","value":1}}
+{"version":"v1.0","createSurface":{"surfaceId":"insight","catalogId":"https://chaliceforauri.github.io/auri/catalogs/insight/v1.json"}}
+{"version":"v1.0","updateDataModel":{"surfaceId":"insight","value":{"depth":0,"ra":{"caseCount":312,"arr":1200000}}}}
+{"version":"v1.0","updateComponents":{"surfaceId":"insight","components":[{"id":"root","component":"DrillStack","levels":[{"title":"Insights","componentId":"insight_ra"},{"title":"Affected accounts","componentId":"impact_table"}],"activeIndex":{"path":"/depth"}}]}}
+{"version":"v1.0","updateComponents":{"surfaceId":"insight","components":[{"id":"insight_ra","component":"InsightCard","headline":"Report-accuracy complaints are accelerating","subjectKind":"cluster","subjectId":"cl-report-accuracy","signalType":"friction","intent":"warning","trend":"up","metrics":[{"label":"Cases","value":{"path":"/ra/caseCount"}},{"label":"Revenue at risk","value":{"path":"/ra/arr"},"unit":"USD","intent":"bad"}],"confidence":0.8,"drillAction":{"event":{"name":"insight_drilled","context":{"view":"impact"}}},"feedbackAction":{"event":{"name":"insight_feedback"}}}]}}
+{"version":"v1.0","updateDataModel":{"surfaceId":"insight","path":"/impact","value":{"rows":[{"company":"Acme Corp","arr":480000},{"company":"Globex","arr":350000}]}}}
+{"version":"v1.0","updateComponents":{"surfaceId":"insight","components":[{"id":"impact_table","component":"DataTable","catalogId":"https://chaliceforauri.github.io/auri/catalogs/ops/v2.json","columns":[{"key":"company","label":"Company"},{"key":"arr","label":"ARR","align":"end","format":"number"}],"rows":{"path":"/impact/rows"},"footer":[{"key":"arr","aggregate":"sum","label":"Total ARR at risk"}]}]}}
+{"version":"v1.0","updateDataModel":{"surfaceId":"insight","path":"/depth","value":1}}
 ```

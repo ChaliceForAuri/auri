@@ -5,7 +5,7 @@ import { render } from 'vitest-browser-svelte';
 import axe from 'axe-core';
 import { A2uiClient, Surface, createCatalogRegistry, basicCatalog } from 'svelte-a2ui';
 import type { AgentToRenderer } from 'svelte-a2ui';
-import { intelCatalog } from '../../src/lib/index.js';
+import { insightCatalog } from '../../src/lib/index.js';
 import { opsCatalog } from '../../../ops/src/lib/index.js';
 
 /**
@@ -29,7 +29,7 @@ const PAGE_LEVEL_RULES = [
 	'bypass'
 ];
 
-const catalog = createCatalogRegistry([intelCatalog, opsCatalog, basicCatalog]);
+const catalog = createCatalogRegistry([insightCatalog, opsCatalog, basicCatalog]);
 
 const fixtures = import.meta.glob('../../contract/examples/*.jsonl', {
 	eager: true,
@@ -75,7 +75,7 @@ async function auditFixture(name: string, jsonl: string): Promise<void> {
 	expect(results.violations, `${name} has a11y violations:\n  ${detail}`).toEqual([]);
 }
 
-test('every intel fixture renders without axe violations', async () => {
+test('every insight fixture renders without axe violations', async () => {
 	const files = Object.keys(fixtures);
 	expect(files.length).toBeGreaterThan(0);
 	for (const file of files) {
