@@ -120,3 +120,28 @@ test('fixtures collectively exercise all 5 components', () => {
 	}
 	assert.deepEqual([...seen].sort(), Object.keys(contract.components).sort());
 });
+
+test('the conformance suite grades THIS catalog', () => {
+	/*
+	 * A suite pinned to a superseded id still passes while grading a vocabulary
+	 * nobody ships. Minting a new catalog id must drag the suite along with it.
+	 */
+	const suite = JSON.parse(
+		readFileSync(join(contractDir, 'conformance', 'insight.conformance.json'), 'utf8')
+	);
+	assert.equal(suite.catalogId, contract.catalogId);
+	assert.ok(suite.cases.length > 0, 'a suite with no cases grades nothing');
+	for (const c of suite.cases) {
+		assert.ok(c.id && c.why, `${c.id ?? '(unnamed)'}: every case states why it exists`);
+		assert.ok(c.stream?.length > 0, `${c.id}: a case needs a stream`);
+		// Nothing paints without a root, and a surface that never painted
+		// satisfies every negative expectation vacuously.
+		const declared = c.stream.flatMap((m) => {
+			const msg = typeof m === 'string' ? JSON.parse(m) : m;
+			return (msg.createSurface?.components ?? msg.updateComponents?.components ?? []).map(
+				(x) => x.id
+			);
+		});
+		assert.ok(declared.includes('root'), `${c.id}: stream declares no component with id 'root'`);
+	}
+});

@@ -10,6 +10,8 @@ export interface ConformanceStep {
 	focus?: LocatorSpec;
 	press?: { key: string };
 	fill?: LocatorSpec & { value: string };
+	/** Leave a field — several catalogs gate error display on having been visited. */
+	blur?: LocatorSpec;
 	/** An agent-side data update — how live behaviour (re-aggregation, gating) is exercised. */
 	setData?: { path: string; value: unknown };
 }
@@ -21,6 +23,8 @@ export interface ConformanceExpect {
 	text?: string;
 	absent?: string;
 	accessibleName?: { role: string; contains: string };
+	/** Where keyboard focus must have landed. */
+	focused?: LocatorSpec;
 }
 
 export interface ConformanceCase {
@@ -38,3 +42,23 @@ export function subsetMismatch(actual: unknown, expected: unknown, path?: string
 export function loadSuite(suite: { cases?: unknown[] }): ConformanceCase[];
 export function surfaceIdOf(messages: unknown[]): string | undefined;
 export function explainFailure(testCase: { id: string; why: string }, reason: string): string;
+
+export interface ConformanceHarness {
+	surfaceId: string;
+	actions: { name: string; context: Record<string, unknown> }[];
+	locate(spec: LocatorSpec): Element;
+	click(el: Element): void | Promise<void>;
+	focus(el: Element): void;
+	blur(el: Element): void;
+	press(key: string): void;
+	fill(el: Element, value: string): void;
+	ingest(message: Record<string, unknown>): void;
+	settle(): Promise<void>;
+	text(): string;
+	accessibleName(spec: LocatorSpec): string;
+	isFocused(spec: LocatorSpec): boolean;
+	describeFocus(): string;
+}
+
+export function runSteps(testCase: ConformanceCase, harness: ConformanceHarness): Promise<void>;
+export function checkExpectations(testCase: ConformanceCase, harness: ConformanceHarness): string[];

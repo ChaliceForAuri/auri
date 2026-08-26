@@ -1,0 +1,262 @@
+{
+	"$description": "Behavioural conformance for the auri insight catalog. A contract says which props exist; these cases say what a renderer must DO with them. Any renderer claiming this catalog id must pass every case. Elements are addressed by role and accessible name, so a case is only executable if the rendered result is accessible.",
+	"catalogId": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
+	"version": "v1",
+	"cases": [
+		{
+			"id": "drill-merges-the-subject-into-the-action-context",
+			"why": "drillAction is registered `raw` precisely so the component can merge subjectKind and subjectId into the context before dispatch — the agent is told never to duplicate them itself. A port that dispatches the bare wire action sends an event naming no subject, so the agent cannot tell WHICH finding was opened. It fails silently: an action still fires, it just means nothing.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "i",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "InsightCard",
+								"headline": "Report-accuracy complaints are accelerating",
+								"subjectKind": "cluster",
+								"subjectId": "cl-report-accuracy",
+								"drillAction": {
+									"event": {
+										"name": "insight_drilled",
+										"context": {
+											"view": "impact"
+										}
+									}
+								}
+							}
+						]
+					}
+				}
+			],
+			"steps": [
+				{
+					"activate": {
+						"role": "button",
+						"name": "Report-accuracy"
+					}
+				}
+			],
+			"expect": {
+				"action": {
+					"name": "insight_drilled",
+					"context": {
+						"view": "impact",
+						"subjectKind": "cluster",
+						"subjectId": "cl-report-accuracy"
+					}
+				}
+			}
+		},
+		{
+			"id": "feedback-carries-the-verdict-and-acknowledges-visibly",
+			"why": "Two obligations at once. The verdict is merged like the subject, and the card must VISIBLY change — DESIGN.md section 8, contributed by the first consumer: feedback that changes nothing on screen teaches users their input is decorative, and they stop giving it. A port may restyle the acknowledgement but may not omit it.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "i",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "InsightCard",
+								"headline": "Report-accuracy complaints are accelerating",
+								"subjectKind": "cluster",
+								"subjectId": "cl-report-accuracy",
+								"feedbackAction": {
+									"event": {
+										"name": "insight_feedback"
+									}
+								}
+							}
+						]
+					}
+				}
+			],
+			"steps": [
+				{
+					"activate": {
+						"role": "button",
+						"name": "not helpful"
+					}
+				}
+			],
+			"expect": {
+				"action": {
+					"name": "insight_feedback",
+					"context": {
+						"subjectKind": "cluster",
+						"subjectId": "cl-report-accuracy",
+						"verdict": "down"
+					}
+				},
+				"text": "noted"
+			}
+		},
+		{
+			"id": "confidence-renders-as-a-band-never-the-number",
+			"why": "A model emitting 0.8 is claiming precision it does not have. The contract carries the raw number so the renderer can decide, and the renderer must show a qualitative band. A port that prints the number — or a percentage — turns a hedge into a false measurement.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "i",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "InsightCard",
+								"headline": "Report-accuracy complaints are accelerating",
+								"subjectKind": "cluster",
+								"subjectId": "cl-report-accuracy",
+								"confidence": 0.8
+							}
+						]
+					}
+				}
+			],
+			"expect": {
+				"text": "high",
+				"absent": "0.8"
+			}
+		},
+		{
+			"id": "a-domain-word-the-catalog-has-never-seen-still-renders",
+			"why": "subjectKind and signalType are free strings (contract principle 9): what a finding is about is the consumer's vocabulary, not ours. This catalog previously formatted signalType through a fixed label table and rendered NOTHING for an unlisted value — a valid emission silently lost on the way to the screen. Any value must survive to the UI, humanized but never dropped.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "i",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "InsightCard",
+								"headline": "Report-accuracy complaints are accelerating",
+								"subjectKind": "vendor",
+								"subjectId": "cl-report-accuracy",
+								"signalType": "policy_drift"
+							}
+						]
+					}
+				}
+			],
+			"expect": {
+				"text": "policy drift"
+			}
+		},
+		{
+			"id": "metric-unit-formats-money-in-the-host-locale",
+			"why": "Raw values on the wire: the agent sends 1200000 and the ISO 4217 code, never a pre-formatted string it guessed a locale for. `unit` follows the same convention as ops Stat so one figure reads identically across catalogs. A port that concatenates the code onto the number produces 'USD 1200000' and loses both grouping and placement.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "i",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "InsightCard",
+								"headline": "Report-accuracy complaints are accelerating",
+								"subjectKind": "cluster",
+								"subjectId": "cl-report-accuracy",
+								"metrics": [
+									{
+										"label": "Revenue at risk",
+										"value": 1200000,
+										"unit": "USD",
+										"intent": "bad"
+									}
+								]
+							}
+						]
+					}
+				}
+			],
+			"expect": {
+				"text": "Revenue at risk"
+			}
+		},
+		{
+			"id": "drillstack-returns-focus-to-where-the-user-came-from",
+			"why": "The focus contract. Levels are kept MOUNTED-BUT-HIDDEN rather than destroyed, so the element a user drilled from still exists to return to; a port that keys the levels and remounts them destroys that target and strands keyboard and screen-reader users at the top of the document. Drill in, come back, and focus must be exactly where it was. This was found by a browser test on its first run, not by review.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "i",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "DrillStack",
+								"levels": [
+									{
+										"title": "Insights",
+										"componentId": "card"
+									},
+									{
+										"title": "Affected accounts",
+										"componentId": "detail"
+									}
+								],
+								"activeIndex": {
+									"path": "/depth"
+								}
+							},
+							{
+								"id": "card",
+								"component": "InsightCard",
+								"headline": "Report-accuracy complaints are accelerating",
+								"subjectKind": "cluster",
+								"subjectId": "cl-report-accuracy"
+							},
+							{
+								"id": "detail",
+								"component": "InsightCard",
+								"headline": "Acme Corp",
+								"subjectKind": "account",
+								"subjectId": "acct-acme"
+							}
+						],
+						"dataModel": {
+							"depth": 0
+						}
+					}
+				}
+			],
+			"steps": [
+				{
+					"focus": {
+						"role": "button",
+						"name": "Insights"
+					}
+				},
+				{
+					"setData": {
+						"path": "/depth",
+						"value": 1
+					}
+				},
+				{
+					"setData": {
+						"path": "/depth",
+						"value": 0
+					}
+				}
+			],
+			"expect": {
+				"focused": {
+					"role": "button",
+					"name": "Insights"
+				}
+			}
+		}
+	]
+}
