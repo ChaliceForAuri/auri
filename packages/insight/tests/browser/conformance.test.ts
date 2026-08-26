@@ -10,8 +10,8 @@ import {
 	explainFailure
 } from '@aurilabs/core/conformance';
 import { createHarness } from '../../../../tests/support/conformance-harness.js';
-import { opsCatalog } from '../../src/lib/index.js';
-import suite from '../../contract/conformance/ops.conformance.json';
+import { insightCatalog } from '../../src/lib/index.js';
+import suite from '../../contract/conformance/insight.conformance.json';
 
 /**
  * Conformance run for this catalog. The cases in contract/conformance are
@@ -19,7 +19,7 @@ import suite from '../../contract/conformance/ops.conformance.json';
  * does is render a Svelte surface and hand the engine a harness — which is the
  * point: a port satisfies a specification instead of reverse-engineering Svelte.
  */
-const catalog = createCatalogRegistry([opsCatalog, basicCatalog]);
+const catalog = createCatalogRegistry([insightCatalog, basicCatalog]);
 const cases = loadSuite(suite);
 
 test.each(cases.map((c) => [c.id, c] as const))('conformance: %s', async (_id, testCase) => {

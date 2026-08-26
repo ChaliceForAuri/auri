@@ -77,6 +77,13 @@ for (const key of CATALOGS) {
 	copyFileSync(join(contract, 'prompt.md'), join(catalogDir, 'prompt.md'));
 	cpSync(join(contract, 'examples'), join(catalogDir, 'examples'), { recursive: true });
 
+	// So is the conformance suite: a port claiming this catalog id needs to be able
+	// to FETCH what it will be graded against, not clone the repo to find it.
+	const conformance = join(contract, 'conformance');
+	if (existsSync(conformance)) {
+		cpSync(conformance, join(catalogDir, 'conformance'), { recursive: true });
+	}
+
 	const generated = join(here, '..', 'src', 'lib', 'generated', key);
 	mkdirSync(generated, { recursive: true });
 	copyFileSync(currentFile, join(generated, 'catalog.json'));

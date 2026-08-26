@@ -1,0 +1,380 @@
+{
+	"$description": "Behavioural conformance for the auri forms catalog. A contract says which props exist; these cases say what a renderer must DO with them. Any renderer claiming this catalog id must pass every case. Elements are addressed by role and accessible name, so a case is only executable if the rendered result is accessible.",
+	"catalogId": "https://chaliceforauri.github.io/auri/catalogs/forms/v2.json",
+	"version": "v1",
+	"cases": [
+		{
+			"id": "checks-receive-the-fields-current-value",
+			"why": "The forms contract promises every check is evaluated against the field's current value, but `args.value` is never on the wire — the renderer resolves check args verbatim, so INJECTING the bound value is the catalog's job. A port that forwards checks untouched gets a form where every check reports valid and no error ever appears. Nothing errors; the validation simply stops existing.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "f",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/forms/v2.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "TextArea",
+								"label": "What happened?",
+								"value": {
+									"path": "/report/details"
+								},
+								"checks": [
+									{
+										"condition": {
+											"call": "length",
+											"args": {
+												"min": 30
+											}
+										},
+										"message": "A sentence or two more helps us reproduce it."
+									}
+								]
+							}
+						],
+						"dataModel": {
+							"report": {
+								"details": ""
+							}
+						}
+					}
+				}
+			],
+			"steps": [
+				{
+					"fill": {
+						"role": "textbox",
+						"name": "What happened",
+						"value": "too short"
+					}
+				},
+				{
+					"blur": {
+						"role": "textbox",
+						"name": "What happened"
+					}
+				}
+			],
+			"expect": {
+				"text": "A sentence or two more helps us reproduce it."
+			}
+		},
+		{
+			"id": "a-passing-check-shows-no-error",
+			"why": "The other half of value injection. If a port hardcoded the failure — or never injected the value and happened to report invalid — this case catches it: the same check on a long enough answer must stay silent.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "f",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/forms/v2.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "TextArea",
+								"label": "What happened?",
+								"value": {
+									"path": "/report/details"
+								},
+								"checks": [
+									{
+										"condition": {
+											"call": "length",
+											"args": {
+												"min": 30
+											}
+										},
+										"message": "A sentence or two more helps us reproduce it."
+									}
+								]
+							}
+						],
+						"dataModel": {
+							"report": {
+								"details": ""
+							}
+						}
+					}
+				}
+			],
+			"steps": [
+				{
+					"fill": {
+						"role": "textbox",
+						"name": "What happened",
+						"value": "The export totals stopped matching the on-screen figures after the Tuesday deploy."
+					}
+				},
+				{
+					"blur": {
+						"role": "textbox",
+						"name": "What happened"
+					}
+				}
+			],
+			"expect": {
+				"absent": "A sentence or two more helps us reproduce it."
+			}
+		},
+		{
+			"id": "errors-stay-hidden-until-the-field-is-visited",
+			"why": "An empty required field is invalid the moment it renders, but showing that error before the user has touched anything makes a fresh form look broken. Errors appear only after the field has been visited. A port that binds error display straight to validity turns every new form red.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "f",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/forms/v2.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "TextField",
+								"label": "Work email",
+								"kind": "email",
+								"value": {
+									"path": "/email"
+								},
+								"checks": [
+									{
+										"condition": {
+											"call": "required"
+										},
+										"message": "Enter your email."
+									}
+								]
+							}
+						],
+						"dataModel": {
+							"email": ""
+						}
+					}
+				}
+			],
+			"expect": {
+				"absent": "Enter your email."
+			}
+		},
+		{
+			"id": "submit-is-blocked-while-any-check-on-the-surface-fails",
+			"why": "SubmitBar gates on SURFACE-WIDE validity, not its own props — it reads every field's checks off the client state. This is the one genuinely cross-component behaviour in the catalog, and the easiest for a port to miss, because SubmitBar's own contract mentions no fields at all. Pressing submit with an invalid field must dispatch nothing.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "f",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/forms/v2.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "Column",
+								"catalogId": "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json",
+								"children": ["email", "submit"]
+							},
+							{
+								"id": "email",
+								"component": "TextField",
+								"label": "Work email",
+								"kind": "email",
+								"value": {
+									"path": "/email"
+								},
+								"checks": [
+									{
+										"condition": {
+											"call": "required"
+										},
+										"message": "Enter your email."
+									}
+								]
+							},
+							{
+								"id": "submit",
+								"component": "SubmitBar",
+								"submitLabel": "File report",
+								"submitAction": {
+									"event": {
+										"name": "report_filed",
+										"context": {
+											"details": {
+												"path": "/report/details"
+											}
+										}
+									}
+								}
+							}
+						],
+						"dataModel": {
+							"email": "",
+							"report": {}
+						}
+					}
+				}
+			],
+			"steps": [
+				{
+					"activate": {
+						"role": "button",
+						"name": "File report"
+					}
+				}
+			],
+			"expect": {
+				"noAction": true
+			}
+		},
+		{
+			"id": "submit-fires-once-the-surface-is-valid",
+			"why": "The complement: the same surface must actually submit when its checks pass, carrying the hand-picked context. A port that blocks submission permanently is as broken as one that never blocks it, and only the pair of cases distinguishes them.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "f",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/forms/v2.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "Column",
+								"catalogId": "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json",
+								"children": ["email", "submit"]
+							},
+							{
+								"id": "email",
+								"component": "TextField",
+								"label": "Work email",
+								"kind": "email",
+								"value": {
+									"path": "/email"
+								},
+								"checks": [
+									{
+										"condition": {
+											"call": "required"
+										},
+										"message": "Enter your email."
+									}
+								]
+							},
+							{
+								"id": "submit",
+								"component": "SubmitBar",
+								"submitLabel": "File report",
+								"submitAction": {
+									"event": {
+										"name": "report_filed",
+										"context": {
+											"details": {
+												"path": "/report/details"
+											}
+										}
+									}
+								}
+							}
+						],
+						"dataModel": {
+							"email": "",
+							"report": {}
+						}
+					}
+				}
+			],
+			"steps": [
+				{
+					"fill": {
+						"role": "textbox",
+						"name": "Work email",
+						"value": "hugo@example.com"
+					}
+				},
+				{
+					"activate": {
+						"role": "button",
+						"name": "File report"
+					}
+				}
+			],
+			"expect": {
+				"action": {
+					"name": "report_filed"
+				}
+			}
+		},
+		{
+			"id": "pending-blocks-resubmission",
+			"why": "`pending` is bound so the agent can disable the bar while it works. Without it a user double-submits and the agent receives the same form twice with no way to tell them apart. A valid surface must still refuse to submit while pending is true.",
+			"stream": [
+				{
+					"version": "v1.0",
+					"createSurface": {
+						"surfaceId": "f",
+						"catalogId": "https://chaliceforauri.github.io/auri/catalogs/forms/v2.json",
+						"components": [
+							{
+								"id": "root",
+								"component": "Column",
+								"catalogId": "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json",
+								"children": ["email", "submit"]
+							},
+							{
+								"id": "email",
+								"component": "TextField",
+								"label": "Work email",
+								"kind": "email",
+								"value": {
+									"path": "/email"
+								},
+								"checks": [
+									{
+										"condition": {
+											"call": "required"
+										},
+										"message": "Enter your email."
+									}
+								]
+							},
+							{
+								"id": "submit",
+								"component": "SubmitBar",
+								"submitLabel": "File report",
+								"submitAction": {
+									"event": {
+										"name": "report_filed",
+										"context": {
+											"details": {
+												"path": "/report/details"
+											}
+										}
+									}
+								},
+								"pending": true
+							}
+						],
+						"dataModel": {
+							"email": "",
+							"report": {}
+						}
+					}
+				}
+			],
+			"steps": [
+				{
+					"fill": {
+						"role": "textbox",
+						"name": "Work email",
+						"value": "hugo@example.com"
+					}
+				},
+				{
+					"activate": {
+						"role": "button",
+						"name": "File report"
+					}
+				}
+			],
+			"expect": {
+				"noAction": true
+			}
+		}
+	]
+}
