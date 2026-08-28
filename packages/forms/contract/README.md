@@ -9,6 +9,22 @@ harness (`npm run eval` here, which reuses ops' harness via `--pack`/`--contract
 `--scenarios-file`); Claude runs as fresh sessions (Fable and Sonnet, one scenario each per run).
 Emissions are validated by the same `createValidator` the contract tests use.
 
+## Round — 2026-08-28, the 0.7.0 re-gate (A2UI v1.0 conformance)
+
+**GATE PASSED: 6/6 scenarios, first cold attempt, zero errors** — including `signup-checks`, which
+once failed 4/4 in suite context before the action-shape rule existed.
+
+This was the run most likely to fail, and the reason is worth writing down. Conformance moved checks
+from the flat `{"call","args","message"}` to the spec's `{"condition":{"call","args"},"message"}` —
+**one more level of nesting**, and nesting depth is what this gate has historically punished: both
+the envelope-brace trap and the action-shape trap were nesting failures, and the action-shape trap
+specifically was models hoisting keys OUT of a wrapper. The prediction was that wrapping the call in
+`condition` would reproduce it.
+
+It did not. Every check in every scenario came back correctly wrapped. One data point, not a law —
+but it suggests the earlier failures were about _balancing braces across a long line_, not about
+depth as such, since `condition` adds depth without lengthening the structure a model must hold open.
+
 ## Round 1 — 2026-08-19, first cold contact
 
 **GPT-5.6 (live harness): 5/6.** Passed contact-form, postmortem-intake, deploy-approval-form,

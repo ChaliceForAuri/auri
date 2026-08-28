@@ -1,6 +1,6 @@
 {
 	"name": "@aurilabs/insight",
-	"version": "0.6.0",
+	"version": "0.7.0",
 	"type": "module",
 	"description": "auri insight catalog for A2UI \u2014 present a finding and reach its evidence. Domain-neutral vocabulary: what a finding is about travels as data.",
 	"license": "Apache-2.0",
@@ -41,7 +41,7 @@
 		"svelte-a2ui": "^0.1.0"
 	},
 	"dependencies": {
-		"@aurilabs/core": "^0.6.0"
+		"@aurilabs/core": "^0.7.0"
 	},
 	"devDependencies": {
 		"@sveltejs/package": "^2.5.0",
