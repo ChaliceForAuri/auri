@@ -16,6 +16,29 @@ message = one scenario from `emission-scenarios.json`, nothing else. OpenAI thro
 harness (`npm run eval` here); Claude as fresh sessions. All emissions validated by the same
 `createValidator` the contract tests use.
 
+## Round — 2026-08-28, the 0.7.0 re-gate (de-domaining + v1.0 conformance)
+
+**GATE PASSED: 6/6 scenarios, first cold attempt, zero errors**, on the pack that changed most —
+`intel` became `insight`, two closed enums became free strings, and four props collapsed into
+`metrics` + `tags`.
+
+The semantic spot-check matters more than the score here, because it settles whether contract
+principle 9 was right:
+
+- **The model emitted `signalType` values that did not exist in the old enum** — `report_accuracy`
+  and `account_risk`, alongside the familiar `friction`. Under 0.6.0 those were unemittable: the
+  model would have taken a schema violation or been forced into a bucket that misdescribed the
+  finding. This is the clearest evidence available that the closed enum was constraining real usage
+  rather than guiding it.
+- **`metrics` was used generously** — one card carried three figures ("Cases", "Enterprise
+  accounts", "ARR affected"). The old contract could express exactly two, because we guessed which
+  two mattered.
+- **Per-metric `intent` was used unprompted** (`"intent": "warning"` on a count), which the old
+  fixed `revenueAtRisk` prop could never carry.
+- **Zero legacy props leaked** — no `caseCount`, `revenueAtRisk`, `currency` or `themes` anywhere.
+- `tags` appeared where facets were meaningful and was omitted otherwise, which is the intended
+  "earns its place" behaviour rather than dutiful field-filling.
+
 ## Round 1 — 2026-08-20, first cold contact: PASSED
 
 - **GPT-5.6 (harness): 6/6.** All five components on first contact, including the mixed

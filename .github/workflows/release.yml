@@ -50,9 +50,25 @@ jobs:
       - run: npm run test:browser -w @aurilabs/forms
       - run: npm run test:browser -w @aurilabs/insight
 
-      # core first — the catalogs depend on it.
-      - run: npm publish -w @aurilabs/core
-      # prepublishOnly runs svelte-package + publint.
-      - run: npm publish -w @aurilabs/ops
-      - run: npm publish -w @aurilabs/forms
-      - run: npm publish -w @aurilabs/insight
+      # core first — the catalogs depend on it. prepublishOnly runs
+      # svelte-package + publint for each catalog.
+      #
+      # Each publish SKIPS a version already on the registry instead of failing.
+      # Two reasons, both real: a package's very first release must be published
+      # by hand (npm requires it to exist before a trusted publisher can be
+      # configured), so one package in a lockstep set is already up; and a
+      # release that fails partway — say ops publishes and forms times out —
+      # can then be re-run by pushing the tag again rather than hand-finishing
+      # it. The skip is announced, never silent.
+      - name: Publish to npm
+        run: |
+          for pkg in core ops forms insight; do
+            name="@aurilabs/$pkg"
+            version=$(node -p "require('./packages/$pkg/package.json').version")
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "::notice title=Already published::$name@$version is on npm; skipping"
+            else
+              echo "publishing $name@$version"
+              npm publish -w "$name"
+            fi
+          done
