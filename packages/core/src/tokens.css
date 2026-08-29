@@ -154,7 +154,7 @@
 		--auri-outline-variant: oklch(1 0 0 / 0.35);
 	}
 	@media (prefers-color-scheme: dark) {
-		:where(:root) {
+		:where(:root:not(.a2ui-light)) {
 			--auri-outline-variant: oklch(1 0 0 / 0.35);
 		}
 	}

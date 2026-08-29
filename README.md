@@ -62,6 +62,15 @@ Then paste the
 [prompt-pack](https://chaliceforauri.github.io/auri/catalogs/ops/prompt.md) into your agent's
 system prompt, and it speaks the vocabulary. `svelte` and `svelte-a2ui` are peers.
 
+**Theming your host:** dark keys off the renderer's `.a2ui-dark` / `.a2ui-light` classes (no class
+follows the OS; an explicit pin always beats it). If your app themes with its own class — Tailwind's
+`.dark`, say — mirror it, or the page and the components will disagree:
+
+```js
+document.documentElement.classList.toggle('a2ui-dark', dark);
+document.documentElement.classList.toggle('a2ui-light', !dark);
+```
+
 Built by **Hugo Pretorius** ([ChaliceForAuri](https://github.com/ChaliceForAuri)), maintainer of
 the svelte-a2ui renderer.
 
