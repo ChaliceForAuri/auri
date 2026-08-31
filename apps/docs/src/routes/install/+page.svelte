@@ -68,6 +68,34 @@
 	<p>
 		Everything is CSS custom properties at zero specificity — your stylesheet wins by default. Set
 		<code>--auri-seed</code> for your accent; see <a href="{base}/foundations/colors">colors</a>
-		for the full token surface. Dark mode keys off the renderer's <code>.a2ui-dark</code> class.
+		for the full token surface.
+	</p>
+
+	<h3>Light and dark: three states</h3>
+	<p>
+		Dark keys off the renderer's classes, so one toggle drives both the basic catalog and auri's:
+	</p>
+	<ul>
+		<li><strong>No class</strong> — follows the operating system.</li>
+		<li>
+			<code>.a2ui-light</code> — pinned light, <em>even on a dark OS</em>. An explicit pin always
+			outranks the system preference.
+		</li>
+		<li><code>.a2ui-dark</code> — pinned dark.</li>
+	</ul>
+
+	<h3>If your app themes with its own class</h3>
+	<p>
+		Tailwind's <code>.dark</code>, a <code>data-theme</code> attribute, your own convention — auri doesn't
+		see any of them. Mirror your toggle onto the two classes wherever you set it:
+	</p>
+	<pre><code
+			>document.documentElement.classList.toggle('a2ui-dark', dark);
+document.documentElement.classList.toggle('a2ui-light', !dark);</code
+		></pre>
+	<p>
+		Skip this and your page and your components disagree: the page follows your class, the
+		components follow the OS. The mismatch hides whenever the two happen to agree, so it tends to
+		surface in front of an audience rather than in development — which is exactly how it was found.
 	</p>
 </div>

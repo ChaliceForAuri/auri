@@ -127,7 +127,7 @@ ${render(contrastLight, '\t\t')}
 ${render(contrastDark, '\t\t')}
 	}
 	@media (prefers-color-scheme: dark) {
-		:where(:root) {
+		:where(:root:not(.a2ui-light)) {
 ${render(contrastDark, '\t\t\t')}
 		}
 	}
