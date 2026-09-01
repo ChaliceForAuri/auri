@@ -119,6 +119,34 @@ test('InsightCard renders band + money, and merges subject into drill', async ()
 	expect(actions[0]!.context.source).toBe('feed');
 });
 
+test('a metric whose binding has not resolved shows a placeholder, not nothing', async () => {
+	/*
+	 * Bindings resolve after the component arrives, so a metric bound to a path
+	 * that is not in the data model yet must hold its place. It used to be
+	 * filtered out entirely — the row would be short, then grow — and a path that
+	 * never resolved vanished silently. The first consumer had to read the source
+	 * to confirm this was safe, which is how a silent drop announces itself.
+	 */
+	const client = makeClient();
+	const screen = await render(Surface, { props: { client, catalog, surfaceId: SURFACE } });
+	boot(client, [
+		{
+			...INSIGHT,
+			metrics: [
+				{ label: 'Cases', value: 312 },
+				{ label: 'Revenue at risk', value: { path: '/notYetLoaded' }, unit: 'USD' }
+			]
+		} as never
+	]);
+
+	await expect.element(screen.getByText('Cases')).toBeInTheDocument();
+	// The label holds its place...
+	await expect.element(screen.getByText('Revenue at risk')).toBeInTheDocument();
+	// ...with the unresolved value rendered as a placeholder rather than removed.
+	const dds = [...screen.container.querySelectorAll('dd.metric')].map((d) => d.textContent?.trim());
+	expect(dds).toContain('—');
+});
+
 test('a domain word the catalog has never seen still renders', async () => {
 	/*
 	 * signalType used to be a closed enum backed by a seven-entry label map, and an
