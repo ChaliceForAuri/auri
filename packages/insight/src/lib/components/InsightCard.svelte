@@ -80,14 +80,23 @@
 			: []
 	);
 
+	/*
+	 * A metric needs a label to mean anything; its VALUE may legitimately be
+	 * missing for a moment, because `{"path": …}` bindings resolve after the
+	 * component arrives (contract principle 8 — in-between states are the
+	 * catalog's problem, not the agent's).
+	 *
+	 * This used to require a numeric value, so a metric whose binding had not
+	 * resolved yet vanished from the row and then popped back in — and a path
+	 * that never resolved was dropped in total silence. The first consumer read
+	 * the source to check this was safe; that is a sign the behaviour was wrong,
+	 * not that the docs were thin. Same silent-drop class as the signalType
+	 * label table.
+	 */
 	const metricList: Metric[] = $derived(
 		Array.isArray(metrics)
 			? metrics.filter(
-					(m): m is Metric =>
-						Boolean(m) &&
-						typeof m === 'object' &&
-						typeof m.label === 'string' &&
-						typeof m.value === 'number'
+					(m): m is Metric => Boolean(m) && typeof m === 'object' && typeof m.label === 'string'
 				)
 			: []
 	);

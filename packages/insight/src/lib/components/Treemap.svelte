@@ -56,13 +56,26 @@
 	const HEADER = 26;
 
 	// undefined -> binding unresolved (skeleton); [] -> designed empty.
-	const list: Item[] | undefined = $derived(
-		Array.isArray(items)
-			? (items as Item[]).filter(
-					(i) => i && typeof i === 'object' && typeof i.id === 'string' && Number.isFinite(i.value)
-				)
-			: undefined
-	);
+	/*
+	 * Unlike InsightCard's metrics, an item with no finite value genuinely cannot
+	 * be laid out — area IS the encoding, and there is no area for `undefined`.
+	 * So dropping is right; dropping SILENTLY is not. An unresolved `{"path"}`
+	 * would otherwise remove a region from the topography with no trace, and the
+	 * map would look complete while being wrong.
+	 */
+	const list: Item[] | undefined = $derived.by(() => {
+		if (!Array.isArray(items)) return undefined;
+		const kept = (items as Item[]).filter(
+			(i) => i && typeof i === 'object' && typeof i.id === 'string' && Number.isFinite(i.value)
+		);
+		if (kept.length !== items.length) {
+			console.warn(
+				`[auri] Treemap dropped ${items.length - kept.length} item(s) with a missing or ` +
+					`non-finite value; area cannot encode them. Check the bindings behind them.`
+			);
+		}
+		return kept;
+	});
 
 	const byId = $derived(
 		new Map<string, { item: Item; parent?: Item }>(
