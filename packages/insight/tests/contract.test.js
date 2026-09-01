@@ -25,7 +25,7 @@ function own(name, schema) {
 
 test('contract document is coherent', () => {
 	assert.equal(contract.catalogId, contract.$id);
-	assert.equal(Object.keys(contract.components).length, 5);
+	assert.equal(Object.keys(contract.components).length, 6);
 	for (const [name, schema] of Object.entries(contract.components)) {
 		const { properties } = own(name, schema);
 		assert.equal(properties.component?.const, name, `${name}: component const mismatch`);
@@ -104,14 +104,14 @@ test('confidence is bounded raw 0..1 — never a string, never a percentage', ()
 test('every fixture replays clean through the contract validator', () => {
 	const examples = join(contractDir, 'examples');
 	const files = readdirSync(examples).filter((f) => f.endsWith('.jsonl'));
-	assert.equal(files.length, 5, 'one fixture per component');
+	assert.equal(files.length, Object.keys(contract.components).length, 'one fixture per component');
 	for (const file of files) {
 		const { errors } = validateStream(readFileSync(join(examples, file), 'utf8'));
 		assert.deepEqual(errors, [], `${file} should validate`);
 	}
 });
 
-test('fixtures collectively exercise all 5 components', () => {
+test('fixtures collectively exercise every component', () => {
 	const examples = join(contractDir, 'examples');
 	const seen = new Set();
 	for (const file of readdirSync(examples).filter((f) => f.endsWith('.jsonl'))) {

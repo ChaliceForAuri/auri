@@ -4,6 +4,7 @@ import InsightCard from './components/InsightCard.svelte';
 import SourceAudit from './components/SourceAudit.svelte';
 import VelocityScatter from './components/VelocityScatter.svelte';
 import ClusterMap from './components/ClusterMap.svelte';
+import Treemap from './components/Treemap.svelte';
 import DrillStack from './components/DrillStack.svelte';
 
 export const INSIGHT_CATALOG_ID = 'https://chaliceforauri.github.io/auri/catalogs/insight/v1.json';
@@ -24,6 +25,7 @@ export const INSIGHT_COMPONENTS: Record<string, CatalogEntry> = {
 	SourceAudit: entry(SourceAudit, { raw: ['seekAction'] }),
 	VelocityScatter: entry(VelocityScatter, { raw: ['pointAction'] }),
 	ClusterMap: entry(ClusterMap, { raw: ['clusterAction'] }),
+	Treemap: entry(Treemap, { raw: ['itemAction'] }),
 	DrillStack: entry(DrillStack, { bindings: ['activeIndex'], actions: ['dismissAction'] })
 };
 

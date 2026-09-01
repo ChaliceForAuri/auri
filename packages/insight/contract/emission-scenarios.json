@@ -24,5 +24,9 @@
 	{
 		"id": "feedback-response",
 		"prompt": "Surface two insights: the report-accuracy cluster (312 cases, warning, accelerating) and a knowledge-base gap around CSV imports (44 cases, informational). Wire both for feedback. Then the user thumbs-down the CSV one \u2014 show me the stream you'd send in response, de-emphasizing it without re-sending components."
+	},
+	{
+		"id": "friction-topography",
+		"prompt": "A product owner asks which part of the product to staff next quarter. Support volume since 1 August, by area: Reporting 312 cases (Export totals 190, Scheduled sends 122), Billing 148 (Invoice PDFs 96, Proration 52), Onboarding 74, Integrations 39, Mobile 21. Reporting and its export-totals sub-area are the worst and getting worse; billing is merely elevated and flat. Onboarding complaints are falling. Show the topography proportionally so they can see which area carries the weight, and let them drill into an area."
 	}
 ]
