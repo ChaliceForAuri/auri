@@ -33,11 +33,21 @@ export function formatMetricValue(value: unknown, unit: unknown): string {
 }
 
 export function formatWindow(start: unknown, end: unknown): string {
-	if (typeof start !== 'string' || typeof end !== 'string') return '';
-	const s = new Date(start);
-	const e = new Date(end);
-	if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime())) return '';
-	return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).formatRange(s, e);
+	const day = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+	const parse = (v: unknown) => {
+		if (typeof v !== 'string') return null;
+		const d = new Date(v);
+		return Number.isNaN(d.getTime()) ? null : d;
+	};
+
+	const s = parse(start);
+	const e = parse(end);
+	if (s && e) return day.formatRange(s, e);
+	// An open-ended window is a real thing an agent sends ("since 1 August").
+	// Dropping it silently would lose a period the model deliberately supplied.
+	if (s) return `since ${day.format(s)}`;
+	if (e) return `until ${day.format(e)}`;
+	return '';
 }
 
 /**

@@ -16,6 +16,37 @@ message = one scenario from `emission-scenarios.json`, nothing else. OpenAI thro
 harness (`npm run eval` here); Claude as fresh sessions. All emissions validated by the same
 `createValidator` the contract tests use.
 
+## Round — 2026-08-31, Treemap (#47)
+
+Requested by Hyphen RIE for the Product Friction Topography report: area-encoded structure, where
+ClusterMap answers the entity-first question. Two model-driven contract fixes, both found cold,
+before any Svelte existed:
+
+- **`trend` was missing.** Claude flagged that `intent` alone cannot separate _bad and worsening_
+  from _bad and stable_; GPT proved the same gap by smuggling "worsening" into the **title text**.
+  The requesting issue had asked for "color encoding trend" and the first draft dropped it.
+  `trend` (`up`/`down`/`flat`) is now an axis independent of `intent`, on both nesting levels —
+  matching InsightCard, where the two axes were already separate.
+- **`windowStart`/`windowEnd` were missing.** With nowhere structured for "since 1 August", the
+  period landed in `label` prose — colliding with rule 7 (raw values on the wire, the host
+  formats). InsightCard already had both, and `formatWindow` already existed. GPT corroborated
+  independently by stuffing `windowStart` into its action context.
+- The pack also gained an **omit-don't-invent** rule (an unstated `intent` is not `"neutral"`) and
+  a line on what a drill does next — both from questions the cold runs raised.
+
+Gate on the final pack: **GPT-5.6 (harness) PASS**, **Claude Fable PASS**, **Claude Sonnet PASS** —
+all cold, all using both new axes correctly, none baking the period into prose.
+
+Implementation findings, from the screenshot habit rather than the tests (all of which were green):
+the intent tokens are `--auri-intent-bad-container`, not `--auri-intent-container-bad`, so every
+cell silently fell back to grey; and a parent's value line collided with its children's labels.
+
+_Owed:_ the full 7-scenario GPT regression sweep. `api.openai.com` became unreachable from the work
+machine mid-session (`fetch failed` on every call; the harness correctly refused to score it rather
+than reporting 0/7). The pack diff is one hunk of 37 pure insertions inside the new Treemap
+section — no other component's teaching text changed by a byte — so cross-component risk is bounded,
+but run `npm run eval` before the next release.
+
 ## Round — 2026-08-28, the 0.7.0 re-gate (de-domaining + v1.0 conformance)
 
 **GATE PASSED: 6/6 scenarios, first cold attempt, zero errors**, on the pack that changed most —

@@ -292,6 +292,90 @@
 			},
 			"required": ["label", "clusters"]
 		},
+		"Treemap": {
+			"type": "object",
+			"description": "Area-encoded topography: which parts of a structure carry the weight, proportionally. Answers 'which area is worst' where ClusterMap answers 'who is affected and why'.",
+			"properties": {
+				"component": { "const": "Treemap" },
+				"label": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DynamicString",
+					"description": "Title and accessible name, e.g. 'Support volume by product area'. Required."
+				},
+				"valueLabel": {
+					"type": "string",
+					"description": "What the area means, e.g. 'cases' or 'ARR at risk'. Required — an area encoding with no stated unit cannot be read."
+				},
+				"subjectKind": {
+					"type": "string",
+					"description": "What one rectangle is, in your domain's words, e.g. 'product_area'. Default 'area'; merged into itemAction context with the item's id."
+				},
+				"windowStart": {
+					"type": "string",
+					"description": "ISO 8601 start of the observation window. The renderer formats it in the host locale — keep the period out of the label prose."
+				},
+				"windowEnd": { "type": "string", "description": "ISO 8601 end of the observation window." },
+				"items": {
+					"oneOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": { "type": "string" },
+									"label": {
+										"type": "string",
+										"description": "Short name of the area, e.g. 'Reporting'."
+									},
+									"value": {
+										"type": "number",
+										"description": "What the area encodes. Raw number in the units of valueLabel. When children are present this should be their total; if it disagrees, the children win and this is ignored."
+									},
+									"intent": { "enum": ["good", "bad", "warning", "info", "neutral"] },
+									"trend": {
+										"enum": ["up", "down", "flat"],
+										"description": "Direction of the underlying signal — describes, never judges. Independent of intent: volume rising is 'up' and usually 'bad'; the same rise in revenue is 'up' and 'good'. Without it, a worsening area and a merely large one look identical."
+									},
+									"children": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": { "type": "string" },
+												"label": {
+													"type": "string",
+													"description": "Short name, e.g. 'Export totals'."
+												},
+												"value": {
+													"type": "number",
+													"description": "What the area encodes. Raw number in the units of valueLabel — never a formatted string."
+												},
+												"intent": { "enum": ["good", "bad", "warning", "info", "neutral"] },
+												"trend": {
+													"enum": ["up", "down", "flat"],
+													"description": "Direction of the underlying signal — describes, never judges. Independent of intent: volume rising is 'up' and usually 'bad'; the same rise in revenue is 'up' and 'good'. Without it, a worsening area and a merely large one look identical."
+												}
+											},
+											"required": ["id", "label", "value"],
+											"additionalProperties": false
+										},
+										"description": "One level of nesting, and only one — an area's parts. Deeper trees are not expressible: past two levels the rectangles are too small to label honestly."
+									}
+								},
+								"required": ["id", "label", "value"],
+								"additionalProperties": false
+							}
+						},
+						{ "$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/DataBinding" }
+					],
+					"description": "The areas, sized by value. Order does not matter — the layout sorts by value. Bind with {\"path\": ...} to stream."
+				},
+				"itemAction": {
+					"$ref": "https://a2ui.org/specification/v1_0/common_types.json#/$defs/Action",
+					"description": "Fired on rectangle activation. subjectKind, subjectId (the item's id), itemLabel, and — for a child — parentId are merged into its context automatically."
+				}
+			},
+			"required": ["label", "valueLabel", "items"]
+		},
 		"DrillStack": {
 			"type": "object",
 			"properties": {
@@ -335,6 +419,7 @@
 				{ "$ref": "#/components/SourceAudit" },
 				{ "$ref": "#/components/VelocityScatter" },
 				{ "$ref": "#/components/ClusterMap" },
+				{ "$ref": "#/components/Treemap" },
 				{ "$ref": "#/components/DrillStack" }
 			],
 			"discriminator": { "propertyName": "component" }

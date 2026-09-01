@@ -170,6 +170,43 @@ Cluster shape — `id`, `label`, `size` (raw count), `reason` required:
 {"id":"riskmap","component":"ClusterMap","label":"Accounts at risk, by reason","clusters":{"path":"/clusters"},"clusterAction":{"event":{"name":"cluster_drilled","context":{"view":"accounts"}}}}
 ```
 
+### Treemap — which parts carry the weight
+
+Area-encoded topography. Answers _which part of the product hurts, proportionally_ — where
+ClusterMap answers _who is affected, and why_. Reach for it when the question is about structure
+rather than entities, or when there are too many groups for cards to stay readable.
+
+| prop          | type                           | notes                                                       |
+| ------------- | ------------------------------ | ----------------------------------------------------------- |
+| `label`       | string, required               | title and accessible name                                   |
+| `valueLabel`  | string, required               | what the area means — `"cases"`, `"ARR at risk"`            |
+| `items`       | item[] \| `{"path"}`, required | shape below                                                 |
+| `subjectKind` | string                         | what one rectangle is; default `"area"`                     |
+| `windowStart` | ISO 8601 string                | observation window — keep the period out of the label prose |
+| `windowEnd`   | ISO 8601 string                | ditto; the renderer formats both in the host locale         |
+| `itemAction`  | action                         | subject + `itemLabel` (+ `parentId` for a child) merged in  |
+
+Item shape — `id`, `label`, `value` required. `value` is a raw number in the units of
+`valueLabel`, never a formatted string. `children` gives **one** level of nesting and only one; a
+parent's `value` should equal its children's total.
+
+`intent` and `trend` are independent axes, and an area that is _getting worse_ needs both — put
+the direction in `trend`, not in the title text. `intent` says how bad it is now; `trend` says
+which way it is moving (`up` / `down` / `flat`, describing the value, never judging it). Omit
+either one when you weren't told: an unstated intent is not `"neutral"`, and an unstated direction
+is not `"flat"` — inventing one puts a claim on screen that nobody made.
+
+```
+{"id":"reporting","label":"Reporting","value":312,"intent":"bad","trend":"up","children":[{"id":"export-totals","label":"Export totals","value":190,"intent":"bad","trend":"up"},{"id":"scheduling","label":"Scheduled sends","value":122,"trend":"flat"}]}
+```
+
+```
+{"id":"friction","component":"Treemap","label":"Support volume by product area","valueLabel":"cases","subjectKind":"product_area","windowStart":"2026-08-01T00:00:00Z","items":{"path":"/areas"},"itemAction":{"event":{"name":"area_drilled","context":{"view":"cases"}}}}
+```
+
+Drilling fires the event and nothing else — what happens next is your next turn. Push a
+`DrillStack` level by writing its `activeIndex`, or send the components for the deeper view.
+
 ### DrillStack — four depths on one page
 
 The container that keeps surface → synthesis → impact → source in one place. Levels name

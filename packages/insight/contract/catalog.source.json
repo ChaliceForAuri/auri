@@ -3,9 +3,9 @@
 	"$id": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
 	"protocolVersion": "v1.0",
 	"title": "auri insight",
-	"description": "The auri insight catalog for A2UI: presenting a finding and reaching its evidence — insight cards, drill paths from aggregate to source, cluster and velocity pictures, and source audit with transcript. Domain-neutral: what a finding is ABOUT travels as data, never as a schema enum. Component contracts are renderer-agnostic; see prompt.md for the agent-facing pack.",
+	"description": "The auri insight catalog for A2UI: presenting a finding and reaching its evidence \u2014 insight cards, drill paths from aggregate to source, cluster and velocity pictures, and source audit with transcript. Domain-neutral: what a finding is ABOUT travels as data, never as a schema enum. Component contracts are renderer-agnostic; see prompt.md for the agent-facing pack.",
 	"catalogId": "https://chaliceforauri.github.io/auri/catalogs/insight/v1.json",
-	"instructions": "Rules for emitting this catalog. 1) Every drillable element carries `subjectKind` + `subjectId` — the renderer merges them into drill and feedback action contexts automatically; never duplicate them into context yourself. `subjectKind` and `signalType` are FREE STRINGS in your own domain's words, not a fixed list. 2) `confidence` is a raw number 0..1; the renderer shows a qualitative band — never emit a percentage or a string. 3) Raw values on the wire: ISO 8601 windows, raw counts, raw amounts. Supporting figures go in `metrics` as {label, value, unit?, intent?} — `unit` takes an ISO 4217 code for money. Never pre-format a number or a date. 4) Feedback must visibly change something: bind a path the feedback action writes, so accepting or dismissing a finding is observable. Feedback that changes nothing teaches users their input is decorative.",
+	"instructions": "Rules for emitting this catalog. 1) Every drillable element carries `subjectKind` + `subjectId` \u2014 the renderer merges them into drill and feedback action contexts automatically; never duplicate them into context yourself. `subjectKind` and `signalType` are FREE STRINGS in your own domain's words, not a fixed list. 2) `confidence` is a raw number 0..1; the renderer shows a qualitative band \u2014 never emit a percentage or a string. 3) Raw values on the wire: ISO 8601 windows, raw counts, raw amounts. Supporting figures go in `metrics` as {label, value, unit?, intent?} \u2014 `unit` takes an ISO 4217 code for money. Never pre-format a number or a date. 4) Feedback must visibly change something: bind a path the feedback action writes, so accepting or dismissing a finding is observable. Feedback that changes nothing teaches users their input is decorative.",
 	"components": {
 		"InsightCard": {
 			"type": "object",
@@ -21,11 +21,11 @@
 						},
 						"headline": {
 							"$ref": "#/$defs/dynamicString",
-							"description": "The claim, in one sentence. Required — it is the card's accessible name. The card reserves two lines for it, so write for two lines at most."
+							"description": "The claim, in one sentence. Required \u2014 it is the card's accessible name. The card reserves two lines for it, so write for two lines at most."
 						},
 						"subjectKind": {
 							"$ref": "#/$defs/subjectKind",
-							"description": "What kind of thing this insight is about. Required — it is merged into drill and feedback contexts."
+							"description": "What kind of thing this insight is about. Required \u2014 it is merged into drill and feedback contexts."
 						},
 						"subjectId": {
 							"type": "string",
@@ -37,7 +37,7 @@
 						},
 						"signalType": {
 							"type": "string",
-							"description": "What kind of signal this is, in YOUR domain's words — \"churn_risk\", \"outage\", \"policy_drift\", \"fraud_pattern\". Free text on purpose; a closed list would be one product's taxonomy. Keep the strings stable across a surface so they group and filter."
+							"description": "What kind of signal this is, in YOUR domain's words \u2014 \"churn_risk\", \"outage\", \"policy_drift\", \"fraud_pattern\". Free text on purpose; a closed list would be one product's taxonomy. Keep the strings stable across a surface so they group and filter."
 						},
 						"intent": {
 							"$ref": "#/$defs/dynamicIntent",
@@ -45,7 +45,7 @@
 						},
 						"trend": {
 							"enum": ["up", "down", "flat"],
-							"description": "Direction of the underlying signal — describes, never judges."
+							"description": "Direction of the underlying signal \u2014 describes, never judges."
 						},
 						"metrics": {
 							"oneOf": [
@@ -59,7 +59,7 @@
 									"$ref": "#/$defs/pathRef"
 								}
 							],
-							"description": "The figures behind the claim, as {label, value, unit?, intent?}. As many as the finding needs — an empty array collapses the row. Raw numbers only; the renderer formats them."
+							"description": "The figures behind the claim, as {label, value, unit?, intent?}. As many as the finding needs \u2014 an empty array collapses the row. Raw numbers only; the renderer formats them."
 						},
 						"windowStart": {
 							"type": "string",
@@ -73,7 +73,7 @@
 							"type": "number",
 							"minimum": 0,
 							"maximum": 1,
-							"description": "Raw 0..1. Rendered as a qualitative band (low / medium / high) — a model emitting 0.87 claims precision it doesn't have, so the renderer never shows the number."
+							"description": "Raw 0..1. Rendered as a qualitative band (low / medium / high) \u2014 a model emitting 0.87 claims precision it doesn't have, so the renderer never shows the number."
 						},
 						"tags": {
 							"oneOf": [
@@ -120,7 +120,7 @@
 						},
 						"label": {
 							"$ref": "#/$defs/dynamicString",
-							"description": "What this recording is, e.g. 'Support call — Acme Corp, 14 Aug'. Required — the accessible name."
+							"description": "What this recording is, e.g. 'Support call \u2014 Acme Corp, 14 Aug'. Required \u2014 the accessible name."
 						},
 						"mediaUrl": {
 							"type": "string",
@@ -136,7 +136,7 @@
 						},
 						"durationSeconds": {
 							"type": "number",
-							"description": "Raw duration. Supplying it lets the player reserve its scrubber layout before media metadata arrives — zero CLS."
+							"description": "Raw duration. Supplying it lets the player reserve its scrubber layout before media metadata arrives \u2014 zero CLS."
 						},
 						"captionsUrl": {
 							"type": "string",
@@ -154,7 +154,7 @@
 									"$ref": "#/$defs/pathRef"
 								}
 							],
-							"description": "Time-synced lines. Bind with {\"path\": ...} — transcription runs async, so an empty transcript is a common, designed state ('transcript still processing'), not an error."
+							"description": "Time-synced lines. Bind with {\"path\": ...} \u2014 transcription runs async, so an empty transcript is a common, designed state ('transcript still processing'), not an error."
 						},
 						"seekAction": {
 							"$ref": "#/$defs/action",
@@ -183,7 +183,7 @@
 						},
 						"xLabel": {
 							"type": "string",
-							"description": "X axis meaning, e.g. 'Support volume'. Required — an unlabelled axis is unreadable."
+							"description": "X axis meaning, e.g. 'Support volume'. Required \u2014 an unlabelled axis is unreadable."
 						},
 						"yLabel": {
 							"type": "string",
@@ -245,7 +245,7 @@
 									"$ref": "#/$defs/pathRef"
 								}
 							],
-							"description": "Groups of accounts that share a risk reason. The reason is the point — it is what makes the group actionable."
+							"description": "Groups of accounts that share a risk reason. The reason is the point \u2014 it is what makes the group actionable."
 						},
 						"clusterAction": {
 							"$ref": "#/$defs/action",
@@ -255,6 +255,63 @@
 					"required": ["label", "clusters"]
 				}
 			]
+		},
+		"Treemap": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/$defs/componentCommon"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"component": {
+							"const": "Treemap"
+						},
+						"label": {
+							"$ref": "#/$defs/dynamicString",
+							"description": "Title and accessible name, e.g. 'Support volume by product area'. Required."
+						},
+						"valueLabel": {
+							"type": "string",
+							"description": "What the area means, e.g. 'cases' or 'ARR at risk'. Required \u2014 an area encoding with no stated unit cannot be read."
+						},
+						"subjectKind": {
+							"type": "string",
+							"description": "What one rectangle is, in your domain's words, e.g. 'product_area'. Default 'area'; merged into itemAction context with the item's id."
+						},
+						"windowStart": {
+							"type": "string",
+							"description": "ISO 8601 start of the observation window. The renderer formats it in the host locale \u2014 keep the period out of the label prose."
+						},
+						"windowEnd": {
+							"type": "string",
+							"description": "ISO 8601 end of the observation window."
+						},
+						"items": {
+							"oneOf": [
+								{
+									"type": "array",
+									"items": {
+										"$ref": "#/$defs/treemapItem"
+									}
+								},
+								{
+									"$ref": "#/$defs/pathRef"
+								}
+							],
+							"description": "The areas, sized by value. Order does not matter \u2014 the layout sorts by value. Bind with {\"path\": ...} to stream."
+						},
+						"itemAction": {
+							"$ref": "#/$defs/action",
+							"description": "Fired on rectangle activation. subjectKind, subjectId (the item's id), itemLabel, and \u2014 for a child \u2014 parentId are merged into its context automatically."
+						}
+					},
+					"required": ["label", "valueLabel", "items"],
+					"additionalProperties": false
+				}
+			],
+			"description": "Area-encoded topography: which parts of a structure carry the weight, proportionally. Answers 'which area is worst' where ClusterMap answers 'who is affected and why'."
 		},
 		"DrillStack": {
 			"type": "object",
@@ -278,7 +335,7 @@
 						},
 						"activeIndex": {
 							"$ref": "#/$defs/pathRef",
-							"description": "Data binding for the visible depth, always {\"path\": ...}. Push a level by writing the index with updateDataModel — never by re-sending the stack. Required."
+							"description": "Data binding for the visible depth, always {\"path\": ...}. Push a level by writing the index with updateDataModel \u2014 never by re-sending the stack. Required."
 						},
 						"dismissAction": {
 							"$ref": "#/$defs/action",
@@ -394,7 +451,7 @@
 		},
 		"subjectKind": {
 			"type": "string",
-			"description": "What kind of thing this is about, in YOUR domain's words — \"account\", \"cluster\", \"vendor\", \"policy\", \"cohort\". Free text on purpose: a closed list here would be one product's entity model imposed on everyone else. Reuse the same string for the same kind across a surface, since it is merged into drill and feedback contexts."
+			"description": "What kind of thing this is about, in YOUR domain's words \u2014 \"account\", \"cluster\", \"vendor\", \"policy\", \"cohort\". Free text on purpose: a closed list here would be one product's entity model imposed on everyone else. Reuse the same string for the same kind across a surface, since it is merged into drill and feedback contexts."
 		},
 		"transcriptLine": {
 			"type": "object",
@@ -423,7 +480,7 @@
 				},
 				"label": {
 					"type": "string",
-					"description": "Human name, e.g. 'Acme Corp'. Required — points are read aloud, not just plotted."
+					"description": "Human name, e.g. 'Acme Corp'. Required \u2014 points are read aloud, not just plotted."
 				},
 				"x": {
 					"type": "number"
@@ -469,10 +526,67 @@
 				},
 				"reason": {
 					"type": "string",
-					"description": "The shared risk reason, written for humans — the thing that makes the group actionable. Required."
+					"description": "The shared risk reason, written for humans \u2014 the thing that makes the group actionable. Required."
 				}
 			},
 			"required": ["id", "label", "size", "reason"],
+			"additionalProperties": false
+		},
+		"treemapLeaf": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"label": {
+					"type": "string",
+					"description": "Short name, e.g. 'Export totals'."
+				},
+				"value": {
+					"type": "number",
+					"description": "What the area encodes. Raw number in the units of valueLabel \u2014 never a formatted string."
+				},
+				"intent": {
+					"$ref": "#/$defs/intent"
+				},
+				"trend": {
+					"enum": ["up", "down", "flat"],
+					"description": "Direction of the underlying signal \u2014 describes, never judges. Independent of intent: volume rising is 'up' and usually 'bad'; the same rise in revenue is 'up' and 'good'. Without it, a worsening area and a merely large one look identical."
+				}
+			},
+			"required": ["id", "label", "value"],
+			"additionalProperties": false
+		},
+		"treemapItem": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"label": {
+					"type": "string",
+					"description": "Short name of the area, e.g. 'Reporting'."
+				},
+				"value": {
+					"type": "number",
+					"description": "What the area encodes. Raw number in the units of valueLabel. When children are present this should be their total; if it disagrees, the children win and this is ignored."
+				},
+				"intent": {
+					"$ref": "#/$defs/intent"
+				},
+				"trend": {
+					"enum": ["up", "down", "flat"],
+					"description": "Direction of the underlying signal \u2014 describes, never judges. Independent of intent: volume rising is 'up' and usually 'bad'; the same rise in revenue is 'up' and 'good'. Without it, a worsening area and a merely large one look identical."
+				},
+				"children": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/treemapLeaf"
+					},
+					"description": "One level of nesting, and only one \u2014 an area's parts. Deeper trees are not expressible: past two levels the rectangles are too small to label honestly."
+				}
+			},
+			"required": ["id", "label", "value"],
 			"additionalProperties": false
 		},
 		"drillLevel": {
@@ -585,7 +699,7 @@
 		},
 		"metric": {
 			"type": "object",
-			"description": "One figure supporting the finding. Raw values only — the renderer formats in the host locale.",
+			"description": "One figure supporting the finding. Raw values only \u2014 the renderer formats in the host locale.",
 			"properties": {
 				"label": {
 					"type": "string",
@@ -601,12 +715,12 @@
 				},
 				"intent": {
 					"$ref": "#/$defs/intent",
-					"description": "Optional per-figure intent — this is why one array beats fixed props: each figure carries its own reading."
+					"description": "Optional per-figure intent \u2014 this is why one array beats fixed props: each figure carries its own reading."
 				}
 			},
 			"required": ["label", "value"],
 			"additionalProperties": false
 		}
 	},
-	"$comment": "AUTHORED SOURCE — compiled to catalog.json by @aurilabs/core's build-catalog. Helpers live in $defs for readability; the compiler inlines them (v1.0 catalog rule 2) and rewrites protocol primitives to common_types.json refs (rule 3), but only after checking each local def is structurally identical to the spec type it claims to be. Edit this file, never catalog.json."
+	"$comment": "AUTHORED SOURCE \u2014 compiled to catalog.json by @aurilabs/core's build-catalog. Helpers live in $defs for readability; the compiler inlines them (v1.0 catalog rule 2) and rewrites protocol primitives to common_types.json refs (rule 3), but only after checking each local def is structurally identical to the spec type it claims to be. Edit this file, never catalog.json."
 }

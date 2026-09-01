@@ -59,12 +59,13 @@ const MARKERS: Record<string, string> = {
 	'source-audit': 'Support call — Acme Corp',
 	'velocity-scatter': 'Account health velocity',
 	'cluster-map': 'SSO friction',
-	'drill-stack': 'Affected accounts'
+	'drill-stack': 'Affected accounts',
+	treemap: 'Reporting'
 };
 
 test('every contract fixture replays into a live surface', async () => {
 	const names = Object.keys(fixtures);
-	expect(names).toHaveLength(5);
+	expect(names).toHaveLength(Object.keys(MARKERS).length);
 	for (const file of names) {
 		const stem = file.split('/').pop()!.replace('.jsonl', '');
 		const client = makeClient();
