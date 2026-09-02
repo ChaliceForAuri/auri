@@ -119,6 +119,50 @@ test('InsightCard renders band + money, and merges subject into drill', async ()
 	expect(actions[0]!.context.source).toBe('feed');
 });
 
+test('a column of points renders at its true position, with readable labels', async () => {
+	/*
+	 * The #55 shape: every baseline (x) identical, y spread — a quiet workspace
+	 * that suddenly gets traffic. Two failures were reported together, and they
+	 * share a cause: with no x-spread the scale had nothing to work with.
+	 */
+	const client = makeClient();
+	const screen = await render(Surface, { props: { client, catalog, surfaceId: SURFACE } });
+	boot(client, [
+		{
+			id: 'root',
+			component: 'VelocityScatter',
+			label: 'Account velocity',
+			xLabel: 'Baseline cases/hr',
+			yLabel: 'Recent cases',
+			points: [
+				{ id: 'a', label: 'Cluster of 14 recent cases', x: 0, y: 14, dx: 0, dy: 3 },
+				{ id: 'b', label: 'Cluster of 12 recent cases', x: 0, y: 12, dx: 0, dy: 2 },
+				{ id: 'c', label: 'Cluster of 5 recent cases', x: 0, y: 5, dx: 0, dy: 1 }
+			]
+		} as never
+	]);
+
+	await expect.element(screen.getByText('Account velocity')).toBeInTheDocument();
+
+	const svg = screen.container.querySelector('svg')!;
+	const dots = [...svg.querySelectorAll('circle')].filter((c) => c.getAttribute('cx'));
+	const plotLeft = 52; // M.left
+
+	// Every dot sits at the axis origin, not floating mid-plot: a baseline of
+	// zero must not be drawn where "mid-scale" would be.
+	for (const dot of dots) {
+		expect(Number(dot.getAttribute('cx'))).toBeCloseTo(plotLeft, 0);
+	}
+
+	// And the stacked labels clear each other.
+	const ys = [...svg.querySelectorAll('text.dot-label')]
+		.map((t) => Number(t.getAttribute('y')))
+		.sort((a, b) => a - b);
+	for (let i = 1; i < ys.length; i++) {
+		expect(ys[i]! - ys[i - 1]!).toBeGreaterThanOrEqual(12);
+	}
+});
+
 test('a metric whose binding has not resolved shows a placeholder, not nothing', async () => {
 	/*
 	 * Bindings resolve after the component arrives, so a metric bound to a path
