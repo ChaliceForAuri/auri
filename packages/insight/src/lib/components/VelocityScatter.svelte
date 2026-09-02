@@ -2,6 +2,7 @@
 	import { getRenderContext } from 'svelte-a2ui';
 	import type { Action, ComponentSpec, Scope } from 'svelte-a2ui';
 	import { withSubject } from '../subject.js';
+	import { domain } from '../scatter.js';
 	import { describeVector, formatCount, normalizeIntent } from '../format.js';
 
 	interface Point {
@@ -60,12 +61,6 @@
 	const plotW = W - M.left - M.right;
 	const plotH = H - M.top - M.bottom;
 
-	function domain(values: number[]): [number, number] {
-		const lo = Math.min(...values);
-		const hi = Math.max(...values);
-		const pad = (hi - lo || 1) * 0.15;
-		return [lo - pad, hi + pad];
-	}
 	const xDom = $derived(
 		raw && raw.length > 0 ? domain(raw.flatMap((p) => [p.x, p.x + p.dx])) : [0, 1]
 	);
@@ -98,6 +93,46 @@
 			`largest: ${largest.label}; ` +
 			`fastest mover: ${fastest.label}, ${describeVector(fastest.dx, fastest.dy, xl, yl)}`
 		);
+	});
+
+	/*
+	 * Labels sit above their dot, which collides as soon as two points share an
+	 * x — exactly what a degenerate domain produces. Resolve by walking from the
+	 * bottom up and lifting each label clear of the one below it, but only when
+	 * they actually overlap horizontally: points spread across the plot keep
+	 * their natural position. Lifting (rather than pushing down) keeps a label
+	 * away from its own dot, which is the direction it already sits.
+	 */
+	const LABEL_GAP = 13;
+	const LABEL_HALF_WIDTH = 52;
+
+	const labelAt = $derived.by(() => {
+		const placed = new Map<string, { x: number; y: number }>();
+		if (!ordered) return placed;
+
+		const natural = ordered.map((p) => ({
+			id: p.id,
+			x: sx(p.x),
+			y: sy(p.y) - r(p) - 5
+		}));
+		// Bottom-most first: it keeps its natural spot and everything above
+		// stacks off it deterministically.
+		const bottomUp = [...natural].sort((a, b) => b.y - a.y);
+		const done: { x: number; y: number }[] = [];
+
+		for (const label of bottomUp) {
+			let y = label.y;
+			for (const other of done) {
+				if (Math.abs(other.x - label.x) < LABEL_HALF_WIDTH * 2 && y > other.y - LABEL_GAP) {
+					y = other.y - LABEL_GAP;
+				}
+			}
+			// Never climb out of the plot; a clipped label is worse than a tight one.
+			y = Math.max(y, M.top + 9);
+			done.push({ x: label.x, y });
+			placed.set(label.id, { x: label.x, y });
+		}
+		return placed;
 	});
 
 	const interactive = $derived(Boolean(pointAction) && typeof pointAction === 'object');
@@ -223,8 +258,11 @@
 					{#if cursor === i}
 						<circle class="cursor-ring" cx={sx(p.x)} cy={sy(p.y)} r={r(p) + 4} />
 					{/if}
-					<text class="dot-label" x={sx(p.x)} y={sy(p.y) - r(p) - 5} text-anchor="middle"
-						>{p.label}</text
+					<text
+						class="dot-label"
+						x={labelAt.get(p.id)?.x ?? sx(p.x)}
+						y={labelAt.get(p.id)?.y ?? sy(p.y) - r(p) - 5}
+						text-anchor="middle">{p.label}</text
 					>
 				</g>
 			{/each}
